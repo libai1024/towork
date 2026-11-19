@@ -134,9 +134,24 @@ void main() {
       await tester.tap(find.text('添加步骤'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey('step-input')), '核对发票');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
+      final firstInput = tester.state<EditableTextState>(
+        find.descendant(
+          of: find.byKey(const ValueKey('step-input')),
+          matching: find.byType(EditableText),
+        ),
+      );
+      await tester.tap(find.byTooltip('保存步骤'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const ValueKey('step-input')), '提交');
+      final secondInput = tester.state<EditableTextState>(
+        find.descendant(
+          of: find.byKey(const ValueKey('step-input')),
+          matching: find.byType(EditableText),
+        ),
+      );
+      expect(secondInput, same(firstInput));
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      tester.testTextInput.enterText('提交');
+      await tester.pump();
 
       await tester.pump();
       await tester.tap(find.byTooltip('创建'));

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:towork/app/engine_sync.dart';
 import 'package:towork/data/local/agent_run_store.dart';
 import 'package:towork/data/local/app_database.dart';
@@ -97,6 +98,27 @@ void main() {
       expectedRevision: run.revision,
     );
   }
+
+  test('migration yields to a peer holding the initial write lock', () async {
+    final peer = sqlite.sqlite3.open(file.path);
+    try {
+      peer.execute('PRAGMA journal_mode=WAL');
+      peer.execute('BEGIN IMMEDIATE');
+      final opening = db.customSelect('PRAGMA user_version').getSingle();
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+      peer.execute('COMMIT');
+      expect((await opening).read<int>('user_version'), 13);
+      expect(
+        (await db.customSelect('PRAGMA busy_timeout').getSingle())
+            .data
+            .values
+            .single,
+        5000,
+      );
+    } finally {
+      peer.close();
+    }
+  });
 
   test('两个引擎同时首次建库、创建身份和偏好均成功且只有一份', () async {
     await Future.wait([

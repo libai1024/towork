@@ -30,7 +30,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
   bool _organizing = false;
   String? _target, _original;
   bool _adding = false;
-  Future<bool>? _write;
+  Future<bool>? _write, _savingText;
 
   @override
   void dispose() {
@@ -55,6 +55,17 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
   }
 
   Future<bool> flush({bool another = false}) async {
+    final pending = _savingText;
+    if (pending != null) {
+      if (!await pending || !mounted) return false;
+      return flush(another: another);
+    }
+    return _savingText = _flushText(another).whenComplete(() {
+      _savingText = null;
+    });
+  }
+
+  Future<bool> _flushText(bool another) async {
     final pending = _write;
     if (pending != null && !await pending) return false;
     if (!mounted || _target == null) return true;
@@ -80,16 +91,27 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
     final edit = _adding
         ? TodoStepEdit.add(target, title)
         : TodoStepEdit.rename(target, title);
-    if ((!_adding && title == _original) || await _submit(edit)) {
-      if (!mounted) return false;
-    } else {
-      return false;
+    if ((_adding || title != _original) && !await _submit(edit)) return false;
+    if (!mounted) return false;
+    final continuedTyping = title != _text.text.trim();
+    if (continuedTyping) {
+      setState(() {
+        if (_adding) {
+          _target = newWorkspaceId('step');
+        } else {
+          _original = title;
+        }
+      });
+      return another || await _flushText(false);
     }
-    setState(() {
-      _target = null;
-      _text.clear();
-    });
-    if (another && _adding) _open();
+    if (another && _adding) {
+      _open();
+    } else {
+      setState(() {
+        _target = null;
+        _text.clear();
+      });
+    }
     return true;
   }
 
@@ -122,13 +144,15 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
   Widget _input() {
     final c = AppColors.of(context);
     return Row(
+      // Keep the native text input connection when the header and numbered
+      // rows are inserted before the composer after its first submission.
+      key: ValueKey(_adding ? 'step-add-composer' : 'step-rename-composer'),
       children: [
         Expanded(
           child: TextField(
             key: const ValueKey('step-input'),
             controller: _text,
             focusNode: _focus,
-            readOnly: _write != null,
             style: AppTextStyles.footnote.copyWith(
               fontSize: 14,
               color: c.labelPrimary,
@@ -347,6 +371,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
         : null;
     return Semantics(
       key: ValueKey(step.id),
+      container: true,
       label: '第${index + 1}步，${step.title}${current ? '，下一步' : ''}',
       checked: step.done,
       enabled: editable,

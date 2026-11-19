@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
+import 'workspace_database_lock.dart';
+
 import '../../domain/ai/model_gateway.dart';
 import '../../domain/settings/model_settings.dart';
 import '../../domain/settings/local_profile.dart';
@@ -360,24 +362,7 @@ class AppDatabase extends _$AppDatabase
   factory AppDatabase.background(File file) => AppDatabase(
     NativeDatabase.createInBackground(
       file,
-      setup: (database) {
-        database.execute('PRAGMA busy_timeout = 5000');
-        // WAL 让前台与后台维护两个连接互不阻塞（读不阻塞写）。
-        // journal_mode 切换可能直接返回 SQLITE_BUSY，busy_timeout 对这一步
-        // 不保证等待。各后台 isolate 在有界时间内重试首次建库的竞争。
-        final deadline = DateTime.now().add(const Duration(seconds: 5));
-        while (true) {
-          try {
-            database.execute('PRAGMA journal_mode=WAL');
-            break;
-          } on SqliteException catch (error) {
-            if (error.resultCode != 5 || DateTime.now().isAfter(deadline)) {
-              rethrow;
-            }
-            sleep(const Duration(milliseconds: 25));
-          }
-        }
-      },
+      setup: configureWorkspaceConnection,
     ),
   );
   @override
@@ -391,7 +376,7 @@ class AppDatabase extends _$AppDatabase
   // 两个引擎可能同时发现旧版本。拿到 SQLite 写锁后重新读取版本，
   // 并把 schema 与 user_version 放在同一个事务内提交。
   Future<void> _migrate(Migrator m) async {
-    await customStatement('BEGIN IMMEDIATE');
+    await beginWorkspaceMigration(customStatement);
     try {
       final row = await customSelect('PRAGMA user_version').getSingle();
       final version = row.data.values.single as int;
