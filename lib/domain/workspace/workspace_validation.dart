@@ -1,3 +1,4 @@
+import '../models/todo_step.dart';
 import '../recurrence/recurrence_rule.dart';
 import '../recurrence/recurrence_schedule.dart';
 import '../data_tables/business_validation.dart';
@@ -55,6 +56,7 @@ const todoDefaults = <String, Object?>{
   'source_message_id': null,
   'source_model': null,
   'source_provider': null,
+  'steps': <Object?>[],
   'tags': <Object?>[],
   'sort_order': 0,
   'completed_at': null,
@@ -100,6 +102,14 @@ Map<String, Object?> applyWorkspacePatch(
       validateWorkspaceId(data['parent_id']! as String);
     }
   } else {
+    final steps = TodoStep.decode(data['steps']);
+    if (steps.isEmpty) {
+      data.remove(
+        'steps',
+      ); // Keep historical receipts and templates byte-compatible.
+    } else {
+      data['steps'] = [for (final s in steps) s.toJson()];
+    }
     data['title'] = _text(data['title'], 2000);
     if (data['note'] != null &&
         (data['note'] is! String ||

@@ -19,6 +19,7 @@ import '../widgets/app_inline_input.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'todo_field_row.dart';
+import 'todo_steps_editor.dart';
 import 'todo_utils.dart';
 import '../widgets/workspace_action_menu.dart';
 
@@ -43,6 +44,8 @@ class CreateTodoSheet extends ConsumerStatefulWidget {
 class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
   final _text = TextEditingController();
   final _note = TextEditingController();
+  final _stepsKey = GlobalKey<TodoStepsEditorState>();
+  List<TodoStep> _steps = [];
   final _noteFocus = FocusNode();
   final _reminderId = newWorkspaceId('reminder');
   TodoPriority _priority = TodoPriority.none;
@@ -65,6 +68,11 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
     final title = _text.text.trim();
     if (_saving || title.isEmpty) return;
     setState(() => _saving = true);
+    if (!await (_stepsKey.currentState?.flush() ?? Future.value(true)) ||
+        !mounted) {
+      if (mounted) setState(() => _saving = false);
+      return;
+    }
     final result = await workspaceUi(
       context,
       () => ref
@@ -75,6 +83,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
             dueAt: _dueAt,
             status: _status,
             priority: _priority,
+            steps: _steps,
             note: _note.text.trim().isEmpty ? null : _note.text.trim(),
             remindRules: [
               if (_dueAt != null && _remindMinutes != null)
@@ -171,6 +180,20 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
               hintStyle: AppTextStyles.body.copyWith(color: c.labelSecondary),
               padding: const EdgeInsets.symmetric(vertical: 8),
               constraints: const BoxConstraints(minHeight: 44),
+            ),
+          ),
+          AbsorbPointer(
+            absorbing: _saving,
+            child: TodoStepsEditor(
+              key: _stepsKey,
+              steps: _steps,
+              onEdit: (edit) async {
+                return await workspaceUi(context, () async {
+                      setState(() => _steps = edit.apply(_steps));
+                      return true;
+                    }) ??
+                    false;
+              },
             ),
           ),
           Divider(height: 1, thickness: .6, color: c.separator),

@@ -94,12 +94,21 @@ class AgentChangePreview extends ConsumerWidget {
       'due_at': '截止时间',
       'remind_rules': '提醒',
       'category_id': '分类',
+      'steps': '步骤',
       'tags': '标签',
       'completed_at': '完成时间',
       'repeat_rule': '重复规则',
       'repeat_timezone': '重复时区',
     };
     String show(Object? value, String key) {
+      if (key == 'steps') {
+        return (value as List? ?? const []).indexed
+            .map((pair) {
+              final step = pair.$2 as Map;
+              return '${pair.$1 + 1}. ${step['title']}${step['done'] == true ? ' ✓' : ''}';
+            })
+            .join('\n');
+      }
       if (key == 'repeat_rule') return repeatLabelOf(value as String?);
       if (key == 'remind_rules') return reminderRulesLabel(value);
       if (key == 'category_id' && value != null) {

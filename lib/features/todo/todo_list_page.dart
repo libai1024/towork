@@ -1,3 +1,5 @@
+import 'widgets/todo_option_menu_row.dart';
+import '../../core/todo/todo_step_actions.dart';
 import '../../core/todo/recurrence_action_sheet.dart';
 import 'widgets/recurrence_window_status.dart';
 import '../../app/routes.dart';
@@ -117,9 +119,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     super.dispose();
   }
 
-  // -------------------------------------------------------------------------
   // 数据派生
-  // -------------------------------------------------------------------------
 
   TodoQueries get _model => ref.read(todoViewModelProvider);
   AsyncTodoCommands get _commands => ref.read(asyncTodoCommandsProvider);
@@ -145,9 +145,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
 
   (String?, Color?) _categoryDisplay(Todo todo) => _model.categoryDisplay(todo);
 
-  // -------------------------------------------------------------------------
-
   Future<void> _toggleDone(Todo todo) async {
+    if (!await confirmRemainingSteps(context, [todo]) || !mounted) return;
     final mutation = await workspaceUi(
       context,
       () => _commands.toggleDone(todo.id),
@@ -215,7 +214,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (label, due) in options)
-            _OptionRow(
+            TodoOptionMenuRow(
               label: label,
               onTap: () async {
                 Navigator.of(context).pop();
@@ -263,6 +262,13 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
 
   // 批量操作
   Future<void> _batchDone(List<Todo> visible) async {
+    if (!await confirmRemainingSteps(
+          context,
+          visible.where((t) => _selectedIds.contains(t.id)),
+        ) ||
+        !mounted) {
+      return;
+    }
     final mutation = await workspaceUi(
       context,
       () => _commands.complete(_selectedVisibleIds(visible)),
@@ -292,18 +298,18 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _OptionRow(
+            TodoOptionMenuRow(
               label: '未分类',
               onTap: () => _applyBatchCategory(null, '未分类', visible),
             ),
             for (final root in roots) ...[
-              _OptionRow(
+              TodoOptionMenuRow(
                 dotColor: root.color,
                 label: root.name,
                 onTap: () => _applyBatchCategory(root.id, root.name, visible),
               ),
               for (final child in repo.childrenOf(root.id))
-                _OptionRow(
+                TodoOptionMenuRow(
                   dotColor: child.color,
                   label: child.name,
                   indent: 24,
@@ -357,7 +363,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (label, due) in options)
-            _OptionRow(
+            TodoOptionMenuRow(
               label: label,
               onTap: () async {
                 Navigator.of(context).pop();
@@ -456,9 +462,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     });
   }
 
-  // -------------------------------------------------------------------------
   // 构建
-  // -------------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -1158,7 +1162,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                   ('按截止', TodoGroupBy.due),
                   ('按优先级', TodoGroupBy.priority),
                 ])
-                  _OptionRow(
+                  TodoOptionMenuRow(
                     label: label,
                     selected: _groupBy == by,
                     onTap: () {
@@ -1193,7 +1197,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                   ),
                 ),
               ),
-              _OptionRow(
+              TodoOptionMenuRow(
                 icon: LucideIcons.folder,
                 label: '管理分类',
                 onTap: () {
@@ -1202,7 +1206,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 },
               ),
               if (_categoryFilterId != null)
-                _OptionRow(
+                TodoOptionMenuRow(
                   icon: LucideIcons.list,
                   label: '全部待办',
                   onTap: () {
@@ -1280,66 +1284,4 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
 /// 条目间内缩分割线占位类型。
 class _DividerEntry {
   const _DividerEntry();
-}
-
-/// 选项行（批量/改期/菜单 Sheet 用）。
-class _OptionRow extends StatelessWidget {
-  const _OptionRow({
-    this.icon,
-    this.dotColor,
-    required this.label,
-    this.selected = false,
-    this.indent = 0,
-    this.onTap,
-  });
-
-  final IconData? icon;
-  final Color? dotColor;
-  final String label;
-  final bool selected;
-  final double indent;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AppPressable(
-      onTap: onTap,
-
-      behavior: HitTestBehavior.opaque,
-      semanticLabel: label,
-      child: Container(
-        height: 48,
-        padding: EdgeInsets.only(left: 16 + indent, right: 16),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 20, color: c.labelSecondary),
-              const SizedBox(width: 12),
-            ],
-            if (dotColor != null) ...[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (selected) Icon(LucideIcons.check, size: 16, color: c.brand),
-          ],
-        ),
-      ),
-    );
-  }
 }

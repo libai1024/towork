@@ -10,6 +10,7 @@ class AppendTodo extends WorkspaceMutation {
     String? note,
     TodoPriority priority = TodoPriority.none,
     TodoStatus status = TodoStatus.pending,
+    List<TodoStep> steps = const [],
     List<RemindRule> remindRules = const [],
     DateTime? dueAt,
     String? categoryId,
@@ -24,7 +25,13 @@ class AppendTodo extends WorkspaceMutation {
            'title': title.trim(),
            'note': note,
            'priority': priority.name,
-           'status': status.name,
+           'status':
+               status != TodoStatus.cancelled &&
+                   steps.isNotEmpty &&
+                   steps.every((step) => step.done)
+               ? 'done'
+               : status.name,
+           if (steps.isNotEmpty) 'steps': [for (final s in steps) s.toJson()],
            'remind_rules': [
              for (final rule in remindRules)
                {

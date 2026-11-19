@@ -1,3 +1,5 @@
+import '../../../core/todo/todo_step_actions.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/workspace_actions.dart';
@@ -75,11 +77,16 @@ class ScheduleAgenda extends ConsumerWidget {
       now: data.now,
       plainCategory: true,
       categoryLabel: categories.byId(todo.categoryId)?.name,
-      onToggleDone: () => _mutate(
-        context,
-        () => model.toggleDone(todo.id),
-        todo.isActive ? '已完成' : '已恢复',
-      ),
+      onToggleDone: () async {
+        if (!await confirmRemainingSteps(context, [todo]) || !context.mounted) {
+          return;
+        }
+        await _mutate(
+          context,
+          () => model.toggleDone(todo.id),
+          todo.isActive ? '已完成' : '已恢复',
+        );
+      },
       onTap: () => showTodoDetailSheet(
         context,
         todo.id,

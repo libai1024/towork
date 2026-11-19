@@ -110,6 +110,7 @@ class TodoSummary extends StatelessWidget {
     final c = AppColors.of(context);
     final inactive = !todo.isActive;
     final hasMetadata =
+        todo.steps.isNotEmpty ||
         statusLabel != null ||
         todo.dueAt != null ||
         categoryLabel != null ||
@@ -146,6 +147,13 @@ class TodoSummary extends StatelessWidget {
               runSpacing: 3,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
+                if (todo.steps.isNotEmpty)
+                  Text(
+                    todo.stepProgress,
+                    style: AppTextStyles.caption.copyWith(
+                      color: c.labelSecondary,
+                    ),
+                  ),
                 if (statusLabel != null)
                   Semantics(
                     liveRegion: true,

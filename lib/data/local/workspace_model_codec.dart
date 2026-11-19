@@ -31,6 +31,7 @@ Map<String, Object?> todoWorkspaceData(Todo todo) => {
   if (todo.sourceProvider != null)
     'source_provider': todo.sourceProvider!.wireId,
   if (todo.sourceModel != null) 'source_model': todo.sourceModel,
+  'steps': [for (final step in todo.steps) step.toJson()],
   'tags': todo.tags,
   'sort_order': todo.sortOrder,
   'completed_at': todo.completedAt?.toUtc().toIso8601String(),
@@ -50,6 +51,7 @@ Todo workspaceTodo(WorkspaceEntity e) => Todo(
   version: e.version,
   title: e.data['title']! as String,
   note: e.data['note'] as String?,
+  steps: TodoStep.decode(e.data['steps'] ?? const []),
   status: TodoStatus.values.byName(e.data['status']! as String),
   priority: TodoPriority.values.byName(e.data['priority']! as String),
   dueAt: _date(e.data['due_at']),
