@@ -1,3 +1,5 @@
+import '../../agent/agent_tool_decision.dart';
+
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -9,7 +11,6 @@ import '../../agent/agent_tool_changes.dart';
 import '../../agent/recurrence_agent_tools.dart';
 import '../../domain/ai/agent_run.dart';
 import '../../domain/ai/model_gateway.dart';
-import '../../domain/ai/permission_policy.dart';
 import '../../domain/data_tables/business_queries.dart';
 import '../../domain/repositories/memory_persistence.dart';
 import '../../domain/settings/app_preferences.dart';
@@ -467,43 +468,9 @@ class SqliteAgentToolExecutor
     }
 
     checkCancelled();
-    final proposal = run.proposal;
-    if (proposal == null ||
-        !{
-          AgentRunStatus.ready,
-          AgentRunStatus.awaitingConfirmation,
-        }.contains(run.status)) {
-      throw const AgentFailure(AgentFailureCode.conflict);
-    }
-    final data = {...proposal}..remove('digest');
-    if (proposal['digest'] != TodoAgentTools.digest(data) ||
-        proposal['run_id'] != run.id ||
-        proposal['round'] != run.round) {
-      throw const AgentFailure(AgentFailureCode.invalid);
-    }
-    if (approval != null &&
-        (run.status != AgentRunStatus.awaitingConfirmation ||
-            approval.runRevision != run.revision ||
-            approval.proposalId != proposal['id'] ||
-            approval.digest != proposal['digest'])) {
-      throw const AgentFailure(AgentFailureCode.conflict);
-    }
-    final calls = (proposal['calls']! as List).cast<JsonObject>();
-    final callIds = calls.map((c) => c['tool_call_id']! as String).toSet();
-    final selected = approval?.selectedToolCallIds?.toSet() ?? callIds;
-    if (approval != null &&
-        (selected.isEmpty ||
-            selected.length !=
-                (approval.selectedToolCallIds?.length ?? callIds.length) ||
-            !callIds.containsAll(selected))) {
-      throw const AgentFailure(AgentFailureCode.invalid);
-    }
-    final decisionDigest = TodoAgentTools.digest({
-      'run': run.toJson(),
-      'approval': approval == null
-          ? null
-          : {'selected': selected.toList()..sort(), 'reject': approval.reject},
-    });
+    final decision = AgentToolDecision.forRun(run, approval);
+    final proposal = decision.proposal;
+    final decisionDigest = decision.digest;
     return db.transaction(() async {
       final store = SqliteAgentRunStore(db);
       if (requireCurrentConfiguration) {
@@ -546,26 +513,7 @@ class SqliteAgentToolExecutor
           run.status == AgentRunStatus.awaitingConfirmation) {
         return run;
       }
-      final executing = calls
-          .where(
-            (call) =>
-                call['operation'] == 'query' ||
-                (approval == null
-                    ? call['requires_review'] != true &&
-                          !BusinessAgentTools.writes.contains(call['name']) &&
-                          evaluatePermission(
-                                permission,
-                                AgentOperation.values.byName(
-                                  call['operation']! as String,
-                                ),
-                              ) ==
-                              PermissionDecision.execute
-                    : selected.contains(call['tool_call_id'])),
-          )
-          .toList();
-      final remaining = calls
-          .where((call) => !executing.contains(call))
-          .toList();
+      final (:executing, :remaining) = decision.select(permission);
       if (executing.isEmpty) {
         checkCancelled();
         return store.save(

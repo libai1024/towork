@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugDefaultTargetPlatformOverride;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:towork/data/platform/native_speech_input.dart';
 import 'package:towork/data/platform/offline_asr_model_store.dart';
@@ -312,6 +314,8 @@ void main() {
       final store = OfflineAsrModelStore(Dio(), root: dir, spec: _tiny);
       expect(store.isReady, isTrue);
 
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
       final offline = SherpaSpeechInput(
         store: store,
         recorderFactory: () async => _DenyRecorder(),

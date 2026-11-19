@@ -14,13 +14,20 @@ class AppleDistribution {
   static Future<bool> isTestFlight() async =>
       await _channel.invokeMethod<bool>('isTestFlight') ?? false;
 
-  static Future<void> authorize(ModelProfile profile) async {
-    if (!usesStoreDistribution) return;
-    final accepted = await _channel.invokeMethod<bool>('authorizeModel', {
-      'origin': profile.completionsUri.origin,
-      'provider': profile.descriptor.label,
-    });
-    if (accepted != true) throw const ModelFailure(ModelFailureCode.cancelled);
+  static Future<void> authorize(String origin, String provider) async {
+    Object? accepted;
+    try {
+      accepted = await _channel.invokeMethod<Object?>('authorizeModel', {
+        'origin': origin,
+        'provider': provider,
+      });
+    } on MissingPluginException {
+      throw const ModelFailure(ModelFailureCode.configuration);
+    } on PlatformException {
+      throw const ModelFailure(ModelFailureCode.configuration);
+    }
+    if (accepted is! bool) throw const ModelFailure(ModelFailureCode.protocol);
+    if (!accepted) throw const ModelFailure(ModelFailureCode.cancelled);
   }
 
   static Future<void> resetModelConsent() =>

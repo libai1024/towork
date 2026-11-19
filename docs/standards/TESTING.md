@@ -45,6 +45,14 @@ flutter build macos --debug
 
 ASR 集成测试通过实时节奏回放 WAV，使用真正的 SenseVoice/VAD FFI，记录首个 partial 和最终文本。真人普通话、方言、噪声、蓝牙与来电中断由目标设备人工录音验收。模型的线上鉴权、额度、故障转移使用明确的测试账户，记录服务商、模型与真实结果，凭据由既有设施读取。
 
+## 移动端重启与授权
+
+`bash tool/verify_mobile_device.sh android <模拟器序号>` 与 `bash tool/verify_mobile_device.sh ios <模拟器 UUID>` 先验证 Flutter 界面新建、完成，再以独立测试入口验证系统终止和重启。每轮使用独立目录、合成待办和唯一操作 ID。Android 先启动快问，主应用核对双引擎共存、一次性交接与记录版本。输出位于 `build/mobile-verification/`，包括两次 PID、实体 ID、版本和分段耗时。失败时保留日志与截图。
+
+在专用 iPhone 模拟器运行 `bash tool/verify_ios_model_consent.sh <UUID>`。驱动操作 Swift 原生弹窗，两个合成 HTTPS origin 经测试传输适配器接入回环服务，覆盖首次允许、已授权、拒绝、更换来源、撤回与切后台。此测试会重置该模拟器 ToWork 的模型授权。Mac App Store 策略用 `flutter test --dart-define=TOWORK_MAC_APP_STORE=true test/data/ai/apple_consent_test.dart` 单独验证。
+
+数据库升级在 `test/data/local/mobile_migration_test.dart` 验收。版本 12 使用存档 DDL 与合成待办、操作回执和凭据引用，两条真实后台连接争用同一数据库。版本 13 的 DDL 固定在 `test/fixtures/local/schema_v13.sql`。下次实际提升 schema 时保留旧夹具，记录新的结构，测试旧版本至新版本的迁移。
+
 ## 证据记录
 
 每次结果写明日期、代码树/提交、完整命令、设备与系统、通过数量、外部替身和限制。模拟器结果与华为真机结果分别记录。构建成功、安装启动成功、正常业务闭环各自保留证据。最终报告保留当前仍待人工或外部环境验证的项目。[本轮验证记录](../upgrade/VERIFICATION.md)

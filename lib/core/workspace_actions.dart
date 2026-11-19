@@ -7,6 +7,7 @@ import 'widgets/app_toast.dart';
 
 export '../app/workspace_ui_commands.dart'
     show
+        TodoFieldEdit,
         UiCategoryUndo,
         UiWorkspaceChange,
         WorkspaceBusy,

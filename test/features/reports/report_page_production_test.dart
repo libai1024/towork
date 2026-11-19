@@ -11,7 +11,7 @@ import 'package:towork/app/local_workspace_session.dart';
 import 'package:towork/app/providers.dart'
     show categoryListProvider, todoListProvider;
 import 'package:towork/app/report_generation.dart';
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/data/local/app_database.dart';
 import 'package:towork/data/local/report_store.dart';
 import 'package:towork/data/local/workspace_command_store.dart';
@@ -89,7 +89,7 @@ Future<_Harness> _createHarness(
   final settings = ModelSettingsService(
     db,
     FakeKeyVault(),
-    OpenAiCompatibleGateway(),
+    createPlatformModelGateway(),
   );
   await settings.save(
     profile: ModelProfile(

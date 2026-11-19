@@ -5,12 +5,13 @@ import 'dart:io' show IOException;
 import 'package:dio/dio.dart';
 
 import '../../domain/ai/model_gateway.dart';
-import '../platform/apple_distribution.dart';
+import '../../domain/ai/model_transmission.dart';
 import 'chat_stream_assembler.dart';
 import 'sse_decoder.dart';
 
 class OpenAiCompatibleGateway implements ModelGateway, ModelDirectory {
   OpenAiCompatibleGateway({
+    required this.authorize,
     HttpClientAdapter? transport,
     // 总闸只兜底「单次流式响应失控」；正常长回复由 idleTimeout 空闲闸
     // 与 AgentRunner.activeTimeout（2 分钟）约束，取值与其对齐，
@@ -21,6 +22,7 @@ class OpenAiCompatibleGateway implements ModelGateway, ModelDirectory {
     if (transport != null) _dio.httpClientAdapter = transport;
   }
 
+  final AuthorizeModelTransmission authorize;
   final Dio _dio;
   final Duration timeout;
   final Duration idleTimeout;
@@ -88,7 +90,7 @@ class OpenAiCompatibleGateway implements ModelGateway, ModelDirectory {
     if (apiKey.trim().isEmpty) {
       throw const ModelFailure(ModelFailureCode.configuration);
     }
-    await AppleDistribution.authorize(request.profile);
+    await authorizeModelRequest(authorize, request.profile, cancellation);
     if (cancellation?.isCancelled ?? false) {
       throw const ModelFailure(ModelFailureCode.cancelled);
     }

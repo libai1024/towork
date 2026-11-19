@@ -1,34 +1,32 @@
-import 'todo_field_row.dart';
-import '../widgets/app_day_calendar.dart';
-import '../widgets/app_inline_input.dart';
-
-import '../../app/routes.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../widgets/app_button.dart';
-import '../widgets/app_chip.dart';
-import '../widgets/app_pressable.dart';
-import '../widgets/app_sheet.dart';
-import '../widgets/app_toast.dart';
 import '../../app/providers.dart';
-import '../workspace_actions.dart';
-import '../../domain/workspace/workspace_commands.dart';
+import '../../app/routes.dart';
 import '../../app/workspace_state.dart';
 import '../../domain/models/models.dart';
+import '../../domain/workspace/workspace_commands.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radii.dart';
 import '../../theme/app_text_styles.dart';
-import 'todo_utils.dart';
-import 'todo_checkbox.dart';
-import 'recurrence_preview.dart';
-import '../notifications/notification_diagnostics_sheet.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_chip.dart';
+import '../widgets/app_inline_input.dart';
+import '../widgets/app_pressable.dart';
+import '../widgets/app_sheet.dart';
+import '../widgets/app_toast.dart';
+import '../workspace_actions.dart';
 import 'recurrence_action_sheet.dart';
-import '../../domain/recurrence/recurrence_schedule.dart';
+import 'todo_checkbox.dart';
+import 'todo_due_editor.dart';
+import 'todo_editor_controls.dart';
+import 'todo_field_row.dart';
+import 'todo_reminder_editor.dart';
+import 'todo_repeat_editor.dart';
+import 'todo_utils.dart';
 
 /// 待办详情底部 Sheet（03-todo-detail.md §3）：92% 屏高，
 /// 标题/备注就地编辑，字段行就地/二级 Sheet 编辑，AI 溯源卡片，删除确认。
@@ -463,7 +461,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           captionColor: c.labelSecondary,
           expanded: _expanded == 'due',
           onTap: () => _toggleField('due'),
-          editor: _DueEditor(
+          editor: TodoDueEditor(
             todo: todo,
             onChanged: (dueAt) => _update(todo.copyWith(dueAt: dueAt)),
           ),
@@ -475,7 +473,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           valueColor: todo.remindRules.isEmpty ? c.labelTertiary : null,
           expanded: _expanded == 'remind',
           onTap: () => _toggleField('remind'),
-          editor: _RemindEditor(
+          editor: TodoReminderEditor(
             todo: todo,
             onChanged: (rules) =>
                 _update(todo.copyWith(remindRules: rules, remindAt: null)),
@@ -488,7 +486,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           valueColor: todo.repeatRule == null ? c.labelTertiary : null,
           expanded: _expanded == 'repeat',
           onTap: () => _toggleField('repeat'),
-          editor: _RepeatEditor(
+          editor: TodoRepeatEditor(
             todo: todo,
             onChanged: (rule, zone) => _commitEdit(
               todo,
@@ -727,7 +725,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _SheetOptionRow(
+          TodoOptionRow(
             icon: LucideIcons.copy,
             label: '复制标题',
             onTap: () {
@@ -736,7 +734,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
               AppToast.show(context, message: '已复制标题');
             },
           ),
-          _SheetOptionRow(
+          TodoOptionRow(
             icon: LucideIcons.trash2,
             label: '删除',
             onTap: () {
@@ -758,7 +756,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final s in TodoStatus.values)
-            _SheetOptionRow(
+            TodoOptionRow(
               label: s.label,
               selected: todo.status == s,
               onTap: () {
@@ -786,7 +784,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final p in TodoPriority.values)
-            _SheetOptionRow(
+            TodoOptionRow(
               icon: p == TodoPriority.none ? null : LucideIcons.flag,
               iconColor: c.labelSecondary,
               label: p.label,
@@ -813,7 +811,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _SheetOptionRow(
+            TodoOptionRow(
               label: '未分类',
               selected: todo.categoryId == null,
               onTap: () {
@@ -822,7 +820,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
               },
             ),
             for (final root in roots) ...[
-              _SheetOptionRow(
+              TodoOptionRow(
                 dotColor: root.color,
                 label: root.name,
                 selected: todo.categoryId == root.id,
@@ -834,7 +832,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
               for (final child in categories.where(
                 (e) => e.parentId == root.id && !e.archived,
               ))
-                _SheetOptionRow(
+                TodoOptionRow(
                   dotColor: child.color,
                   label: child.name,
                   indent: 24,
@@ -911,785 +909,6 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// 字段行
-// ---------------------------------------------------------------------------
-
-/// 编辑器容器（字段行下方内联展开区）。
-class _EditorBox extends StatelessWidget {
-  const _EditorBox({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: c.fill1, borderRadius: AppRadii.brXl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 截止时间编辑器（03 §5.2）
-// ---------------------------------------------------------------------------
-
-class _DueEditor extends StatefulWidget {
-  const _DueEditor({required this.todo, required this.onChanged});
-
-  final Todo todo;
-  final ValueChanged<DateTime?> onChanged;
-
-  @override
-  State<_DueEditor> createState() => _DueEditorState();
-}
-
-class _DueEditorState extends State<_DueEditor> {
-  bool _showCalendar = false;
-
-  DateTime _withCurrentTime(DateTime day) {
-    final due = widget.todo.dueAt;
-    if (due != null && (due.hour != 0 || due.minute != 0)) {
-      return DateTime(day.year, day.month, day.day, due.hour, due.minute);
-    }
-    return DateTime(day.year, day.month, day.day, 18);
-  }
-
-  Future<void> _pickTime() async {
-    final due = widget.todo.dueAt ?? DateTime.now();
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: due.hour, minute: due.minute),
-    );
-    if (picked == null) return;
-    final day = dayOnly(widget.todo.dueAt ?? DateTime.now());
-    widget.onChanged(
-      DateTime(day.year, day.month, day.day, picked.hour, picked.minute),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final now = DateTime.now();
-    final today = dayOnly(now);
-    final due = widget.todo.dueAt;
-    final hasTime = due != null && (due.hour != 0 || due.minute != 0);
-
-    final quick = <(String, DateTime)>[
-      ('今天', _withCurrentTime(today)),
-      ('明天', _withCurrentTime(today.add(const Duration(days: 1)))),
-      ('下周一', _withCurrentTime(today.add(Duration(days: 8 - today.weekday)))),
-    ];
-
-    return _EditorBox(
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final (label, target) in quick)
-              AppChip(
-                label: label,
-                selected: due != null && isSameDay(due, target),
-                onTap: () => widget.onChanged(target),
-              ),
-            AppChip(
-              label: '选日期…',
-              icon: LucideIcons.calendar,
-              selected: _showCalendar,
-              onTap: () => setState(() => _showCalendar = !_showCalendar),
-            ),
-          ],
-        ),
-        if (_showCalendar) ...[
-          const SizedBox(height: 12),
-          AppDayCalendar(
-            selected: due,
-            onSelected: (day) => widget.onChanged(_withCurrentTime(day)),
-          ),
-        ],
-        const SizedBox(height: 12),
-        Divider(height: 0.5, color: c.separator),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(
-              '时间',
-              style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-            ),
-            if (hasTime)
-              Text(
-                timeLabel(due),
-                style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-              )
-            else
-              Text(
-                '全天截止',
-                style: AppTextStyles.body.copyWith(color: c.labelTertiary),
-              ),
-            if (hasTime)
-              AppButton(
-                label: '清除时间',
-                type: AppButtonType.ghost,
-                onPressed: () => widget.onChanged(dayOnly(due)),
-              )
-            else
-              AppButton(
-                label: '添加时间',
-                type: AppButtonType.ghost,
-                onPressed: _pickTime,
-              ),
-          ],
-        ),
-        if (due != null) ...[
-          const SizedBox(height: 8),
-          Divider(height: 0.5, color: c.separator),
-          const SizedBox(height: 4),
-          Center(
-            child: AppButton(
-              label: '清除截止',
-              type: AppButtonType.ghost,
-              onPressed: () => widget.onChanged(null),
-            ),
-          ),
-          Center(
-            child: Text(
-              '清除后不再出现在今天/本周/逾期过滤中',
-              style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 提醒多规则编辑器（03 §5.3，上限 5 条）
-// ---------------------------------------------------------------------------
-
-class _RemindEditor extends StatelessWidget {
-  const _RemindEditor({required this.todo, required this.onChanged});
-
-  final Todo todo;
-  final ValueChanged<List<RemindRule>> onChanged;
-
-  void _addRule(BuildContext context) {
-    AppSheet.show<void>(
-      context,
-      title: '添加提醒',
-      child: _AddReminderSheet(
-        hasDue: todo.dueAt != null,
-        onAdd: (rule) => onChanged([...todo.remindRules, rule]),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final rules = todo.remindRules;
-    final full = rules.length >= 5;
-    return _EditorBox(
-      children: [
-        const NotificationPermissionHint(),
-        for (final rule in rules)
-          Container(
-            constraints: const BoxConstraints(minHeight: 44),
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: c.brand,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    remindRuleLabel(rule),
-                    style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-                  ),
-                ),
-                AppPressable(
-                  onTap: () =>
-                      onChanged(rules.where((e) => e.id != rule.id).toList()),
-                  behavior: HitTestBehavior.translucent,
-                  semanticLabel: '删除提醒：${remindRuleLabel(rule)}',
-                  child: Icon(LucideIcons.x, size: 16, color: c.labelTertiary),
-                ),
-              ],
-            ),
-          ),
-        if (rules.isNotEmpty) ...[Divider(height: 16, color: c.separator)],
-        Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            AppButton(
-              label: '添加提醒',
-              type: AppButtonType.ghost,
-              icon: LucideIcons.plus,
-              onPressed: full ? null : () => _addRule(context),
-            ),
-            if (full)
-              Text(
-                '最多 5 条提醒',
-                style: AppTextStyles.caption.copyWith(color: c.labelQuaternary),
-              ),
-          ],
-        ),
-        if (todo.repeatRule != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            '重复任务将在每次截止前提醒',
-            style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _AddReminderSheet extends StatefulWidget {
-  const _AddReminderSheet({required this.hasDue, required this.onAdd});
-
-  final bool hasDue;
-  final ValueChanged<RemindRule> onAdd;
-
-  @override
-  State<_AddReminderSheet> createState() => _AddReminderSheetState();
-}
-
-class _AddReminderSheetState extends State<_AddReminderSheet> {
-  int _offset = 30;
-  String _unit = '分钟';
-  DateTime? _absDate;
-  TimeOfDay? _absTime;
-
-  static const _unitMinutes = {'分钟': 1, '小时': 60, '天': 60 * 24};
-
-  int get _seq => DateTime.now().millisecondsSinceEpoch % 100000;
-
-  void _addRelative(int minutes) {
-    widget.onAdd(RemindRule(id: 'rr_$_seq', offsetMinutes: minutes));
-    Navigator.of(context).pop();
-  }
-
-  void _addCustom() {
-    _addRelative(_offset * _unitMinutes[_unit]!);
-  }
-
-  void _addAbsolute() {
-    final d = _absDate;
-    final t = _absTime;
-    if (d == null || t == null) return;
-    widget.onAdd(
-      RemindRule(
-        id: 'rr_$_seq',
-        absoluteAt: DateTime(d.year, d.month, d.day, t.hour, t.minute),
-      ),
-    );
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    const presets = [
-      ('截止时', 0),
-      ('前 5 分钟', 5),
-      ('前 15 分钟', 15),
-      ('前 30 分钟', 30),
-      ('前 1 小时', 60),
-      ('前 1 天', 60 * 24),
-    ];
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '相对截止',
-              style: AppTextStyles.footnote.copyWith(
-                color: widget.hasDue ? c.labelSecondary : c.labelQuaternary,
-              ),
-            ),
-          ),
-          if (!widget.hasDue)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text(
-                '先设置截止时间',
-                style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-              ),
-            ),
-          for (final (label, minutes) in presets)
-            _SheetOptionRow(
-              label: label,
-              enabled: widget.hasDue,
-              onTap: () => _addRelative(minutes),
-            ),
-          if (widget.hasDue)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    '自定义',
-                    style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-                  ),
-                  _Stepper(
-                    label: '提醒提前量',
-                    value: _offset,
-                    min: 1,
-                    max: 99,
-                    onChanged: (v) => setState(() => _offset = v),
-                  ),
-                  for (final u in _unitMinutes.keys)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: AppChip(
-                        label: u,
-                        selected: _unit == u,
-                        onTap: () => setState(() => _unit = u),
-                      ),
-                    ),
-                  AppButton(
-                    label: '添加',
-                    type: AppButtonType.ghost,
-                    onPressed: _addCustom,
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 8),
-          Divider(height: 0.5, color: c.separator),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '指定时间',
-              style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: AppDayCalendar(
-              selected: _absDate,
-              onSelected: (d) => setState(() => _absDate = d),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final (label, tod) in [
-                  ('上午 9:00', const TimeOfDay(hour: 9, minute: 0)),
-                  ('中午 12:00', const TimeOfDay(hour: 12, minute: 0)),
-                  ('下午 18:00', const TimeOfDay(hour: 18, minute: 0)),
-                  ('晚上 20:00', const TimeOfDay(hour: 20, minute: 0)),
-                ])
-                  AppChip(
-                    label: label,
-                    selected: _absTime == tod,
-                    onTap: () => setState(() => _absTime = tod),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: AppButton(
-              label: '添加提醒',
-              type: AppButtonType.primary,
-              expand: true,
-              enabled: _absDate != null && _absTime != null,
-              onPressed: _addAbsolute,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 重复规则可视化编辑器（03 §5.4）
-// ---------------------------------------------------------------------------
-
-class _RepeatEditor extends StatefulWidget {
-  const _RepeatEditor({required this.todo, required this.onChanged});
-
-  final Todo todo;
-  final Future<bool> Function(String? rule, String timezone) onChanged;
-
-  @override
-  State<_RepeatEditor> createState() => _RepeatEditorState();
-}
-
-class _RepeatEditorState extends State<_RepeatEditor> {
-  late RepeatSpec _spec;
-  bool _unmappable = false;
-  bool _confirmClear = false;
-  bool _saving = false;
-  late String _timezone;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  void _load() {
-    _timezone = widget.todo.repeatTimezone ?? 'Asia/Shanghai';
-    _unmappable = false;
-    final rule = widget.todo.repeatRule;
-    if (rule != null) {
-      final parsed = RepeatSpec.fromRrule(rule);
-      if (parsed == null) {
-        _unmappable = true;
-        _spec = RepeatSpec(
-          weekdays: {
-            RecurrenceTimeZones.civil(
-              widget.todo.dueAt ?? widget.todo.createdAt,
-              _timezone,
-            ).weekday,
-          },
-        );
-      } else {
-        _spec = parsed;
-      }
-    } else {
-      _spec = RepeatSpec(
-        weekdays: {
-          RecurrenceTimeZones.civil(
-            widget.todo.dueAt ?? widget.todo.createdAt,
-            _timezone,
-          ).weekday,
-        },
-      );
-    }
-  }
-
-  Future<void> _apply({bool clear = false}) async {
-    if (_saving) return;
-    setState(() => _saving = true);
-    final saved = await widget.onChanged(
-      clear ? null : _spec.toRrule(),
-      _timezone,
-    );
-    if (!mounted) return;
-    setState(() {
-      _saving = false;
-      if (!saved || clear) _load();
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant _RepeatEditor oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_saving &&
-        (widget.todo.repeatRule != _spec.toRrule() ||
-            widget.todo.repeatTimezone != _timezone) &&
-        (oldWidget.todo.repeatRule != widget.todo.repeatRule ||
-            oldWidget.todo.repeatTimezone != widget.todo.repeatTimezone)) {
-      _load();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    if (_unmappable) {
-      // 无法映射的复杂规则降级为只读 + 重置
-      return _EditorBox(
-        children: [
-          Text(
-            '自定义规则（暂不支持编辑）',
-            style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-          ),
-          const SizedBox(height: 8),
-          AppButton(
-            label: '重置规则',
-            type: AppButtonType.ghost,
-            onPressed: () => setState(() {
-              _unmappable = false;
-              _spec = RepeatSpec(
-                weekdays: {
-                  RecurrenceTimeZones.civil(
-                    widget.todo.dueAt ?? widget.todo.createdAt,
-                    _timezone,
-                  ).weekday,
-                },
-              );
-              _apply();
-            }),
-          ),
-        ],
-      );
-    }
-
-    final unit = switch (_spec.freq) {
-      RepeatFreq.daily => '天',
-      RepeatFreq.weekly => '周',
-      RepeatFreq.monthly => '月',
-      RepeatFreq.yearly => '年',
-    };
-
-    return AbsorbPointer(
-      absorbing: _saving,
-      child: _EditorBox(
-        children: [
-          _editorLabel(c, '频率'),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final (label, f) in [
-                ('每天', RepeatFreq.daily),
-                ('每周', RepeatFreq.weekly),
-                ('每月', RepeatFreq.monthly),
-                ('每年', RepeatFreq.yearly),
-              ])
-                AppChip(
-                  label: label,
-                  selected: _spec.freq == f,
-                  onTap: () => setState(() {
-                    _spec.freq = f;
-                  }),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              _editorLabel(c, '间隔'),
-              Text(
-                '每',
-                style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-              ),
-              _Stepper(
-                label: '重复间隔',
-                value: _spec.interval,
-                min: 1,
-                max: 99,
-                onChanged: (v) => setState(() {
-                  _spec.interval = v;
-                }),
-              ),
-              Text(
-                unit,
-                style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-              ),
-            ],
-          ),
-          if (_spec.freq == RepeatFreq.weekly) ...[
-            const SizedBox(height: 12),
-            _editorLabel(c, '重复于'),
-            Wrap(
-              spacing: 8,
-              children: [
-                for (var d = 1; d <= 7; d++)
-                  AppChip(
-                    label: RepeatSpec.weekdayNames[d - 1],
-                    selected: _spec.weekdays.contains(d),
-                    onTap: () => setState(() {
-                      if (_spec.weekdays.contains(d)) {
-                        if (_spec.weekdays.length > 1) _spec.weekdays.remove(d);
-                      } else {
-                        _spec.weekdays.add(d);
-                      }
-                    }),
-                  ),
-              ],
-            ),
-          ],
-          if (_spec.freq == RepeatFreq.monthly) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _editorLabel(c, '每月'),
-                _Stepper(
-                  label: '每月日期',
-                  value: _spec.monthDay,
-                  min: 1,
-                  max: 31,
-                  onChanged: (v) => setState(() {
-                    _spec.monthDay = v;
-                  }),
-                ),
-                Text(
-                  '日',
-                  style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 12),
-          _editorLabel(c, '结束'),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final (label, e) in [
-                ('永不', RepeatEnd.never),
-                ('于日期', RepeatEnd.until),
-                ('N 次后', RepeatEnd.count),
-              ])
-                AppChip(
-                  label: label,
-                  selected: _spec.end == e,
-                  onTap: () => setState(() {
-                    _spec.end = e;
-                    _spec.until ??= dayOnly(DateTime.now())
-                        .add(const Duration(days: 30));
-                  }),
-                ),
-            ],
-          ),
-          if (_spec.end == RepeatEnd.until) ...[
-            const SizedBox(height: 8),
-            AppDayCalendar(
-              selected: _spec.until,
-              onSelected: (d) => setState(() {
-                _spec.until = d;
-              }),
-            ),
-          ],
-          if (_spec.end == RepeatEnd.count) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _Stepper(
-                  label: '重复次数',
-                  value: _spec.count,
-                  min: 1,
-                  max: 99,
-                  onChanged: (v) => setState(() {
-                    _spec.count = v;
-                  }),
-                ),
-                Text(
-                  '次',
-                  style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 12),
-          Divider(height: 0.5, color: c.separator),
-          const SizedBox(height: 8),
-          _editorLabel(c, '固定时区'),
-          DropdownButton<String>(
-            key: const ValueKey('repeat-timezone'),
-            value: _timezone,
-            isExpanded: true,
-            style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
-            dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-            items: [
-              for (final zone in RecurrenceTimeZones.names)
-                DropdownMenuItem(
-                  value: zone,
-                  child: Text(zone, overflow: TextOverflow.ellipsis),
-                ),
-            ],
-            onChanged: (zone) {
-              if (zone == null) return;
-              setState(() => _timezone = zone);
-            },
-          ),
-          const SizedBox(height: 8),
-          RecurrencePreview(
-            rule: _spec.toRrule(),
-            anchor: widget.todo.dueAt,
-            timezone: _timezone,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '月末不足所选日期时取最后一天；夏令时缺失时刻顺延至首个有效时刻，重复时刻只取一次。',
-            style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '摘要：${_spec.summary()}',
-            style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
-          ),
-          const SizedBox(height: 12),
-          AppButton(
-            label: '保存重复设置',
-            expand: true,
-            enabled: !_saving,
-            onPressed: () => _apply(),
-          ),
-          const SizedBox(height: 4),
-          Center(
-            child: AppButton(
-              label: _confirmClear ? '确认清除？' : '清除重复',
-              type: AppButtonType.ghost,
-              onPressed: () {
-                if (_confirmClear) {
-                  _apply(clear: true);
-                } else {
-                  setState(() => _confirmClear = true);
-                  Future.delayed(const Duration(seconds: 3), () {
-                    if (mounted) setState(() => _confirmClear = false);
-                  });
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _editorLabel(AppColors c, String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(
-      text,
-      style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
-    ),
-  );
-}
-
-// ---------------------------------------------------------------------------
-// 标签编辑器
-// ---------------------------------------------------------------------------
-
 class _TagsEditor extends StatefulWidget {
   const _TagsEditor({required this.todo, required this.onChanged});
 
@@ -1719,7 +938,7 @@ class _TagsEditorState extends State<_TagsEditor> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    return _EditorBox(
+    return TodoEditorBox(
       children: [
         if (widget.todo.tags.isNotEmpty)
           Wrap(
@@ -1754,132 +973,3 @@ class _TagsEditorState extends State<_TagsEditor> {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// 通用小件：选项行 / 步进器 / 小月历
-// ---------------------------------------------------------------------------
-
-class _SheetOptionRow extends StatelessWidget {
-  const _SheetOptionRow({
-    this.icon,
-    this.iconColor,
-    this.dotColor,
-    required this.label,
-    this.selected = false,
-    this.enabled = true,
-    this.indent = 0,
-    this.onTap,
-  });
-
-  final IconData? icon;
-  final Color? iconColor;
-  final Color? dotColor;
-  final String label;
-  final bool selected;
-  final bool enabled;
-  final double indent;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final fg = !enabled ? c.labelQuaternary : c.labelPrimary;
-    return AppPressable(
-      onTap: enabled ? onTap : null,
-      behavior: HitTestBehavior.opaque,
-      semanticLabel: label,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: EdgeInsets.fromLTRB(16 + indent, 8, 16, 8),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 20, color: iconColor ?? fg),
-              const SizedBox(width: 12),
-            ],
-            if (dotColor != null) ...[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: c.categorySurface(dotColor!),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            Expanded(
-              child: Text(label, style: AppTextStyles.body.copyWith(color: fg)),
-            ),
-            if (selected) Icon(LucideIcons.check, size: 16, color: c.brand),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Stepper extends StatelessWidget {
-  const _Stepper({
-    required this.label,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.onChanged,
-  });
-
-  final int value;
-  final String label;
-  final int min;
-  final int max;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    Widget btn(IconData icon, VoidCallback? onTap, String action) =>
-        AppPressable(
-          onTap: onTap,
-          semanticLabel: '$action$label',
-          behavior: HitTestBehavior.translucent,
-          child: Icon(icon, size: 16, color: c.labelSecondary),
-        );
-    return Container(
-      constraints: const BoxConstraints(minHeight: 44),
-      decoration: BoxDecoration(
-        color: c.bgPrimary,
-        borderRadius: AppRadii.brMd,
-        border: Border.all(color: c.separator, width: 0.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          btn(
-            LucideIcons.minus,
-            value > min ? () => onChanged(value - 1) : null,
-            '减少',
-          ),
-          SizedBox(
-            width: 44,
-            child: Center(
-              child: Text(
-                '$value',
-                style: AppTextStyles.body.copyWith(
-                  color: c.labelPrimary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-          ),
-          btn(
-            LucideIcons.plus,
-            value < max ? () => onChanged(value + 1) : null,
-            '增加',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 内联小月历（03 §5.2/§5.4）：整月网格 + 今天 brand 圆点 + 选中 brand 圆底。

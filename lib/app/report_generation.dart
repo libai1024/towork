@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../agent/agent_prompt.dart';
-import '../data/ai/openai_compatible_gateway.dart';
 import '../data/local/app_database.dart';
 import '../data/local/report_snapshot_builder.dart';
 import '../data/local/report_store.dart';
@@ -23,10 +22,11 @@ import 'local_workspace_session.dart';
 class ReportGenerationService {
   ReportGenerationService(
     this._db,
-    this._settings, {
+    ModelSettingsService settings, {
     ModelGateway? gateway,
     DateTime Function()? clock,
-  }) : _gateway = gateway ?? OpenAiCompatibleGateway(),
+  }) : _settings = settings,
+       _gateway = gateway ?? settings.gateway,
        _clock = clock ?? DateTime.now;
   final AppDatabase _db;
   final ModelSettingsService _settings;

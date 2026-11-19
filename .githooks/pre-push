@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
+# Flutter queries its own SDK git checkout to resolve the framework version.
+# Hook-local GIT_DIR and worktree/index overrides must not follow that query.
+for variable in $(git rev-parse --local-env-vars); do
+  unset "$variable"
+done
 exec bash tool/check.sh

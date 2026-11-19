@@ -1,5 +1,3 @@
-import 'package:towork/domain/repositories/todo_store.dart';
-
 import 'dart:io';
 import 'dart:ui';
 
@@ -12,6 +10,7 @@ import 'package:towork/data/local/app_database.dart';
 import 'package:towork/data/local/workspace_command_store.dart';
 import 'package:towork/domain/models/models.dart';
 import 'package:towork/domain/use_cases/category_actions.dart';
+import 'package:towork/domain/repositories/todo_store.dart';
 import 'package:towork/domain/workspace/workspace_commands.dart';
 import 'package:towork/app/todo/async_todo_commands.dart';
 
@@ -119,6 +118,28 @@ void main() {
       expect(session.todos.snapshot, hasLength(1));
     },
   );
+  test('field commands deduplicate ids, skip unchanged writes and undo only the addressed task', () async {
+    final task = await todos.create(title: '改期', note: '原备注');
+    final other = await todos.create(title: '保持原样');
+    final due = DateTime(2026, 11, 22, 9);
+    final change = await commands.editTodoFields([
+      task.id,
+      task.id,
+      'missing',
+    ], TodoFieldEdit.reschedule(due));
+    expect(change.value, 1);
+    expect(await todos.setDue([task.id], due), 1);
+    expect(session.todos.byId(task.id)!.version, 2);
+    expect((await db.select(db.workspaceOperations).get()).length, 3);
+    await change.undo();
+    final restored = session.todos.byId(task.id)!;
+    expect(restored.dueAt, isNull);
+    expect(restored.note, '原备注');
+    expect(session.todos.byId(other.id)!.version, 1);
+    expect((await todos.complete([task.id, task.id])).count, 1);
+    expect((await todos.complete([task.id])).count, 0);
+  });
+
   test(
     'a second connection can replay a committed form after other writes',
     () async {

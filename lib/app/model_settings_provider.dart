@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/ai/openai_compatible_gateway.dart';
+import 'model_transmission.dart';
 import '../data/ai/provider_quota_gateway.dart';
 import '../data/local/model_account_store.dart';
 import '../data/platform/system_key_vault.dart';
@@ -15,7 +15,7 @@ final modelSettingsServiceProvider = FutureProvider<ModelSettingsService>((
   ref,
 ) async {
   final db = await ref.watch(localDatabaseProvider.future);
-  final gateway = OpenAiCompatibleGateway();
+  final gateway = createPlatformModelGateway();
   ref.onDispose(() {
     gateway.close();
   });

@@ -1,4 +1,4 @@
--- v11 baseline for migration tests (drift-generated).
+-- Version 12 migration fixture: version 11 schema plus local_reports.
 CREATE TABLE "provider_configurations" ("id" INTEGER NOT NULL, "product" TEXT NOT NULL, "region" TEXT NOT NULL, "model" TEXT NOT NULL, "disable_thinking" INTEGER NOT NULL CHECK (disable_thinking IN (0, 1)), "version" INTEGER NOT NULL, "credential_ref" TEXT NULL, PRIMARY KEY(id));
 
 CREATE TABLE "credential_cleanup" ("reference" TEXT NOT NULL, PRIMARY KEY(reference));

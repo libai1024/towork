@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugDefaultTargetPlatformOverride;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:towork/data/platform/offline_asr_decoder.dart';
 import 'package:towork/data/platform/offline_asr_model_store.dart';
@@ -87,6 +89,8 @@ void main() {
   late SherpaSpeechInput input;
   late List<SpeechEvent> events;
   setUp(() {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
     recorder = _Recorder();
     decoder = _Decoder();
     input = SherpaSpeechInput(
@@ -108,6 +112,13 @@ void main() {
     recorder.chunks.add(Uint8List(32000));
     await Future<void>.delayed(Duration.zero);
   }
+
+  test('Linux reports the offline recognizer unavailable without opening a recorder', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+    final caps = await input.inspect('zh-CN');
+    expect(caps.available, isFalse);
+    expect(recorder.permissions, isEmpty);
+  });
 
   test(
     'inspection never requests permission and disposes its temporary recorder',

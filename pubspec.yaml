@@ -2,7 +2,7 @@ name: towork
 description: "ToWork: a conversation-driven work management application."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.11+16
+version: 1.1.12+17
 
 environment:
   sdk: ^3.13.4

@@ -5,7 +5,7 @@ import 'package:towork/agent/agent_prompt.dart';
 import 'package:towork/app/report_generation.dart';
 import 'package:towork/data/local/app_database.dart';
 import 'package:towork/data/local/report_store.dart';
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/domain/ai/model_gateway.dart';
 import 'package:towork/domain/reports/report_documents.dart';
 
@@ -57,7 +57,7 @@ void main() {
       final settings = ModelSettingsService(
         db,
         FakeKeyVault(),
-        OpenAiCompatibleGateway(),
+        createPlatformModelGateway(),
       );
       final service = ReportGenerationService(
         db,
@@ -109,7 +109,7 @@ void main() {
     final settings = ModelSettingsService(
       db,
       FakeKeyVault(),
-      OpenAiCompatibleGateway(),
+      createPlatformModelGateway(),
     );
     await settings.save(
       profile: ModelProfile(

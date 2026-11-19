@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -67,7 +66,12 @@ class SherpaSpeechInput implements SpeechInput {
 
   Future<SpeechCapabilities> _capabilities({required bool request}) async {
     final supported =
-        !kIsWeb && (Platform.isAndroid || Platform.isMacOS || Platform.isIOS);
+        !kIsWeb &&
+        const {
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+          TargetPlatform.macOS,
+        }.contains(defaultTargetPlatform);
     final ready = supported && await _loadEngine() != null;
     if (!ready || _disposed) {
       return SpeechCapabilities(
