@@ -173,8 +173,11 @@ def main():
         live = json.loads((directory / 'latest.json').read_text())
         mac = {'versionName': '1.0.0', 'downloadUrl': 'macos/towork-1.0.0-1-universal.dmg'}
         live['macos'] = mac
+        ios = {'storeUrl': 'https://apps.apple.com/app/id123', 'build': 3}
+        live['ios'] = ios
         (directory / 'latest.json').write_text(json.dumps(live))
         manifest['macos'] = {'downloadUrl': None}
+        manifest['ios'] = {'storeUrl': None}
         manifest['versionCode'] = 3
         staged.write_text(json.dumps(manifest))
         rejects(lambda: promote(directory, staged_name))
@@ -210,6 +213,7 @@ def main():
         assert (directory / patch_name).read_bytes() == patch_bytes
         final_manifest = json.loads((directory / 'latest.json').read_text())
         assert final_manifest['versionCode'] == 6 and final_manifest['macos'] == mac
+        assert final_manifest['ios'] == ios
 
         folder = directory / 'macos'
         folder.mkdir()

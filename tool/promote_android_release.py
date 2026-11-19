@@ -77,9 +77,11 @@ def promote(directory, staged_name):
                 uploaded.unlink()
             else:
                 uploaded.replace(published)
-    # macOS releases independently and shares this manifest and publication lock.
-    if latest.exists() and 'macos' in previous:
-        manifest['macos'] = previous['macos']
+    # Snapshot the other channels under the same publication lock.
+    if latest.exists():
+        for platform in ('macos', 'ios'):
+            if platform in previous:
+                manifest[platform] = previous[platform]
         staged.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
     staged.replace(latest)
 
