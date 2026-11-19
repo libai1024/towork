@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run only on an isolated iOS simulator. The fixture resets this bundle's model grants.
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 device="$1"
 out="${2:-build/mobile-verification/ios/consent}"
@@ -24,12 +24,20 @@ xcrun simctl install "$device" build/ios/iphonesimulator/Runner.app
 xcrun simctl terminate "$device" com.towork.towork >/dev/null 2>&1 || true
 xcrun simctl launch "$device" com.towork.towork
 tap() { "$axe" tap --udid "$device" --label "$1" --wait-timeout 20 --post-delay 0.5; }
-# iOS may expose Flutter semantics while the launch transition still intercepts touches.
-# The first operation is idempotent while its native prompt is pending.
-tap '验证 1'
-sleep 1
-"$axe" describe-ui --udid "$device" > "$out/first-step.json"
-if ! grep -q '暂不允许' "$out/first-step.json"; then tap '验证 1'; fi
+# The accessibility bridge can expose the fixture during the launch transition
+# before it can translate a tap. Only this first fixture action is replayable.
+first_tree="$out/first-step.json"
+deadline=$((SECONDS + 90))
+until (( SECONDS >= deadline )); do
+  if "$axe" describe-ui --udid "$device" > "$first_tree"; then
+    if grep -q '暂不允许' "$first_tree"; then break; fi
+    if grep -q '验证 1' "$first_tree"; then
+      tap '验证 1' || true
+    fi
+  fi
+  sleep 1
+done
+grep -q '暂不允许' "$first_tree"
 tap '允许'
 tap '验证 2'
 tap '验证 3'
