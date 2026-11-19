@@ -1,0 +1,426 @@
+import '../../domain/models/models.dart';
+import '../../domain/repositories/data_table_bundle.dart';
+
+/// 内置模板（F6.4）：档案接收/股票持仓/账户流水/客户跟进/健身记录。
+final dataTableTemplates = List<DataTableTemplate>.unmodifiable([
+  DataTableTemplate(
+    id: 'tpl_archive',
+    name: '档案接收记录',
+    iconKey: 'archive',
+    description: '接收登记台账，AI 可从接收单照片提取',
+    columns: [
+      DataColumnDef(name: '档号', type: 'text', isRequired: true),
+      DataColumnDef(name: '题名', type: 'text', isRequired: true),
+      DataColumnDef(name: '年度', type: 'text'),
+      DataColumnDef(name: '卷数', type: 'number'),
+      DataColumnDef(name: '移交单位', type: 'text'),
+      DataColumnDef(name: '接收日期', type: 'date'),
+      DataColumnDef(name: '密级', type: 'enum', enumOptions: ['公开', '内部', '机密']),
+      DataColumnDef(name: '已数字化', type: 'bool'),
+    ],
+  ),
+  DataTableTemplate(
+    id: 'tpl_stock',
+    name: '股票持仓',
+    iconKey: 'trendingUp',
+    description: '持仓与成本，发张券商截图就能同步',
+    columns: [
+      DataColumnDef(name: '名称', type: 'text', isRequired: true),
+      DataColumnDef(name: '代码', type: 'text'),
+      DataColumnDef(name: '持仓(股)', type: 'number', unit: '股'),
+      DataColumnDef(name: '成本价', type: 'money'),
+      DataColumnDef(name: '现价', type: 'money'),
+      DataColumnDef(name: '备注', type: 'text'),
+    ],
+  ),
+  DataTableTemplate(
+    id: 'tpl_flow',
+    name: '账户流水',
+    iconKey: 'wallet',
+    description: '收支记账，月底让 AI 出汇总',
+    columns: [
+      DataColumnDef(name: '摘要', type: 'text', isRequired: true),
+      DataColumnDef(name: '日期', type: 'date'),
+      DataColumnDef(name: '收入', type: 'money'),
+      DataColumnDef(name: '支出', type: 'money'),
+      DataColumnDef(
+        name: '账户',
+        type: 'enum',
+        enumOptions: ['微信', '支付宝', '工行', '现金'],
+      ),
+    ],
+  ),
+  DataTableTemplate(
+    id: 'tpl_client',
+    name: '客户跟进',
+    iconKey: 'users',
+    description: '商机阶段一目了然',
+    columns: [
+      DataColumnDef(name: '客户', type: 'text', isRequired: true),
+      DataColumnDef(name: '联系人', type: 'text'),
+      DataColumnDef(name: '最近跟进', type: 'date'),
+      DataColumnDef(
+        name: '阶段',
+        type: 'enum',
+        enumOptions: ['初步接洽', '需求确认', '方案报价', '签约', '维护'],
+      ),
+      DataColumnDef(name: '已成交', type: 'bool'),
+    ],
+  ),
+  DataTableTemplate(
+    id: 'tpl_fitness',
+    name: '健身记录',
+    iconKey: 'activity',
+    description: '说一句「今天跑了 5 公里」就记上了',
+    columns: [
+      DataColumnDef(name: '日期', type: 'date', isRequired: true),
+      DataColumnDef(
+        name: '项目',
+        type: 'enum',
+        enumOptions: ['跑步', '游泳', '力量', '骑行'],
+      ),
+      DataColumnDef(name: '时长', type: 'number', unit: '分钟'),
+      DataColumnDef(name: '消耗', type: 'number', unit: 'kcal'),
+      DataColumnDef(name: '备注', type: 'text'),
+    ],
+  ),
+]);
+DataTableBundle seedDataTables(DateTime now) {
+  final today = DateTime(now.year, now.month, now.day);
+  DateTime at(DateTime day, int h, [int m = 0]) =>
+      DateTime(day.year, day.month, day.day, h, m);
+
+  final tables = [
+    DataTableDef(
+      id: 'dt_stock',
+      typeId: 'type_finance',
+      name: '股票持仓',
+      description: '持仓与成本，发张券商截图就能同步',
+      iconKey: 'trendingUp',
+      createdAt: now.subtract(const Duration(days: 30)),
+      columns: [
+        DataColumnDef(name: '名称', type: 'text', isRequired: true),
+        DataColumnDef(name: '代码', type: 'text'),
+        DataColumnDef(name: '持仓(股)', type: 'number', unit: '股'),
+        DataColumnDef(name: '成本价', type: 'money'),
+        DataColumnDef(name: '现价', type: 'money'),
+        DataColumnDef(name: '备注', type: 'text'),
+      ],
+    ),
+    DataTableDef(
+      id: 'dt_archive',
+      typeId: 'type_work',
+      name: '档案接收记录',
+      description: '接收登记台账，AI 可从接收单照片提取',
+      iconKey: 'archive',
+      createdAt: now.subtract(const Duration(days: 21)),
+      columns: [
+        DataColumnDef(name: '档号', type: 'text', isRequired: true),
+        DataColumnDef(name: '题名', type: 'text', isRequired: true),
+        DataColumnDef(name: '年度', type: 'text'),
+        DataColumnDef(name: '卷数', type: 'number'),
+        DataColumnDef(name: '移交单位', type: 'text'),
+        DataColumnDef(name: '接收日期', type: 'date'),
+        DataColumnDef(
+          name: '密级',
+          type: 'enum',
+          enumOptions: ['公开', '内部', '机密'],
+        ),
+        DataColumnDef(name: '已数字化', type: 'bool'),
+      ],
+    ),
+    DataTableDef(
+      id: 'dt_fitness',
+      typeId: 'type_life',
+      name: '健身记录',
+      description: '说一句「今天跑了 5 公里」就记上了',
+      iconKey: 'activity',
+      createdAt: now.subtract(const Duration(days: 12)),
+      columns: [
+        DataColumnDef(name: '日期', type: 'date', isRequired: true),
+        DataColumnDef(
+          name: '项目',
+          type: 'enum',
+          enumOptions: ['跑步', '游泳', '力量', '骑行'],
+        ),
+        DataColumnDef(name: '时长', type: 'number', unit: '分钟'),
+        DataColumnDef(name: '消耗', type: 'number', unit: 'kcal'),
+        DataColumnDef(name: '备注', type: 'text'),
+      ],
+    ),
+  ];
+
+  final rows = [
+    DataRow(
+      id: 'dr1',
+      tableId: 'dt_stock',
+      updatedAt: now.subtract(const Duration(days: 1, hours: 3)),
+      source: DataChangeSource.ai,
+      values: const {
+        '名称': '宁德时代',
+        '代码': '300750',
+        '持仓(股)': '1200',
+        '成本价': '178.20',
+        '现价': '186.40',
+        '备注': '跌破 180 减仓一半',
+      },
+    ),
+    DataRow(
+      id: 'dr2',
+      tableId: 'dt_stock',
+      updatedAt: now.subtract(const Duration(days: 1, hours: 4)),
+      values: const {
+        '名称': '贵州茅台',
+        '代码': '600519',
+        '持仓(股)': '300',
+        '成本价': '1620.00',
+        '现价': '1652.00',
+        '备注': '',
+      },
+    ),
+    DataRow(
+      id: 'dr3',
+      tableId: 'dt_stock',
+      updatedAt: now.subtract(const Duration(days: 5)),
+      values: const {
+        '名称': '比亚迪',
+        '代码': '002594',
+        '持仓(股)': '500',
+        '成本价': '245.80',
+        '现价': '238.10',
+        '备注': '周一前写好止损计划',
+      },
+    ),
+    DataRow(
+      id: 'dr4',
+      tableId: 'dt_archive',
+      updatedAt: now.subtract(const Duration(hours: 5)),
+      source: DataChangeSource.ai,
+      values: const {
+        '档号': 'JS-2026-0031',
+        '题名': '退休干部人事档案（第三批）',
+        '年度': '2026',
+        '卷数': '12',
+        '移交单位': '市人社局',
+        '接收日期': '2026-09-21',
+        '密级': '内部',
+        '已数字化': 'false',
+      },
+    ),
+    DataRow(
+      id: 'dr5',
+      tableId: 'dt_archive',
+      updatedAt: now.subtract(const Duration(days: 2)),
+      values: const {
+        '档号': 'JS-2026-0028',
+        '题名': '城建档案馆基建项目案卷',
+        '年度': '2025',
+        '卷数': '8',
+        '移交单位': '城建档案馆',
+        '接收日期': '2026-09-18',
+        '密级': '公开',
+        '已数字化': 'true',
+      },
+    ),
+    DataRow(
+      id: 'dr6',
+      tableId: 'dt_archive',
+      updatedAt: now.subtract(const Duration(days: 4)),
+      values: const {
+        '档号': 'JS-2026-0025',
+        '题名': '市民政局移交文书档案',
+        '年度': '2024',
+        '卷数': '21',
+        '移交单位': '市民政局',
+        '接收日期': '2026-09-15',
+        '密级': '公开',
+        '已数字化': 'false',
+      },
+    ),
+    DataRow(
+      id: 'dr7',
+      tableId: 'dt_fitness',
+      updatedAt: at(today.subtract(const Duration(days: 1)), 21, 40),
+      values: const {
+        '日期': '2026-09-20',
+        '项目': '跑步',
+        '时长': '32',
+        '消耗': '286',
+        '备注': '沿江步道，配速 6\'10"',
+      },
+    ),
+    DataRow(
+      id: 'dr8',
+      tableId: 'dt_fitness',
+      updatedAt: now.subtract(const Duration(days: 3, hours: 2)),
+      source: DataChangeSource.ai,
+      values: const {
+        '日期': '2026-09-18',
+        '项目': '游泳',
+        '时长': '45',
+        '消耗': '320',
+        '备注': '',
+      },
+    ),
+    DataRow(
+      id: 'dr9',
+      tableId: 'dt_fitness',
+      updatedAt: now.subtract(const Duration(days: 6)),
+      values: const {
+        '日期': '2026-09-15',
+        '项目': '力量',
+        '时长': '50',
+        '消耗': '240',
+        '备注': '上肢为主',
+      },
+    ),
+  ];
+
+  final logs = [
+    DataChangeLog(
+      id: 'log1',
+      tableId: 'dt_stock',
+      rowId: 'dr1',
+      field: '现价',
+      oldValue: '184.10',
+      newValue: '186.40',
+      source: DataChangeSource.ai,
+      createdAt: now.subtract(const Duration(days: 1, hours: 3)),
+      reason: '收盘后行情同步',
+      sourceLabel: '对话「上周买了哪些股票」',
+    ),
+    DataChangeLog(
+      id: 'log2',
+      tableId: 'dt_stock',
+      rowId: 'dr2',
+      field: '持仓(股)',
+      oldValue: '800',
+      newValue: '300',
+      source: DataChangeSource.manual,
+      createdAt: now.subtract(const Duration(days: 1, hours: 4)),
+    ),
+    DataChangeLog(
+      id: 'log3',
+      tableId: 'dt_archive',
+      rowId: 'dr4',
+      field: '卷数',
+      oldValue: '10',
+      newValue: '12',
+      source: DataChangeSource.ai,
+      createdAt: now.subtract(const Duration(hours: 5)),
+      reason: '根据接收单照片更正卷数',
+      sourceLabel: '截图「接收单_0921.jpg」的分析',
+    ),
+    DataChangeLog(
+      id: 'log4',
+      tableId: 'dt_stock',
+      rowId: 'dr2',
+      field: '现价',
+      oldValue: '1620.00',
+      newValue: '1652.00',
+      source: DataChangeSource.ai,
+      createdAt: now.subtract(const Duration(days: 1, hours: 3, minutes: 50)),
+      reason: '收盘价同步',
+      sourceLabel: '对话「上周买了哪些股票」',
+    ),
+    DataChangeLog(
+      id: 'log5',
+      tableId: 'dt_stock',
+      rowId: 'dr2',
+      field: '',
+      oldValue: '',
+      newValue: '',
+      source: DataChangeSource.manual,
+      createdAt: now.subtract(const Duration(days: 10)),
+      action: DataChangeAction.create,
+      afterValues: const {
+        '名称': '贵州茅台',
+        '代码': '600519',
+        '持仓(股)': '800',
+        '成本价': '1620.00',
+        '现价': '1620.00',
+      },
+    ),
+    DataChangeLog(
+      id: 'log6',
+      tableId: 'dt_archive',
+      rowId: 'dr4',
+      field: '',
+      oldValue: '',
+      newValue: '',
+      source: DataChangeSource.manual,
+      createdAt: at(today, 9, 5),
+      action: DataChangeAction.create,
+      afterValues: const {
+        '档号': 'JS-2026-0031',
+        '题名': '退休干部人事档案（第三批）',
+        '年度': '2026',
+        '卷数': '10',
+        '移交单位': '市人社局',
+        '接收日期': '2026-09-21',
+        '密级': '内部',
+        '已数字化': 'false',
+      },
+    ),
+  ];
+
+  final pendingBatches = [
+    PendingAiBatch(
+      id: 'pb1',
+      tableId: 'dt_stock',
+      reason: '依据最新持仓截图同步：卖出比亚迪，加仓贵州茅台。',
+      sourceLabel: '截图「持仓_0921.png」的分析',
+      createdAt: now.subtract(const Duration(minutes: 12)),
+      changes: [
+        PendingRowChange(
+          id: 'pc1',
+          action: DataChangeAction.update,
+          rowId: 'dr2',
+          rowLabel: '贵州茅台',
+          fields: [
+            PendingFieldChange(
+              field: '持仓(股)',
+              oldValue: '300',
+              newValue: '500',
+              confidence: 0.97,
+            ),
+            PendingFieldChange(
+              field: '现价',
+              oldValue: '1652.00',
+              newValue: '1680.50',
+              confidence: 0.62,
+            ),
+          ],
+        ),
+        PendingRowChange(
+          id: 'pc2',
+          action: DataChangeAction.delete,
+          rowId: 'dr3',
+          rowLabel: '比亚迪',
+          // The deletion preview carries every original cell so stale data
+          // cannot be removed by an incomplete AI snapshot.
+          fields: [
+            PendingFieldChange(field: '名称', oldValue: '比亚迪'),
+            PendingFieldChange(field: '代码', oldValue: '002594'),
+            PendingFieldChange(field: '持仓(股)', oldValue: '500'),
+            PendingFieldChange(field: '成本价', oldValue: '245.80'),
+            PendingFieldChange(field: '现价', oldValue: '238.10'),
+            PendingFieldChange(field: '备注', oldValue: '周一前写好止损计划'),
+          ],
+        ),
+      ],
+    ),
+  ];
+
+  return DataTableBundle(
+    types: const [
+      DataTableType(id: 'type_work', name: '工作'),
+      DataTableType(id: 'type_finance', name: '资产'),
+      DataTableType(id: 'type_life', name: '生活'),
+    ],
+    tables: tables,
+    rows: rows,
+    logs: logs,
+    pendingBatches: pendingBatches,
+  );
+}

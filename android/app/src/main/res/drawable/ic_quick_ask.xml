@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quick Settings tile: the ToWork mark, tinted by the system. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="60" android:viewportHeight="60">
+    <group android:translateX="-24" android:translateY="-24">
+        <path android:pathData="M31.2,42.8 L40.8,69.2 L52.8,50 L63.2,69.2 L76.8,38.8"
+            android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
+</vector>

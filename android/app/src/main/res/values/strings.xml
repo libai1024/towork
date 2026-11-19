@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Quick panel entry points. The app label itself comes from the manifest placeholder. -->
+    <string name="quick_ask_short">快问</string>
+    <string name="quick_ask_long">ToWork 快问</string>
+    <string name="quick_ask_voice_short">语音快问</string>
+    <string name="quick_ask_voice_long">ToWork 语音快问</string>
+    <!-- Shown in other apps' share sheet and text-selection menu. -->
+    <string name="quick_ask_text">问 ToWork</string>
+</resources>

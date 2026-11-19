@@ -1,0 +1,33 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.towork.shortcutprobe" android:versionCode="1" android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36" />
+    <!-- Locate the OEM menu component by system package name and APK path. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <application android:label="ToWork 入口检测" android:icon="@drawable/ic_shortcut_quick_ask"
+        android:theme="@style/ProbeTheme" android:allowBackup="false">
+        <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+        </activity>
+        <activity android:name=".ForwardActivity" android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay" android:excludeFromRecents="true" />
+        <activity android:name=".LegacyShortcutActivity" android:exported="true"
+            android:label="旧式快问检测" android:icon="@drawable/ic_shortcut_quick_ask"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity-alias android:name=".LegacyVoice" android:targetActivity=".LegacyShortcutActivity"
+            android:exported="true" android:label="旧式语音检测" android:icon="@drawable/ic_shortcut_quick_voice">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+</manifest>

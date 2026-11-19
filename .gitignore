@@ -1,0 +1,24 @@
+.env
+*.local
+__pycache__/
+*.pyc
+.dart_tool/
+build/
+coverage/
+.flutter_patcher/
+node_modules/
+.DS_Store
+.idea/
+*.iml
+.flutter-plugins-dependencies
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.p8
+android/key.properties
+
+# 离线语音模型体积大（单文件可超 GitHub 100MB 上限），不入库；
+# 由 tool/fetch_asr_models.sh 按清单下载并校验。
+assets/asr/**/*.onnx

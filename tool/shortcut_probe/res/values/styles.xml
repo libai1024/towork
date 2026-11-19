@@ -1,0 +1,10 @@
+<resources>
+    <style name="ProbeTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:textColorPrimary">#1B1B1B</item>
+        <item name="android:textColorSecondary">#5A5A5A</item>
+        <item name="android:colorAccent">#1B1B1B</item>
+        <item name="android:windowBackground">#FAFAFA</item>
+    </style>
+</resources>

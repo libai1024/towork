@@ -1,0 +1,4 @@
+<resources>
+    <string name="static_ask">静态快问</string>
+    <string name="static_voice">静态语音</string>
+</resources>

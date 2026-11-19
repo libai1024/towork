@@ -1,0 +1,18 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="static_ask" android:enabled="true"
+        android:shortcutShortLabel="@string/static_ask" android:icon="@drawable/ic_shortcut_quick_ask">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="com.towork.shortcutprobe"
+            android:targetClass="com.towork.shortcutprobe.ForwardActivity">
+            <extra android:name="mode" android:value="ask" />
+        </intent>
+    </shortcut>
+    <shortcut android:shortcutId="static_voice" android:enabled="true"
+        android:shortcutShortLabel="@string/static_voice" android:icon="@drawable/ic_shortcut_quick_voice">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="com.towork.shortcutprobe"
+            android:targetClass="com.towork.shortcutprobe.ForwardActivity">
+            <extra android:name="mode" android:value="voice" />
+        </intent>
+    </shortcut>
+</shortcuts>

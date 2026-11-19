@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the launcher icon. Either entry can also be dragged onto the home screen. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="quick_ask"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_quick_ask"
+        android:shortcutShortLabel="@string/quick_ask_short"
+        android:shortcutLongLabel="@string/quick_ask_long">
+        <intent
+            android:action="com.towork.towork.action.QUICK_ASK"
+            android:targetPackage="com.towork.towork"
+            android:targetClass="com.towork.towork.AssistActivity">
+            <extra
+                android:name="com.towork.towork.extra.SOURCE"
+                android:value="shortcut" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="quick_ask_voice"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_quick_voice"
+        android:shortcutShortLabel="@string/quick_ask_voice_short"
+        android:shortcutLongLabel="@string/quick_ask_voice_long">
+        <intent
+            android:action="com.towork.towork.action.QUICK_ASK_VOICE"
+            android:targetPackage="com.towork.towork"
+            android:targetClass="com.towork.towork.AssistActivity">
+            <extra
+                android:name="com.towork.towork.extra.SOURCE"
+                android:value="shortcut" />
+        </intent>
+    </shortcut>
+</shortcuts>

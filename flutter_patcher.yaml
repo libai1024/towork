@@ -1,0 +1,9 @@
+url: https://zhaozhaoyue.top/dl/towork/patches
+
+# The public keys every host of this project trusts. Written by
+# `flutter_patcher keys`; hosts already shipped keep the keys they
+# were built with.
+trust:
+  root: j/a76bnSvPNK6TrltKywBVddudKxmEswgq++rRO1Za0=
+  publisher: vwOhFA5o03ZT6XKSwoVuMZFYeKzJAHvy0M9rqDhz/k8=
+  patch: AlpovDCv6n7eiSKfymUIOSGWVmUEzqyFqtSCRN2NoMg=
