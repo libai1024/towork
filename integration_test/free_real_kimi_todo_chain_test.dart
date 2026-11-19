@@ -13,8 +13,7 @@ import 'package:towork/app/local_chat_runtime.dart';
 import 'package:towork/app/local_database_provider.dart';
 import 'package:towork/app/providers.dart';
 import 'package:towork/app/workspace_state.dart';
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
-import 'package:towork/data/platform/apple_distribution.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/data/local/app_database.dart';
 import 'package:towork/data/local/app_preferences_store.dart';
 import 'package:towork/domain/ai/agent_run.dart';
@@ -91,7 +90,7 @@ void main() {
       ).create();
       final file = File('${directory.path}/real.sqlite');
       final vault = FakeKeyVault();
-      final gateway = OpenAiCompatibleGateway();
+      final gateway = createPlatformModelGateway();
       AppDatabase? db;
       ProviderContainer? container;
       final log = <String>[];
@@ -257,8 +256,13 @@ void main() {
         // Tier: 智能确认 — create/edit/complete auto-execute, delete confirms.
         await open(initial: true, permission: 'askOnChange');
         if (appleTest) {
-          await AppleDistribution.authorize(
-            ModelProfile(model: model, product: ProviderKind.deepseek),
+          final profile = ModelProfile(
+            model: model,
+            product: ProviderKind.deepseek,
+          );
+          await platformModelAuthorization(
+            profile.completionsUri.origin,
+            profile.descriptor.label,
           );
         }
         const title = '真实链路验收0924';

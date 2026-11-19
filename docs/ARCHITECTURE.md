@@ -19,7 +19,7 @@
 
 机器守卫检查 import、export、part 与条件导入。domain/data 的向外依赖、app 到 features/shell、跨 feature 引用、feature 到 data/shell、core 到 features/shell/data，以及新代码对 `mock/` 的引用都会失败。共享 UI 通过注入的 app/domain 契约访问数据。`lib/mock` 为历史兼容导出。检查位于 `test/architecture/layer_dependencies_test.dart`。
 
-当前 Store 使用 Riverpod StateNotifier，部分模型保留 `dart:ui Color`。domain 的纯 Dart 包隔离需单独规划。页面持有 TextEditingController、FocusNode、动画与滚动控制器，退出时释放。跨业务异步过程归 app 的 ViewModel 或 use case。
+架构测试检查 domain 和 Agent 的外部导入。现有六个文件保留具体的 StateNotifier、Flutter 和 Color 导入，新增业务规则依赖 Dart 与已使用的纯 Dart 库。Agent 的决定逻辑只依赖领域契约。页面持有 TextEditingController、FocusNode、动画与滚动控制器，退出时释放。跨业务异步过程归 app 的 ViewModel 或 use case。
 
 ## 数据与操作
 
@@ -27,7 +27,11 @@
 
 仓库拥有已提交业务数据，页面和 ViewModel 保存过滤、选择、生成等过程状态。集合构造时复制并冻结，业务更新经过统一 workspace commands。批量 Agent 操作先准备和校验，用户授权后事务提交。撤销按操作回执和版本检查恢复受影响记录。
 
-待办页面从 `todoListProvider` 读取不可变列表，按 ID 查询使用 `TodoReadStore`。生产投影只由 `LocalWorkspaceSession` 接受已提交的状态。手动创建从 `AsyncTodoCommands.create` 进入，以表单的操作 ID 构造一条 `AppendTodo`。SQLite 在首次提交时确定排序、完成时间与回执，相同请求重试可取回原回执。批量编辑继续通过工作区草稿比较生成变更。快问经 Agent 工具提案和授权写入，共用工作区字段校验、事务与可撤销回执。页面级错误提示位于 `core/workspace_actions.dart`。
+待办页面从 `todoListProvider` 读取不可变列表，按 ID 查询使用 `TodoReadStore`。生产投影只由 `LocalWorkspaceSession` 接受已提交的状态。手动创建从 `AsyncTodoCommands.create` 进入，以表单的操作 ID 构造一条 `AppendTodo`。SQLite 在首次提交时确定排序、完成时间与回执，相同请求重试可取回原回执。完成、切换完成状态和改期按 ID 从已提交快照取版本，只生成受影响字段的补丁。撤销绑定本次回执。分类子树等复合编辑沿用工作区草稿比较。快问经 Agent 工具提案和授权写入，共用工作区字段校验、事务与可撤销回执。页面级错误提示位于 `core/workspace_actions.dart`。
+
+`app/model_transmission.dart` 装配模型传输授权。聊天、报告和连接测试共用设置服务拥有的网关，按最终 HTTPS origin 授权。iOS 和 Mac App Store 外发前询问，Android 和官网下载的 macOS 客户端沿用直接发送。授权等待中的请求可取消。
+
+`agent/agent_tool_decision.dart` 校验提案身份、选择与版本。SQLite 执行器在事务内重读配置和授权，业务变更、工具事件与回执一起提交。
 
 模型账户保存凭据引用，实际 Key 由系统安全存储管理。界面错误通过稳定错误码映射。长期记忆、上下文裁剪、权限和工具协议见 [Agent 工具规范](standards/AGENT-TOOLS.md)。
 
@@ -75,4 +79,4 @@ flutter test test/architecture
 
 质量门覆盖 lockfile、格式、严格静态分析、架构和普通测试。平台集成使用独立数据库和脚本模型，真实模型、麦克风、设备后台调度单独记录证据。测试矩阵见 [测试规范](standards/TESTING.md)。
 
-CI 构建 Android/macOS，tag 流程验证版本和签名并生成 Android 发布产物。当前官网通过 `tool/publish_android.sh` 上传 APK 和原子更新清单。签名与共享服务器路径见 [发布手册](release/README.md)。
+CI 根据修改路径运行 Android、iOS 设备作业和 macOS 构建，`mobile-quality` 汇总必跑作业。tag 流程复用完整质量门，验证版本和签名并生成 Android 发布产物。当前官网通过 `tool/publish_android.sh` 上传 APK 和原子更新清单。签名与共享服务器路径见 [发布手册](release/README.md)。

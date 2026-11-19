@@ -6,6 +6,8 @@ on:
     branches: ['**']
   workflow_dispatch:
   workflow_call:
+  schedule:
+    - cron: "25 2 * * 1"
 
 permissions:
   contents: read
@@ -15,6 +17,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ steps.scope.outputs.android }}
+      ios: ${{ steps.scope.outputs.ios }}
+      macos: ${{ steps.scope.outputs.macos }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          # The PR checkout is GitHub's test merge, so compare it with the base.
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || (github.event_name == 'push' && github.ref_type == 'branch' && github.event.before) || '' }}
+        run: python3 tool/mobile_ci_scope.py --base "$BASE" >> "$GITHUB_OUTPUT"
+      - run: python3 tool/check_upgrade_docs.py
+
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -35,6 +54,7 @@ jobs:
         run: python3 tool/check_size_baseline.py --base "$BASE"
       - name: Format, analyze, architecture and behavior tests
         run: bash tool/check.sh
+      - run: flutter test --no-pub --dart-define=TOWORK_MAC_APP_STORE=true test/data/ai/apple_consent_test.dart
       - name: Upload coverage
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -43,38 +63,97 @@ jobs:
           if-no-files-found: error
 
   native-build:
-    needs: quality
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: apk
-          - os: macos-latest
-            target: macos
-    runs-on: ${{ matrix.os }}
+    needs: [quality, scope]
+    if: needs.scope.outputs.macos == 'true'
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        if: matrix.target == 'apk'
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.5'
+          cache: true
+      - run: bash tool/fetch_asr_models.sh
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter build macos --debug --no-pub
+
+  android-device:
+    needs: scope
+    if: needs.scope.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
         with:
           distribution: temurin
           java-version: '17'
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: '3.47.5'
-          channel: stable
           cache: true
+          pub-cache-key: pub-android-${{ runner.arch }}-3.47.5-${{ hashFiles('pubspec.lock') }}
+      - run: bash tool/fetch_asr_models.sh
       - run: flutter pub get --enforce-lockfile
-      - name: Restore verified offline speech models
-        run: bash tool/fetch_asr_models.sh
-      - name: Build native debug app
-        run: flutter build ${{ matrix.target }} --debug --no-pub
-      - name: Upload Android debug app
-        if: matrix.target == 'apk'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@324029e2f414c084d8b15ba075288885e74aef9c # v2.34.0
         with:
-          name: android-debug
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: bash tool/verify_mobile_device.sh android emulator-5554
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: android-device-${{ github.sha }}
+          path: build/mobile-verification/android
+
+  ios-device:
+    needs: scope
+    if: needs.scope.outputs.ios == 'true'
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Select Xcode and simulator
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+          xcodebuild -version
+          device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; devices=json.load(sys.stdin)['devices']; print(next(d['udid'] for runtime, group in sorted(devices.items(), reverse=True) if 'iOS-26' in runtime for d in group if d['name'].startswith('iPhone')))")
+          xcrun simctl bootstatus "$device" -b
+          echo "IOS_SIMULATOR=$device" >> "$GITHUB_ENV"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.5'
+          cache: true
+          pub-cache-key: pub-ios-${{ runner.arch }}-xcode26.3-3.47.5-${{ hashFiles('pubspec.lock') }}
+      - run: bash tool/fetch_asr_models.sh
+      - run: flutter pub get --enforce-lockfile
+      - run: bash tool/verify_mobile_device.sh ios "$IOS_SIMULATOR"
+      - run: bash tool/verify_ios_model_consent.sh "$IOS_SIMULATOR"
+      - name: Check iPad layout on scheduled and release builds
+        if: github.event_name == 'schedule' || github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
+        run: |
+          ipad=$(xcrun simctl list devices available -j | python3 -c "import json,sys; print(next(d['udid'] for runtime, group in json.load(sys.stdin)['devices'].items() if 'iOS-26' in runtime for d in group if d['name'].startswith('iPad')))")
+          xcrun simctl bootstatus "$ipad" -b
+          flutter test --no-pub -d "$ipad" integration_test/apple_store_screenshots_test.dart
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: ios-device-${{ github.sha }}
+          path: build/mobile-verification/ios
+
+  mobile-quality:
+    if: always()
+    needs: [scope, quality, native-build, android-device, ios-device]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: python3 tool/mobile_ci_scope.py --check-results

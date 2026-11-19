@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:towork/agent/agent_runner.dart';
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/data/local/agent_run_store.dart';
 import 'package:towork/data/local/agent_tool_executor.dart';
 import 'package:towork/data/local/app_database.dart';
@@ -51,7 +51,7 @@ Future<void> main(List<String> arguments) async {
   final directory = await Directory.systemTemp.createTemp('towork-agent-smoke');
   final dbFile = File('${directory.path}/probe.sqlite');
   var db = AppDatabase.background(dbFile);
-  final gateway = OpenAiCompatibleGateway();
+  final gateway = createPlatformModelGateway();
   final watch = Stopwatch()..start();
   try {
     final prefs = SqliteAppPreferencesStore(db);

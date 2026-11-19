@@ -107,9 +107,9 @@ class _CalendarCardState extends ConsumerState<CalendarCard> {
     final newDue = DateTime(day.year, day.month, day.day, old.hour, old.minute);
     final change = await workspaceUi(
       context,
-      () => ref
-          .read(workspaceUiCommandsProvider)
-          .run((t, c) => t.updateTodo(current.copyWith(dueAt: newDue))),
+      () => ref.read(workspaceUiCommandsProvider).editTodoFields([
+        current.id,
+      ], TodoFieldEdit.reschedule(newDue)),
     );
     if (!mounted || change == null) return;
     HapticFeedback.mediumImpact();

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/domain/ai/model_gateway.dart';
 
 /// Explicit opt-in only. Never run this probe from the default CI entry point.
@@ -41,7 +41,7 @@ Future<void> main(List<String> arguments) async {
         : env['KIMI_MODEL_DEFAULT'] ?? 'kimi-k2.6',
     disableThinking: true,
   );
-  final client = OpenAiCompatibleGateway();
+  final client = createPlatformModelGateway();
   final clock = Stopwatch()..start();
   var phase = 'connection';
   try {

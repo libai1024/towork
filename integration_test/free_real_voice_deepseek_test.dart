@@ -13,7 +13,7 @@ import 'package:towork/app/local_database_provider.dart';
 import 'package:towork/app/model_settings_provider.dart';
 import 'package:towork/app/providers.dart';
 import 'package:towork/app/speech_provider.dart';
-import 'package:towork/data/ai/openai_compatible_gateway.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/data/local/app_database.dart';
 import 'package:towork/data/local/app_preferences_store.dart';
 import 'package:towork/data/platform/offline_asr_model_store.dart';
@@ -89,7 +89,7 @@ void main() {
     final settings = ModelSettingsService(
       db,
       FakeKeyVault(),
-      real ? OpenAiCompatibleGateway() : ScriptedTodoModel(),
+      real ? createPlatformModelGateway() : ScriptedTodoModel(),
     );
     await settings.save(
       profile: ModelProfile(

@@ -1,39 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:towork/app/model_transmission.dart';
 import 'package:towork/data/ai/openai_compatible_gateway.dart';
 import 'package:towork/domain/ai/model_gateway.dart';
 
+import '../../support/loopback_transport.dart';
 import 'chat_stream_protocol_test.dart' show chunk, fails;
-
-/// Test-only transport routes the real Dart HTTP stack to a local fixture.
-class LoopbackTransport implements HttpClientAdapter {
-  LoopbackTransport(this.port);
-  final int port;
-  final _inner = IOHttpClientAdapter();
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? body,
-    Future<void>? cancel,
-  ) => _inner.fetch(
-    options.copyWith(
-      path: 'http://127.0.0.1:$port${options.uri.path}',
-      baseUrl: '',
-    ),
-    body,
-    cancel,
-  );
-
-  @override
-  void close({bool force = false}) => _inner.close(force: force);
-}
 
 void main() {
   late HttpServer server;
@@ -43,6 +18,7 @@ void main() {
   setUp(() async {
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     gateway = OpenAiCompatibleGateway(
+      authorize: platformModelAuthorization,
       transport: LoopbackTransport(server.port),
     );
   });
@@ -182,6 +158,7 @@ void main() {
   test('overall deadline is bounded while server never responds', () async {
     gateway.close();
     gateway = OpenAiCompatibleGateway(
+      authorize: platformModelAuthorization,
       transport: LoopbackTransport(server.port),
       timeout: const Duration(milliseconds: 100),
     );
@@ -202,7 +179,10 @@ void main() {
       final raw = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
       addTearDown(() => raw.close());
       gateway.close();
-      gateway = OpenAiCompatibleGateway(transport: LoopbackTransport(raw.port));
+      gateway = OpenAiCompatibleGateway(
+        authorize: platformModelAuthorization,
+        transport: LoopbackTransport(raw.port),
+      );
       final payload = utf8.encode('data: ${chunk({'content': 'partial'})}\n\n');
       final head = ascii.encode(
         'HTTP/1.1 200 OK\r\n'

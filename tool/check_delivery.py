@@ -98,7 +98,27 @@ def main():
             assert action.startswith('./') or re.fullmatch(r'[^@]+@[a-f0-9]{40}', action), action
     quality = (ROOT / '.github/workflows/flutter.yml').read_text()
     release = (ROOT / '.github/workflows/release.yml').read_text()
-    assert quality.count('bash tool/fetch_asr_models.sh') == 2
+    for job in ['quality', 'native-build', 'android-device', 'ios-device']:
+        section = re.split(r'^  [a-z-]+:$', quality.split(f'  {job}:\n', 1)[1], maxsplit=1, flags=re.MULTILINE)[0]
+        assert 'bash tool/fetch_asr_models.sh' in section.split('\n\n  ', 1)[0], job
+    from mobile_ci_scope import check_results, required_platforms
+    assert required_platforms(['android/app/build.gradle.kts']) == {'android'}
+    assert required_platforms(['ios/Runner/AppDelegate.swift']) == {'ios'}
+    assert required_platforms(['docs/note.md']) == set()
+    for path in ['pubspec.lock', 'lib/data/platform/apple_distribution.dart', '.github/workflows/flutter.yml', 'new-root/x']:
+        assert required_platforms([path]) == {'ios', 'android', 'macos'}
+    jobs = {key: {'result': 'success'} for key in ['scope', 'quality', 'android-device']}
+    jobs['scope']['outputs'] = {'android': 'true', 'ios': 'false', 'macos': 'false'}
+    for key in ['ios-device', 'native-build']:
+        jobs[key] = {'result': 'skipped'}
+    check_results(jobs)
+    for state in ['skipped', 'failure', 'cancelled']:
+        try:
+            check_results(dict(jobs, **{'android-device': {'result': state}}))
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f'Required Android result accepted: {state}')
     assert 'bash tool/check.sh' in quality and 'check_size_baseline.py' in quality
     assert 'workflow_call:' in quality and 'needs: quality' in release
     assert 'tool/verify_android_artifact.py' in (ROOT / 'tool/publish_android.sh').read_text()

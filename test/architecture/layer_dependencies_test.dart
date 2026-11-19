@@ -17,6 +17,8 @@ void main() {
         final source = file.uri.path.substring(root.path.length);
         for (final import in localDirectives(file.readAsStringSync())) {
           if (import.contains(':') && !import.startsWith('package:towork/')) {
+            final problem = externalDependencyViolation(source, import);
+            if (problem != null) violations.add('$source -> $import: $problem');
             continue;
           }
           final targetUri = import.startsWith('package:towork/')
@@ -47,6 +49,9 @@ void main() {
       ('core/shared.dart', 'features/todo/page.dart'),
       ('domain/model.dart', 'shell/app.dart'),
       ('data/store.dart', 'shell/app.dart'),
+      ('data/ai/gateway.dart', 'data/platform/consent.dart'),
+      ('agent/decision.dart', 'data/local/store.dart'),
+      ('domain/task.dart', 'agent/tools.dart'),
     ]) {
       expect(dependencyViolation(source, target), isNotNull);
     }
@@ -61,6 +66,35 @@ void main() {
     expect(
       dependencyViolation('features/todo/a.dart', 'core/todo/item.dart'),
       isNull,
+    );
+  });
+
+  test('domain and Agent cannot acquire host or persistence packages', () {
+    for (final uri in [
+      'dart:ui',
+      'dart:io',
+      'package:drift/drift.dart',
+      'package:path_provider/path_provider.dart',
+    ]) {
+      expect(
+        externalDependencyViolation('domain/workspace/new_rule.dart', uri),
+        isNotNull,
+      );
+      expect(
+        externalDependencyViolation('agent/new_planner.dart', uri),
+        isNotNull,
+      );
+    }
+    expect(
+      externalDependencyViolation('domain/models/category.dart', 'dart:ui'),
+      isNull,
+    );
+    expect(
+      externalDependencyViolation(
+        'domain/models/category.dart',
+        'package:flutter/widgets.dart',
+      ),
+      isNotNull,
     );
   });
 

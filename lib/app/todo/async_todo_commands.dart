@@ -25,10 +25,15 @@ class AsyncTodoCommands {
     return TodoMutation(count: change.value.count, undo: change.undo);
   }
 
+  Future<TodoMutation> _edit(Iterable<String> ids, TodoFieldEdit edit) async {
+    final result = await commands.editTodoFields(ids, edit, clock: clock);
+    return TodoMutation(count: result.value, undo: result.undo);
+  }
+
   Future<TodoMutation> toggleDone(String id) =>
-      _change((vm) => vm.toggleDone(id));
+      _edit([id], const TodoFieldEdit.toggleDone());
   Future<TodoMutation> complete(Iterable<String> ids) =>
-      _change((vm) => vm.complete(ids));
+      _edit(ids, const TodoFieldEdit.complete());
   Future<TodoMutation> delete(Iterable<String> ids) =>
       _change((vm) => vm.delete(ids));
   Future<int> setCategory(Iterable<String> ids, String? categoryId) async =>
@@ -40,13 +45,7 @@ class AsyncTodoCommands {
         ).setCategory(ids, categoryId),
       )).value;
   Future<int> setDue(Iterable<String> ids, DateTime? dueAt) async =>
-      (await commands.run(
-        (t, c) => TodoViewModel(
-          todos: t,
-          categories: c,
-          clock: clock,
-        ).setDue(ids, dueAt),
-      )).value;
+      (await _edit(ids, TodoFieldEdit.reschedule(dueAt))).count;
   Future<Todo> create({
     required String title,
     String? note,

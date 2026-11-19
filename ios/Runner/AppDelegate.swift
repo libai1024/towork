@@ -31,6 +31,32 @@ import UIKit
 private enum AppleDistribution {
   private static let permissionKey = "ToWork.AllowedAIOrigins.v1"
 
+  private final class Prompt {
+    let alert: UIAlertController
+    let reply: FlutterResult
+    var backgroundObserver: NSObjectProtocol?
+
+    init(_ alert: UIAlertController, _ reply: @escaping FlutterResult) {
+      self.alert = alert
+      self.reply = reply
+    }
+  }
+  private static var pending: Prompt?
+
+  private static func finish(_ prompt: Prompt, allowedOrigin: String? = nil, dismiss: Bool = false) {
+    guard pending === prompt else { return }
+    pending = nil
+    if let observer = prompt.backgroundObserver { NotificationCenter.default.removeObserver(observer) }
+    if dismiss { prompt.alert.dismiss(animated: false) }
+    if let origin = allowedOrigin {
+      let defaults = UserDefaults.standard
+      var allowed = Set(defaults.stringArray(forKey: permissionKey) ?? [])
+      allowed.insert(origin)
+      defaults.set(Array(allowed), forKey: permissionKey)
+    }
+    prompt.reply(allowedOrigin != nil)
+  }
+
   static func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "isTestFlight":
@@ -39,6 +65,7 @@ private enum AppleDistribution {
     case "openPrivacyPolicy":
       UIApplication.shared.open(URL(string: "https://zhaozhaoyue.top/towork/privacy.html")!) { opened in result(opened) }
     case "resetModelConsent":
+      if let prompt = pending { finish(prompt, dismiss: true) }
       UserDefaults.standard.removeObject(forKey: permissionKey)
       result(nil)
     case "authorizeModel":
@@ -53,17 +80,23 @@ private enum AppleDistribution {
         return
       }
       while let next = controller.presentedViewController { controller = next }
-      guard !(controller is UIAlertController) else { result(false); return }
+      guard pending == nil, !(controller is UIAlertController) else { result(false); return }
       let alert = UIAlertController(
         title: "允许发送到" + provider + "？",
         message: "ToWork 会将对话、选中的附件，以及任务所需的待办、表格、记忆或报告发送到 " + origin + " 进行处理。可在「设置 → 隐私与权限」撤回。",
         preferredStyle: .alert)
-      alert.addAction(UIAlertAction(title: "暂不允许", style: .cancel) { _ in result(false) })
-      alert.addAction(UIAlertAction(title: "允许", style: .default) { _ in
-        var allowed = Set(defaults.stringArray(forKey: permissionKey) ?? [])
-        allowed.insert(origin)
-        defaults.set(Array(allowed), forKey: permissionKey)
-        result(true)
+      let prompt = Prompt(alert, result)
+      pending = prompt
+      prompt.backgroundObserver = NotificationCenter.default.addObserver(
+        forName: UIScene.didEnterBackgroundNotification, object: scene, queue: .main
+      ) { [weak prompt] _ in
+        if let prompt = prompt { finish(prompt, dismiss: true) }
+      }
+      alert.addAction(UIAlertAction(title: "暂不允许", style: .cancel) { [weak prompt] _ in
+        if let prompt = prompt { finish(prompt) }
+      })
+      alert.addAction(UIAlertAction(title: "允许", style: .default) { [weak prompt] _ in
+        if let prompt = prompt { finish(prompt, allowedOrigin: origin) }
       })
       controller.present(alert, animated: true)
     default: result(FlutterMethodNotImplemented)

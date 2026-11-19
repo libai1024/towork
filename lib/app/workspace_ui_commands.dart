@@ -10,101 +10,15 @@ import '../domain/use_cases/category_actions.dart';
 import '../domain/workspace/append_todo.dart';
 import '../domain/workspace/workspace_validation.dart';
 import '../domain/workspace/workspace_commands.dart';
-import '../domain/workspace/workspace_plans.dart';
+import '../domain/workspace/todo_field_edit.dart';
+import 'categories/category_delete_preview.dart';
 import 'local_workspace_session.dart';
 import 'providers.dart';
 
+export 'categories/category_delete_preview.dart';
+export '../domain/workspace/todo_field_edit.dart';
+
 class WorkspaceBusy implements Exception {}
-
-/// The records displayed before a deletion confirmation. Changes to this scope
-/// require a fresh preview, including newly attached tasks or child categories.
-class CategoryDeletePreview {
-  CategoryDeletePreview.capture(
-    String id,
-    CategoryStore categories,
-    TodoReadStore todos, {
-    WorkspaceSnapshot? workspace,
-  }) : categoryId = id,
-       fingerprint = _fingerprint(id, categories, todos, workspace),
-       _plans = workspace == null
-           ? null
-           : {
-               for (final mode in WorkspaceCategoryDeleteMode.values)
-                 mode: WorkspacePlans.deleteCategory(
-                   workspace,
-                   id,
-                   operationId: newWorkspaceId('category-delete'),
-                   mode: mode,
-                 ),
-             };
-
-  final String categoryId;
-  final String fingerprint;
-  final Map<WorkspaceCategoryDeleteMode, WorkspaceCommand>? _plans;
-  WorkspaceCommand? command(CategoryDeletionPolicy policy) =>
-      _plans?[policy == CategoryDeletionPolicy.deleteSubtree
-          ? WorkspaceCategoryDeleteMode.deleteSubtree
-          : WorkspaceCategoryDeleteMode.promoteChildren];
-  int get seriesCount =>
-      _plans?[WorkspaceCategoryDeleteMode.deleteSubtree]?.actions
-          .where((a) => a.kind == WorkspaceEntityKind.series)
-          .length ??
-      0;
-  int get detachedCount =>
-      _plans?[WorkspaceCategoryDeleteMode.deleteSubtree]?.actions
-          .where(
-            (a) =>
-                a.kind == WorkspaceEntityKind.todo &&
-                a.mutation == WorkspaceMutationKind.update,
-          )
-          .length ??
-      0;
-
-  static String _fingerprint(
-    String id,
-    CategoryStore categories,
-    TodoReadStore todos,
-    WorkspaceSnapshot? workspace,
-  ) {
-    final ids = categories.subtreeIds(id);
-    final series =
-        workspace?.series
-            .where(
-              (e) => ids.contains((e.data['template']! as Map)['category_id']),
-            )
-            .toList() ??
-        <WorkspaceEntity>[];
-    final seriesIds = series.map((e) => e.id).toSet();
-    return canonicalWorkspaceJson({
-      'categories': {
-        for (final item in categories.snapshot.where((c) => ids.contains(c.id)))
-          item.id: {'version': item.version, ...categoryWorkspaceData(item)},
-      },
-      'todos': {
-        for (final item in todos.snapshot.where(
-          (t) => ids.contains(t.categoryId) || seriesIds.contains(t.seriesId),
-        ))
-          item.id: {'version': item.version, ...todoWorkspaceData(item)},
-      },
-      'series': {for (final e in series) e.id: e.toJson()},
-    });
-  }
-
-  void validate(
-    String id,
-    CategoryStore categories,
-    TodoReadStore todos, {
-    WorkspaceSnapshot? workspace,
-  }) {
-    if (id != categoryId ||
-        fingerprint != _fingerprint(id, categories, todos, workspace)) {
-      throw WorkspaceFailure(
-        WorkspaceFailureCode.versionConflict,
-        entityId: id,
-      );
-    }
-  }
-}
 
 class UiWorkspaceChange<T> {
   UiWorkspaceChange(this.value, this._undo);
@@ -400,8 +314,66 @@ class WorkspaceUiCommands {
     await run((t, c) => t.updateTodo(todo));
   }
 
+  Future<UiWorkspaceChange<int>> editTodoFields(
+    Iterable<String> ids,
+    TodoFieldEdit edit, {
+    DateTime Function()? clock,
+  }) async {
+    final targets = ids.toSet();
+    final local = session;
+    if (local == null) {
+      return run((draft, _) {
+        var count = 0;
+        for (final id in targets) {
+          final todo = draft.byId(id);
+          if (todo == null || !edit.includes(todo)) continue;
+          count++;
+          if (edit.changes(todo)) {
+            draft.updateTodo(edit.applyTo(todo, (clock ?? DateTime.now)()));
+          }
+        }
+        return count;
+      });
+    }
+    if (_busy) throw WorkspaceBusy();
+    final actions = <WorkspaceMutation>[];
+    var count = 0;
+    for (final id in targets) {
+      final entity = local.snapshot.find(WorkspaceEntityKind.todo, id);
+      if (entity == null || entity.isDeleted) continue;
+      final todo = workspaceTodo(entity);
+      if (!edit.includes(todo)) continue;
+      count++;
+      if (!edit.changes(todo)) continue;
+      actions.add(
+        WorkspaceMutation(
+          actionId: 'a_${actions.length}',
+          kind: entity.kind,
+          entityId: id,
+          mutation: WorkspaceMutationKind.update,
+          expectedVersion: entity.version,
+          patch: edit.patch(todo),
+        ),
+      );
+    }
+    if (actions.isEmpty) return UiWorkspaceChange(count, () async {});
+    _busy = true;
+    try {
+      final receipt = await local.execute(
+        WorkspaceCommand(operationId: newWorkspaceId('op'), actions: actions),
+      );
+      final undoId = newWorkspaceId('undo');
+      return UiWorkspaceChange(
+        count,
+        () => local.undo(receipt.changesetId, undoId),
+      );
+    } finally {
+      _busy = false;
+    }
+  }
+
   Future<void> toggleTodo(String id) async {
-    await run((t, c) => t.toggleDone(id));
+    await editTodoFields([id], const TodoFieldEdit.toggleDone());
   }
 
   Future<bool> moveCategory(String id, String? parentId, int index) async =>

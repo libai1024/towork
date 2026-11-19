@@ -2,6 +2,7 @@ import Cocoa
 import FlutterMacOS
 
 class MainFlutterWindow: NSWindow {
+  private var consentGeneration = 0
   private var speech: SpeechBridge?
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
@@ -43,6 +44,7 @@ class MainFlutterWindow: NSWindow {
     case "openPrivacyPolicy":
       result(NSWorkspace.shared.open(URL(string: "https://zhaozhaoyue.top/towork/privacy.html")!))
     case "resetModelConsent":
+      consentGeneration += 1
       defaults.removeObject(forKey: permissionKey)
       result(nil)
     case "authorizeModel":
@@ -55,8 +57,9 @@ class MainFlutterWindow: NSWindow {
       alert.informativeText = "ToWork 会将对话、选中的附件，以及任务所需的待办、表格、记忆或报告发送到 " + origin + " 进行处理。可在「设置 → 隐私与权限」撤回。"
       alert.addButton(withTitle: "暂不允许")
       alert.addButton(withTitle: "允许")
-      alert.beginSheetModal(for: self) { response in
-        let accepted = response == .alertSecondButtonReturn
+      let generation = consentGeneration
+      alert.beginSheetModal(for: self) { [weak self] response in
+        let accepted = self?.consentGeneration == generation && response == .alertSecondButtonReturn
         if accepted {
           var allowed = Set(defaults.stringArray(forKey: permissionKey) ?? [])
           allowed.insert(origin)
