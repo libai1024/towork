@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:sqlite3/sqlite3.dart';
-import 'package:drift/remote.dart' show DriftRemoteException;
+import 'package:drift/isolate.dart' show DriftRemoteException;
 
 void configureWorkspaceConnection(Database database) {
   database.execute('PRAGMA busy_timeout = 5000');
