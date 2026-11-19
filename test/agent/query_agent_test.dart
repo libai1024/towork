@@ -96,6 +96,67 @@ void main() {
       },
     );
   }
+  test(
+    'suggested steps require review in auto mode and replay the same receipt',
+    () async {
+      final prefs = SqliteAppPreferencesStore(db);
+      final settings = await prefs.loadOrCreate();
+      await prefs.update({
+        'permission': 'auto',
+      }, expectedVersion: settings.version);
+      final runs = SqliteAgentRunStore(db), tools = SqliteAgentToolExecutor(db);
+      final queued = await runs.create(initial());
+      final run = await runs.save(
+        queued.next(AgentRunStatus.generating, round: 1),
+        expectedRevision: queued.revision,
+      );
+      final proposal = await tools.propose(
+        run,
+        ModelCompleted(
+          assistantMessage: {
+            'role': 'assistant',
+            'tool_calls': [
+              {
+                'id': 'split',
+                'type': 'function',
+                'function': {
+                  'name': 'todo_update',
+                  'arguments': jsonEncode({
+                    'id': 'target',
+                    'expected_version': 1,
+                    'patch': {
+                      'add_steps': ['核对', '提交'],
+                    },
+                  }),
+                },
+              },
+            ],
+          },
+          finishReason: 'tool_calls',
+        ),
+      );
+      final pending = await tools.execute(proposal);
+      expect(pending.status, AgentRunStatus.awaitingConfirmation);
+      Future<WorkspaceEntity> target() async =>
+          (await SqliteWorkspaceCommandStore(
+            db,
+          ).load()).find(WorkspaceEntityKind.todo, 'target')!;
+      expect((await target()).data['steps'], isNull);
+      final approval = AgentApproval(
+        runRevision: pending.revision,
+        proposalId: pending.proposal!['id']! as String,
+        digest: pending.proposal!['digest']! as String,
+      );
+      final result = await tools.execute(pending, approval: approval);
+      expect(
+        (await tools.execute(pending, approval: approval)).receipts,
+        result.receipts,
+      );
+      final steps = (await target()).data['steps'] as List;
+      expect(steps.map((s) => s['title']), ['核对', '提交']);
+      expect(steps.map((s) => s['id']).toSet(), hasLength(2));
+    },
+  );
   test('invalid query in mixed read/write batch rejects entire proposal without effects', () async {
     final store = SqliteAgentRunStore(db);
     final queued = await store.create(initial());

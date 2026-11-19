@@ -1,3 +1,4 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_button.dart';
@@ -13,11 +14,13 @@ class ChatTodoEditSheet extends StatefulWidget {
   const ChatTodoEditSheet({
     super.key,
     required this.todo,
+    this.onSteps,
     required this.categories,
     required this.onSave,
   });
 
   final Todo todo;
+  final VoidCallback? onSteps;
   final List<Category> categories;
   final ValueChanged<Todo> onSave;
 
@@ -105,6 +108,17 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
             ],
           ),
           const SizedBox(height: 12),
+          if (widget.onSteps != null)
+            TextButton.icon(
+              onPressed:
+                  _titleController.text.trim() == widget.todo.title &&
+                      _dueAt == widget.todo.dueAt &&
+                      _categoryId == widget.todo.categoryId
+                  ? widget.onSteps
+                  : null,
+              icon: const Icon(LucideIcons.plus, size: 16),
+              label: const Text('添加步骤'),
+            ),
           AppButton(
             expand: true,
             label: '保存',

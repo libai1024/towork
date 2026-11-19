@@ -130,6 +130,14 @@ void main() {
       await choose('截止日期', '明天');
       await choose('优先级', '紧急');
       await choose('提醒', '提前 15 分钟');
+      await tester.ensureVisible(find.text('添加步骤'));
+      await tester.tap(find.text('添加步骤'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('step-input')), '核对发票');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('step-input')), '提交');
+
       await tester.pump();
       await tester.tap(find.byTooltip('创建'));
       await tester.pump();
@@ -170,6 +178,7 @@ void main() {
         final data = (await store.load()).todos.single.data;
         expect(data['title'], '本地持久化验证');
         expect(data['note'], '带预算明细');
+        expect((data['steps'] as List).map((s) => s['title']), ['核对发票', '提交']);
         expect(data['priority'], 'urgent');
         expect((data['remind_rules'] as List).single['offset_minutes'], 15);
       });

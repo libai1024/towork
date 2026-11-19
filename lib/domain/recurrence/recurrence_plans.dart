@@ -6,6 +6,7 @@ import '../workspace/workspace_commands.dart';
 import '../workspace/workspace_validation.dart';
 import 'recurrence_rule.dart';
 import 'recurrence_schedule.dart';
+import 'recurrence_draft.dart';
 
 enum RecurrenceScope { current, currentAndFuture }
 
@@ -27,6 +28,7 @@ class RecurrencePlans {
     'occurrence_at': null,
   };
   static const _editable = {
+    'steps',
     'title',
     'note',
     'priority',
@@ -58,6 +60,11 @@ class RecurrencePlans {
     String zone,
   ) => {
     ...data, ..._identity, 'status': 'pending', 'completed_at': null,
+    if (data['steps'] case final List<Object?> steps)
+      'steps': [
+        for (final step in steps)
+          {...(step as Map<String, Object?>), 'done': false},
+      ],
     'due_at': null,
     'remind_at': null,
     'repeat_rule': rule,
@@ -93,7 +100,7 @@ class RecurrencePlans {
     if (todo.data['series_id'] != null || todo.data['due_at'] == null) {
       _invalid();
     }
-    final draft = _RecurrenceDraft(snapshot, now);
+    final draft = RecurrenceDraft(snapshot, now);
     final seriesId = seriesIdFor(operationId);
     final data = <String, Object?>{
       ...seriesDefaults,
@@ -135,13 +142,13 @@ class RecurrencePlans {
     int limit = 64,
   }) {
     _entity(WorkspaceEntityKind.series, seriesId);
-    final draft = _RecurrenceDraft(snapshot, now);
+    final draft = RecurrenceDraft(snapshot, now);
     _generate(draft, seriesId, through, limit);
     return draft.command(operationId, source: 'system');
   }
 
   void _generate(
-    _RecurrenceDraft draft,
+    RecurrenceDraft draft,
     String id,
     DateTime through,
     int limit,
@@ -199,7 +206,7 @@ class RecurrencePlans {
     required String operationId,
     bool completed = true,
   }) {
-    final draft = _RecurrenceDraft(snapshot, now);
+    final draft = RecurrenceDraft(snapshot, now);
     draft.patch(_todo(todoId), {'status': completed ? 'done' : 'pending'});
     // Idempotent completion callers still receive a versioned receipt.
     return draft.command(operationId, keepNoop: true)!;
@@ -219,7 +226,7 @@ class RecurrencePlans {
     final todo = _todo(todoId);
     final id = todo.data['series_id'] as String?;
     if (id == null) _invalid();
-    final draft = _RecurrenceDraft(snapshot, now);
+    final draft = RecurrenceDraft(snapshot, now);
     if (scope == RecurrenceScope.current) {
       for (final key in ['repeat_rule', 'repeat_timezone']) {
         if (patch.containsKey(key) && patch[key] != todo.data[key]) _invalid();
@@ -304,7 +311,7 @@ class RecurrencePlans {
     required String operationId,
   }) {
     final todo = _todo(todoId);
-    final draft = _RecurrenceDraft(snapshot, now);
+    final draft = RecurrenceDraft(snapshot, now);
     if (scope == RecurrenceScope.currentAndFuture) {
       final id = todo.data['series_id'];
       if (id is! String) _invalid();
@@ -351,7 +358,7 @@ class RecurrencePlans {
   /// A later edit from an older segment also closes its successor segments;
   /// otherwise editing before an earlier split would leave duplicate futures.
   Set<int> _truncate(
-    _RecurrenceDraft draft,
+    RecurrenceDraft draft,
     WorkspaceEntity series,
     int index, {
     required String except,
@@ -423,97 +430,5 @@ class RecurrencePlans {
       }
     }
     return excluded;
-  }
-}
-
-class _RecurrenceDraft {
-  _RecurrenceDraft(this.original, this.now) : entities = {...original.entities};
-  final WorkspaceSnapshot original;
-  final DateTime now;
-  final Map<String, WorkspaceEntity> entities;
-  final Set<String> changed = {};
-
-  WorkspaceEntity get(WorkspaceEntityKind kind, String id) =>
-      entities['${kind.name}:$id']!;
-  void create(WorkspaceEntityKind kind, String id, Map<String, Object?> data) {
-    validateWorkspaceId(id);
-    if (entities.containsKey('${kind.name}:$id')) {
-      throw WorkspaceFailure(
-        WorkspaceFailureCode.versionConflict,
-        entityId: id,
-      );
-    }
-    _put(kind, id, applyWorkspacePatch(kind, null, data, now));
-  }
-
-  void patch(WorkspaceEntity entity, Map<String, Object?> patch) {
-    final current = get(entity.kind, entity.id);
-    _put(
-      entity.kind,
-      entity.id,
-      applyWorkspacePatch(entity.kind, current.data, patch, now),
-    );
-  }
-
-  void delete(WorkspaceEntity entity) =>
-      _put(entity.kind, entity.id, entity.data, deleted: true);
-  void _put(
-    WorkspaceEntityKind kind,
-    String id,
-    Map<String, Object?> data, {
-    bool deleted = false,
-  }) {
-    final old = original.find(kind, id);
-    final item = WorkspaceEntity(
-      kind: kind,
-      id: id,
-      version: (old?.version ?? 0) + 1,
-      data: data,
-      createdAt: old?.createdAt ?? now,
-      updatedAt: now,
-      deletedAt: deleted ? now : null,
-    );
-    entities[item.key] = item;
-    changed.add(item.key);
-  }
-
-  WorkspaceCommand? command(
-    String id, {
-    String source = 'manual',
-    bool keepNoop = false,
-  }) {
-    validateWorkspaceId(id);
-    validateWorkspaceGraph(entities.values);
-    final actions = <WorkspaceMutation>[];
-    for (final key in changed) {
-      final old = original.entities[key], next = entities[key]!;
-      if (!keepNoop &&
-          old != null &&
-          old.isDeleted == next.isDeleted &&
-          canonicalWorkspaceJson(old.data) ==
-              canonicalWorkspaceJson(next.data)) {
-        continue;
-      }
-      actions.add(
-        WorkspaceMutation(
-          actionId: sha256.convert(utf8.encode(key)).toString(),
-          kind: next.kind,
-          entityId: next.id,
-          expectedVersion: old?.version,
-          mutation: old == null
-              ? WorkspaceMutationKind.create
-              : next.isDeleted
-              ? WorkspaceMutationKind.delete
-              : WorkspaceMutationKind.update,
-          patch: next.isDeleted ? {} : next.data,
-        ),
-      );
-    }
-    if (actions.length > 500) {
-      throw const WorkspaceFailure(WorkspaceFailureCode.validation);
-    }
-    return actions.isEmpty
-        ? null
-        : WorkspaceCommand(operationId: id, source: source, actions: actions);
   }
 }

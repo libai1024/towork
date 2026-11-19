@@ -1,5 +1,8 @@
 import '../ai/provider_catalog.dart';
 
+import 'todo_step.dart';
+export 'todo_step.dart';
+
 enum TodoStatus { pending, inProgress, done, cancelled }
 
 enum TodoPriority { none, low, medium, high, urgent }
@@ -28,12 +31,14 @@ class Todo {
     this.sourceMessageId,
     this.sourceModel,
     this.sourceProvider,
+    List<TodoStep> steps = const [],
     List<String> tags = const [],
     this.sortOrder = 0,
     required this.createdAt,
     this.updatedAt,
     this.completedAt,
-  }) : remindRules = List<RemindRule>.unmodifiable(remindRules),
+  }) : steps = List.unmodifiable(steps),
+       remindRules = List<RemindRule>.unmodifiable(remindRules),
        tags = List<String>.unmodifiable(tags);
 
   final String id;
@@ -66,6 +71,9 @@ class Todo {
   /// 生成此待办的模型标识（如 kimi-for-coding / deepseek-flash）；仅展示用元数据。
   final String? sourceModel;
   final ProviderKind? sourceProvider;
+  final List<TodoStep> steps;
+  int get completedSteps => steps.where((s) => s.done).length;
+  String get stepProgress => '步骤 $completedSteps/${steps.length}';
   final List<String> tags;
   final int sortOrder;
   final DateTime createdAt;
@@ -90,6 +98,7 @@ class Todo {
     Object? repeatTimezone = _keep,
     Object? categoryId = _keep,
     Object? sourceMessageId = _keep,
+    List<TodoStep>? steps,
     List<String>? tags,
     int? sortOrder,
     Object? updatedAt = _keep,
@@ -126,6 +135,7 @@ class Todo {
       sourceMessageId: identical(sourceMessageId, _keep)
           ? this.sourceMessageId
           : sourceMessageId as String?,
+      steps: steps ?? this.steps,
       tags: tags ?? this.tags,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt,

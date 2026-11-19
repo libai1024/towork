@@ -239,7 +239,13 @@ class WorkspaceQueries {
   }
 
   static QueryObject todo(WorkspaceSnapshot snapshot, QueryObject args) {
-    _keys(args, {'id', 'expected_version', 'note_offset', 'note_limit'});
+    _keys(args, {
+      'id',
+      'expected_version',
+      'note_offset',
+      'note_limit',
+      'step_offset',
+    });
     final id = _optionalId(args, 'id');
     if (id == null) _invalid();
     final offset = _integer(
@@ -256,9 +262,16 @@ class WorkspaceQueries {
       min: 1,
       max: 4000,
     );
+    final stepOffset = _integer(
+      args,
+      'step_offset',
+      fallback: 0,
+      min: 0,
+      max: 100,
+    );
     final version = args['expected_version'];
     if ((version != null && (version is! int || version < 1)) ||
-        (offset > 0 && version == null)) {
+        ((stepOffset > 0 || offset > 0) && version == null)) {
       _invalid();
     }
     final row = snapshot.find(WorkspaceEntityKind.todo, id);
@@ -266,11 +279,16 @@ class WorkspaceQueries {
     if (version != null && version != row.version) {
       return {'error': 'version_changed', 'id': id, 'version': row.version};
     }
+    final steps = row.data['steps'] as List? ?? const [];
+    if (stepOffset > steps.length) _invalid();
+    final stepEnd = (stepOffset + 10).clamp(0, steps.length);
     final note = (row.data['note'] as String?)?.runes.toList();
     if (offset > (note?.length ?? 0)) _invalid();
     final end = (offset + limit).clamp(0, note?.length ?? 0);
     return {
       ..._todo(snapshot, row, fullTags: true),
+      'steps': steps.sublist(stepOffset, stepEnd),
+      'next_step_offset': stepEnd < steps.length ? stepEnd : null,
       'remind_at': row.data['remind_at'],
       'remind_rules': row.data['remind_rules'],
       'source': row.data['source'],
@@ -361,6 +379,10 @@ class WorkspaceQueries {
       'occurrence_at',
     ])
       key: e.data[key],
+    if (e.data['steps'] case final List<Object?> steps) ...{
+      'step_count': steps.length,
+      'completed_steps': steps.where((s) => (s as Map)['done'] == true).length,
+    },
     'tags': (e.data['tags']! as List).take(fullTags ? 100 : 20).toList(),
     'tags_truncated': !fullTags && (e.data['tags']! as List).length > 20,
     'updated_at': e.updatedAt.toUtc().toIso8601String(),

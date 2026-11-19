@@ -74,43 +74,7 @@ class SqliteAgentToolExecutor
           calls.add(RecurrenceAgentTools.refresh(call, snapshot, now));
           continue;
         }
-        final raw = call['mutation'];
-        if (raw is! JsonObject || call['intent_patch'] is! JsonObject) {
-          throw const AgentFailure(AgentFailureCode.invalid);
-        }
-        final kind = WorkspaceEntityKind.values.byName(raw['kind']! as String);
-        final mutation = WorkspaceMutationKind.values.byName(
-          raw['mutation']! as String,
-        );
-        final entityId = raw['entity_id']! as String;
-        final before = snapshot.find(kind, entityId);
-        if (mutation == WorkspaceMutationKind.create
-            ? before != null
-            : before == null || before.isDeleted) {
-          throw WorkspaceFailure(
-            WorkspaceFailureCode.versionConflict,
-            entityId: entityId,
-          );
-        }
-        final deleting = mutation == WorkspaceMutationKind.delete;
-        final after = deleting
-            ? before!.data
-            : applyWorkspacePatch(
-                kind,
-                before?.data,
-                call['intent_patch']! as JsonObject,
-                now,
-              );
-        calls.add({
-          ...call,
-          'before': before?.toJson(),
-          'after': deleting ? null : after,
-          'mutation': {
-            ...raw,
-            'expected_version': before?.version,
-            'patch': deleting ? <String, Object?>{} : after,
-          },
-        });
+        calls.add(AgentToolChanges.refreshTodo(call, snapshot, now));
       }
       final targets = <String>{};
       for (final call in calls) {

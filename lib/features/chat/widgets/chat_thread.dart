@@ -21,6 +21,8 @@ import '../../../app/chat/chat_view_model.dart';
 import '../../../core/agent/agent_run_card.dart';
 import 'chat_messages.dart';
 import 'chat_todo_edit_sheet.dart';
+import '../../../core/todo/todo_detail_sheet.dart';
+import '../../../core/todo/todo_step_actions.dart';
 import 'ai_todo_panel.dart';
 import 'ai_question_card.dart';
 import 'chat_auto_scroll.dart';
@@ -101,6 +103,7 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
   }
 
   Future<void> _toggleDone(Todo todo) async {
+    if (!await confirmRemainingSteps(context, [todo]) || !mounted) return;
     final mutation = await ref
         .read(asyncTodoCommandsProvider)
         .toggleDone(todo.id);
@@ -119,11 +122,19 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
   }
 
   void _editTodo(Todo todo) {
+    if (todo.steps.isNotEmpty) {
+      _detail(todo);
+      return;
+    }
     AppSheet.show<void>(
       context,
       title: '修改待办',
       child: ChatTodoEditSheet(
         todo: todo,
+        onSteps: () {
+          Navigator.of(context).pop();
+          _detail(todo);
+        },
         categories: ref.read(categoryListProvider),
         onSave: (updated) async {
           final saved = await workspaceUi(context, () async {
@@ -137,6 +148,17 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
       ),
     );
   }
+
+  void _detail(Todo todo) => showTodoDetailSheet(
+    context,
+    todo.id,
+    onDeleted: (deleted) async {
+      await workspaceUi(
+        context,
+        () => ref.read(asyncTodoCommandsProvider).delete([deleted.id]),
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {

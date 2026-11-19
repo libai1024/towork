@@ -1,3 +1,5 @@
+import '../../../core/todo/todo_step_actions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,7 +110,11 @@ class _TodoRow extends ConsumerWidget {
       child: Row(
         children: [
           AppPressable(
-            onTap: () {
+            onTap: () async {
+              if (!await confirmRemainingSteps(context, [todo]) ||
+                  !context.mounted) {
+                return;
+              }
               workspaceUi(
                 context,
                 () => ref.read(workspaceUiCommandsProvider).toggleTodo(todo.id),

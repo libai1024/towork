@@ -77,7 +77,7 @@ class AgentPromptContext {
 /// 并跑 `test/agent/agent_prompt_test.dart`。
 class AgentPrompt {
   /// 提示词版本。续聊时旧会话的第一条系统消息会被换成当前版本。
-  static const version = 7;
+  static const version = 8;
 
   /// 每轮「当前情况」的开头标记；续聊时据此压缩上一轮的旧快照。
   static const turnMarker = '【当前情况】';
@@ -126,6 +126,7 @@ class AgentPrompt {
       '- 金额、合计、比例、平均等数字用 calculate 计算；「完成了多少、还剩多少、逾期多少」这类统计用 todo_stats。\n'
       '- 展示待办用 show_todo_list，按今日、紧急、逾期、本周等选择 scope；自选列表先查询真实 ID 再用 selected。\n'
       '- 多范围总览用 show_todo_overview。清单成员按生成时确定，勾选和编辑同步真实待办；写入后下一批再展示。\n'
+      '- 拆解已有待办时，先用 show_question 的 multiple 让用户选择建议步骤，再用 todo_update 的 add_steps 一次提交；勾选或改名先用 todo_get 核对步骤 ID，遇到同名先问。\n'
       '- 向用户提问优先用 show_question，问题只写在卡片标题，一次问一件事。选项用可直接发送的短语。正文仅保留必要背景，省略重复提问和如何点选、补充的说明。多选用 multiple。展示后等待真实用户回复，不能猜测选择；普通回答不替代写入审批。\n'
       '- 交互组件由工具回执生成，正文不能伪造组件或 ID。展示清单无需创建待办或永久列表，空结果不编造内容。\n'
       '- 业务表先查询表和字段定义，再按稳定字段 ID 管理行；行编辑只提交改动的单元格，不能用截断预览替换完整内容。金额和数字用十进制字符串，布尔用 JSON 布尔。新增表用 data_table_create，编辑名称、字段用 data_table_update 的增量 patch。表和行的写入都须在卡片二次确认，任何权限模式都适用。\n'

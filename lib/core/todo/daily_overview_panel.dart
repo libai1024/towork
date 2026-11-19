@@ -1,3 +1,5 @@
+import 'todo_step_actions.dart';
+
 import 'package:flutter/material.dart';
 
 import '../workspace_actions.dart';
@@ -116,10 +118,16 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
         now: data.now,
         categoryLabel: category?.id == categoryId ? null : category?.name,
         categoryColor: category?.color,
-        onToggleDone: () => _mutate(
-          () => model.toggleDone(todo.id),
-          todo.isActive ? '已完成' : '已恢复',
-        ),
+        onToggleDone: () async {
+          if (!await confirmRemainingSteps(context, [todo]) ||
+              !context.mounted) {
+            return;
+          }
+          await _mutate(
+            () => model.toggleDone(todo.id),
+            todo.isActive ? '已完成' : '已恢复',
+          );
+        },
         onTap: () => showTodoDetailSheet(
           context,
           todo.id,

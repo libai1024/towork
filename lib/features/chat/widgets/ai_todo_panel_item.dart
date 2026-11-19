@@ -36,6 +36,7 @@ class AiTodoPanelItem extends StatelessWidget {
   static TextSpan _metadata(BuildContext context, Todo todo, DateTime now) {
     final c = AppColors.of(context);
     final parts = <TextSpan>[
+      if (todo.steps.isNotEmpty) TextSpan(text: todo.stepProgress),
       if (!todo.isActive || todo.status == TodoStatus.inProgress)
         TextSpan(
           text: todo.status.label,

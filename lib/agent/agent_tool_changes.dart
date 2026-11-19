@@ -1,9 +1,70 @@
+import '../domain/ai/agent_run.dart';
+import '../domain/workspace/workspace_validation.dart';
 import '../domain/ai/model_gateway.dart';
 import '../domain/workspace/workspace_commands.dart';
 
 /// One logical tool call can own many atomic mutations. Approval selects calls,
 /// never individual implementation effects within a recurrence operation.
 class AgentToolChanges {
+  static JsonObject refreshTodo(
+    JsonObject call,
+    WorkspaceSnapshot snapshot,
+    DateTime now,
+  ) {
+    final raw = call['mutation'];
+    if (raw is! JsonObject || call['intent_patch'] is! JsonObject) {
+      throw const AgentFailure(AgentFailureCode.invalid);
+    }
+    final kind = WorkspaceEntityKind.values.byName(raw['kind']! as String);
+    final mutation = WorkspaceMutationKind.values.byName(
+      raw['mutation']! as String,
+    );
+    final entityId = raw['entity_id']! as String;
+    final before = snapshot.find(kind, entityId);
+    if (mutation == WorkspaceMutationKind.create
+        ? before != null
+        : before == null || before.isDeleted) {
+      throw WorkspaceFailure(
+        WorkspaceFailureCode.versionConflict,
+        entityId: entityId,
+      );
+    }
+    // A stale full step list may overwrite another editor's work. Ask the
+    // model for a new read and proposal instead of replaying that list.
+    if ((call['intent_patch']! as JsonObject).containsKey('steps') &&
+        before?.version != raw['expected_version']) {
+      throw WorkspaceFailure(
+        WorkspaceFailureCode.versionConflict,
+        entityId: entityId,
+      );
+    }
+    final deleting = mutation == WorkspaceMutationKind.delete;
+    final after = deleting
+        ? before!.data
+        : applyWorkspacePatch(
+            kind,
+            before?.data,
+            call['intent_patch']! as JsonObject,
+            now,
+          );
+    return {
+      ...call,
+      'before': before?.toJson(),
+      'after': deleting ? null : after,
+      'mutation': {
+        ...raw,
+        'expected_version': before?.version,
+        'patch': deleting
+            ? <String, Object?>{}
+            : {
+                ...after,
+                if ((call['intent_patch']! as JsonObject).containsKey('steps'))
+                  'steps': (call['intent_patch']! as JsonObject)['steps'],
+              },
+      },
+    };
+  }
+
   static bool isWrite(JsonObject call) =>
       call['mutation'] != null || call['mutations'] != null;
 

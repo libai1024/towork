@@ -1,3 +1,5 @@
+import '../../app/workspace_clock.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +15,9 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_radii.dart';
 import '../../theme/app_text_styles.dart';
 import '../widgets/app_button.dart';
-import '../widgets/app_chip.dart';
+import 'todo_tags_editor.dart';
+import 'todo_steps_editor.dart';
+import 'todo_step_actions.dart';
 import '../widgets/app_inline_input.dart';
 import '../widgets/app_pressable.dart';
 import '../widgets/app_sheet.dart';
@@ -67,6 +71,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
   late final TextEditingController _noteCtrl;
   final _titleFocus = FocusNode();
   final _noteFocus = FocusNode();
+  final _stepsKey = GlobalKey<TodoStepsEditorState>();
   final _scroll = ScrollController();
 
   /// 当前内联展开的字段（due / remind / repeat / tags），一次只开一个。
@@ -196,7 +201,11 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
     if (_closing || _editing) return;
     _closing = true;
     try {
-      if (await _saveText() && mounted) Navigator.of(context).pop();
+      if (await (_stepsKey.currentState?.flush() ?? Future.value(true)) &&
+          await _saveText() &&
+          mounted) {
+        Navigator.of(context).pop();
+      }
     } finally {
       _closing = false;
     }
@@ -275,7 +284,16 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
                 padding: const EdgeInsets.only(bottom: 12),
                 children: [
                   _buildTitleArea(c, todo, inactive),
-                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TodoStepsEditor(
+                      key: _stepsKey,
+                      steps: todo.steps,
+                      readOnly: todo.status == TodoStatus.cancelled,
+                      onEdit: (edit) =>
+                          commitTodoStep(context, ref, todo, edit),
+                    ),
+                  ),
                   _buildFields(c, todo),
                   if (todo.source == TodoSource.ai) _buildTraceCard(c, todo),
                   _buildMeta(c, todo),
@@ -305,6 +323,15 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
               child: Icon(LucideIcons.x, size: 24, color: c.labelSecondary),
             ),
           ),
+          if (todo.dueAt != null && todo.steps.isNotEmpty)
+            Flexible(
+              child: Text(
+                dueBadgeLabel(todo, ref.watch(workspaceClockProvider).now),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
+              ),
+            ),
           const Spacer(),
           if (todo.source == TodoSource.ai)
             Container(
@@ -344,7 +371,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
   Widget _buildTitleArea(AppColors c, Todo todo, bool inactive) {
     final done = todo.status == TodoStatus.done;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -354,7 +381,10 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
               checked: done,
               size: 28,
               checkedColor: c.brand,
-              onTap: () {
+              onTap: () async {
+                if (!await confirmRemainingSteps(context, [todo]) || !mounted) {
+                  return;
+                }
                 workspaceUi(
                   context,
                   () =>
@@ -507,7 +537,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           valueColor: todo.tags.isEmpty ? c.labelTertiary : null,
           expanded: _expanded == 'tags',
           onTap: () => _toggleField('tags'),
-          editor: _TagsEditor(
+          editor: TodoTagsEditor(
             todo: todo,
             onChanged: (tags) => _update(todo.copyWith(tags: tags)),
           ),
@@ -759,8 +789,13 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
             TodoOptionRow(
               label: s.label,
               selected: todo.status == s,
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
+                if (s == TodoStatus.done &&
+                    (!await confirmRemainingSteps(context, [todo]) ||
+                        !mounted)) {
+                  return;
+                }
                 _update(
                   todo.copyWith(
                     status: s,
@@ -905,71 +940,6 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _TagsEditor extends StatefulWidget {
-  const _TagsEditor({required this.todo, required this.onChanged});
-
-  final Todo todo;
-  final ValueChanged<List<String>> onChanged;
-
-  @override
-  State<_TagsEditor> createState() => _TagsEditorState();
-}
-
-class _TagsEditorState extends State<_TagsEditor> {
-  final _ctrl = TextEditingController();
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  void _add() {
-    final v = _ctrl.text.trim().replaceAll('#', '');
-    if (v.isEmpty || widget.todo.tags.contains(v)) return;
-    widget.onChanged([...widget.todo.tags, v]);
-    _ctrl.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return TodoEditorBox(
-      children: [
-        if (widget.todo.tags.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final tag in widget.todo.tags)
-                AppChip(
-                  label: '#$tag',
-                  icon: LucideIcons.x,
-                  onTap: () => widget.onChanged(
-                    widget.todo.tags.where((t) => t != tag).toList(),
-                  ),
-                ),
-            ],
-          ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _ctrl,
-                style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-                onSubmitted: (_) => _add(),
-                decoration: const InputDecoration(hintText: '标签名'),
-              ),
-            ),
-            AppButton(label: '添加', type: AppButtonType.ghost, onPressed: _add),
-          ],
-        ),
-      ],
     );
   }
 }
