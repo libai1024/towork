@@ -40,9 +40,7 @@ Future<void> beginWorkspaceMigration(
         // Drift's isolate protocol can serialize the cause to a string.
         final busy = switch (error) {
           SqliteException() => (error.resultCode & 255) == 5,
-          DriftRemoteException() => error.toString().startsWith(
-            'SqliteException(5):',
-          ),
+          DriftRemoteException() => '$error'.startsWith('SqliteException(5):'),
           _ => false,
         };
         if (!busy || elapsed.elapsed >= const Duration(seconds: 15)) {
