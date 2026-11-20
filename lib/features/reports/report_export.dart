@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -29,28 +31,38 @@ String reportMarkdown(ReportDocument report) {
   final rate = metrics.completion.value;
   final buffer = StringBuffer()
     ..writeln(
-      '# ${report.kind == ReportPeriodKind.monthly ? '月报' : '周报'} $period',
+      '# ${report.kind == ReportPeriodKind.monthly ? strings.monthlyReport : strings.weeklyReport} $period',
     )
     ..writeln()
-    ..writeln('- 用户：${metrics.nickname}')
-    ..writeln('- 新增：${metrics.created}')
-    ..writeln('- 完成：${metrics.completed}')
+    ..writeln(strings.user(metrics.nickname))
+    ..writeln(strings.added(metrics.created))
+    ..writeln(strings.completedReportmarkdown(metrics.completed))
     ..writeln(
-      '- 完成率：${rate == null ? '—' : '${rate.toStringAsFixed(1)}%'}'
+      '${strings.completionRate(rate == null ? '—' : '${rate.toStringAsFixed(1)}%')}'
       '（${metrics.completion.numerator}/${metrics.completion.denominator}）',
     )
-    ..writeln('- 期末未完成：${metrics.openAtEnd}，其中逾期：${metrics.overdueAtEnd}')
     ..writeln(
-      '- 业务表记录：${metrics.dataRowsTotal} 条，周期内新增 ${metrics.dataRowsCreated} 条',
+      strings.unfinishedAtPeriodEndIncludingOverdue(
+        metrics.openAtEnd,
+        metrics.overdueAtEnd,
+      ),
+    )
+    ..writeln(
+      strings.tableRecordsIncludingAddedThisPeriod(
+        metrics.dataRowsTotal,
+        metrics.dataRowsCreated,
+      ),
     );
   if (metrics.previousCompleted != null) {
-    buffer.writeln('- 上期完成：${metrics.previousCompleted}');
+    buffer.writeln(
+      strings.completedLastPeriod(metrics.previousCompleted.toString()),
+    );
   }
   buffer
     ..writeln()
-    ..writeln('## 分类')
+    ..writeln(strings.categories)
     ..writeln()
-    ..writeln('| 分类 | 新增 | 完成 |')
+    ..writeln(strings.categoryAddedCompleted)
     ..writeln('|---|---|---|');
   for (final category in metrics.byCategory) {
     buffer.writeln(
@@ -59,13 +71,13 @@ String reportMarkdown(ReportDocument report) {
   }
   buffer
     ..writeln()
-    ..writeln('## 总结')
+    ..writeln(strings.summaryReportmarkdown)
     ..writeln()
-    ..writeln(report.summary ?? '（总结尚未生成）')
+    ..writeln(report.summary ?? strings.noSummaryYet)
     ..writeln()
     ..writeln('---')
-    ..writeln('口径：${metrics.completion.label}')
-    ..writeln('快照：${report.snapshotId}');
+    ..writeln(strings.method(metrics.completion.label))
+    ..writeln(strings.snapshot(report.snapshotId));
   return buffer.toString();
 }
 

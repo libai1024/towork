@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui show Gradient;
 
@@ -34,16 +36,16 @@ class VoiceRecordingPanel extends StatelessWidget {
   final VoidCallback? onCancel, onEdit;
 
   String get _caption => switch (snapshot.phase) {
-    SpeechPhase.requesting || SpeechPhase.starting => '准备录音',
-    SpeechPhase.submitting => '发送中',
+    SpeechPhase.requesting || SpeechPhase.starting => strings.preparingToRecord,
+    SpeechPhase.submitting => strings.sending,
     _ when holding => switch (zone) {
-      VoiceZone.cancel => '松开取消',
-      VoiceZone.revise => '松开编辑',
-      VoiceZone.none => '松开发送',
+      VoiceZone.cancel => strings.releaseToCancel,
+      VoiceZone.revise => strings.releaseToEdit,
+      VoiceZone.none => strings.releaseToSend,
     },
-    SpeechPhase.finalizing => '正在识别',
-    SpeechPhase.pending => '即将发送',
-    _ => '结束录音',
+    SpeechPhase.finalizing => strings.transcribing,
+    SpeechPhase.pending => strings.sendingShortly,
+    _ => strings.endRecording,
   };
 
   @override
@@ -74,7 +76,7 @@ class VoiceRecordingPanel extends StatelessWidget {
             scopesRoute: true,
             namesRoute: true,
             explicitChildNodes: true,
-            label: '语音输入',
+            label: context.strings.voiceInput,
             child: GestureDetector(
               excludeFromSemantics: true,
               behavior: HitTestBehavior.opaque,
@@ -138,7 +140,9 @@ class VoiceRecordingPanel extends StatelessWidget {
                                     Flexible(
                                       child: Text(
                                         text.isEmpty
-                                            ? (listening ? '正在听…' : '语音输入')
+                                            ? (listening
+                                                  ? context.strings.listening
+                                                  : context.strings.voiceInput)
                                             : text,
                                         key: const ValueKey('voice-live-text'),
                                         style: AppTextStyles.chatInput.copyWith(
@@ -193,7 +197,9 @@ class VoiceRecordingPanel extends StatelessWidget {
                       button: true,
                       enabled: listening,
                       label: voiceControlLabel(snapshot.phase),
-                      hint: listening ? '激活结束录音，识别后发送' : '可取消语音输入或切换键盘',
+                      hint: listening
+                          ? context.strings.activateToFinishRecordingAndSendThe
+                          : context.strings.cancelVoiceInputOrSwitchToThe,
                       onTap: listening ? onActivate : null,
                       onLongPress: listening ? onActivate : null,
                       child: const SizedBox.expand(),
@@ -221,7 +227,9 @@ class _WingLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final label = left ? '取消语音输入' : '编辑转写';
+    final label = left
+        ? context.strings.cancelVoiceInput
+        : context.strings.editTranscript;
     final content = Semantics(
       key: ValueKey(left ? 'voice-target-cancel' : 'voice-target-revise'),
       container: true,
@@ -234,7 +242,7 @@ class _WingLabel extends StatelessWidget {
         child: Transform.rotate(
           angle: left ? -.14 : .14,
           child: Text(
-            left ? '取消' : '编辑',
+            left ? context.strings.cancel : context.strings.edit,
             key: left ? null : const ValueKey('switch-to-keyboard'),
             style: AppTextStyles.body.copyWith(
               color: selected ? colors.onBrand : colors.labelSecondary,
@@ -247,7 +255,7 @@ class _WingLabel extends StatelessWidget {
     );
     if (action == null) return content;
     return Tooltip(
-      message: left ? label : '切换键盘输入',
+      message: left ? label : context.strings.switchToKeyboard,
       excludeFromSemantics: true,
       child: content,
     );

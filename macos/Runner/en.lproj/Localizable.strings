@@ -1,0 +1,4 @@
+"consentTitle" = "Allow sending to %@?";
+"consentBody" = "ToWork will send this conversation, selected attachments, and any tasks, tables, memories or reports needed for this request to %@. You can revoke access in Settings → Privacy and permissions.";
+"deny" = "Not now";
+"allow" = "Allow";

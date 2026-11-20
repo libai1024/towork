@@ -1,0 +1,4293 @@
+{
+  "@@locale": "en",
+  "settingsHaveChangedReopenAndTryAgain": "Settings have changed. Reopen and try again.",
+  "couldntSaveSettingsTryAgain": "Couldn’t save settings. Try again.",
+  "thisCanBeSplitIntoThreeSteps": "This can be split into three steps: gather the material, finish a draft, and send it for review. Switch to Agent mode to create the task.",
+  "theTaskOrItsCardHasChanged": "The task or its card has changed",
+  "thisChatIsClosedItsTaskCan": "This chat is closed. Its task can no longer be undone.",
+  "theTaskOrItsCardNoLonger": "The task or its card no longer exists",
+  "theCardNowLinksToADifferent": "The card now links to a different task",
+  "relatedRecordsHaveChangedAndCannotBe": "Related records have changed and cannot be restored",
+  "currentModel": "Current model",
+  "switchedTo": "{v0}{v1}. Switched to {v2}.",
+  "@switchedTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "couldntOpenTheLocalWorkspaceYourData": "Couldn’t open the local workspace. Your data is safe. Try again.",
+  "reopen": "Reopen",
+  "movement": "Movement",
+  "mountain": "Mountain",
+  "note": "Note",
+  "overture": "Overture",
+  "sonata": "Sonata",
+  "symphony": "Symphony",
+  "valley": "Valley",
+  "ridge": "Ridge",
+  "summit": "Summit",
+  "zenith": "Zenith",
+  "year": "Year",
+  "month": "Month",
+  "free": "Free",
+  "loading": "Loading",
+  "kFlagshipModel": "K3 flagship model",
+  "mContextWindow": "1M context window",
+  "highspeed": "HighSpeed",
+  "videoInput": "Video input",
+  "mQuota": "2× 1M quota",
+  "highSpeedQuota": "3× high-speed quota",
+  "vMWithVision": "V4.1 1M with vision",
+  "deepReasoning": "Deep reasoning",
+  "makeTaskRecurring": "Make task recurring",
+  "startingWithThisOccurrence": "Starting with this occurrence",
+  "editRecurringTask": "Edit recurring task",
+  "deleteRecurringTask": "Delete recurring task",
+  "thisOccurrence": "This occurrence",
+  "thisAndFutureOccurrences": "This and future occurrences",
+  "changesToTheRecurrenceRuleOrTime": "Changes to the recurrence rule or time zone apply to this and future occurrences.",
+  "checkTheDueDateAndSeriesStatus": "Check the due date and series status. The selection may also exceed the batch limit.",
+  "modelDownloadFailedCheckYourConnectionAnd": "Model download failed. Check your connection and try again.",
+  "modelDownloadFailedTryAgainLater": "Model download failed. Try again later.",
+  "installationCanceledYouCanRetry": "Installation canceled. You can retry.",
+  "installationDidNotFinishTryAgain": "Installation did not finish. Try again.",
+  "patchDownloadCanceledYouCanDownloadIt": "Patch download canceled. You can download it again.",
+  "patchVerificationFailedCheckForUpdatesAgain": "Patch verification failed. Check for updates again.",
+  "finishTheCurrentConversationOrInputBefore": "Finish the current conversation or input before restarting.",
+  "patchReadyReturnHereToRestart": "Patch ready. Return here to restart.",
+  "downloadPausedResumeToContinue": "Download paused. Resume to continue.",
+  "connectionInterruptedTryAgain": "Connection interrupted. Try again.",
+  "updateInformationIsUnavailableTryAgainLater": "Update information is unavailable. Try again later.",
+  "thisUpdateDoesNotSupportYourDevice": "This update does not support your device architecture.",
+  "theUpdateSignatureDoesNotMatchThe": "The update signature does not match the installed app.",
+  "verificationFailedDownloadTheUpdateAgain": "Verification failed. Download the update again.",
+  "storageIsFullOrUnavailableFreeUp": "Storage is full or unavailable. Free up space and try again.",
+  "theDownloadServerIsUnavailableTryAgain": "The download server is unavailable. Try again later.",
+  "allowToworkToInstallAppsThenTap": "Allow ToWork to install apps, then tap Install and reopen.",
+  "thePackageOrVersionDoesNotMatch": "The package or version does not match. Check for updates again.",
+  "anUpdateIsInProgressTryAgain": "An update is in progress. Try again later.",
+  "updateIncompleteTryAgain": "Update incomplete. Try again.",
+  "noneLabel": "None",
+  "reminder": "Reminder",
+  "atTheDueTime": "At the due time",
+  "daysBefore": "{v0, plural, =1{1 day before} other{{v0} days before}}",
+  "@daysBefore": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursBefore": "{v0, plural, =1{1 hour before} other{{v0} hours before}}",
+  "@hoursBefore": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesBefore": "{v0, plural, =1{1 minute before} other{{v0} minutes before}}",
+  "@minutesBefore": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "add": "Add",
+  "edit": "Edit",
+  "complete": "Complete",
+  "deleteLabel": "Delete",
+  "change": "Change",
+  "notSet": "Not set",
+  "cleared": "Cleared",
+  "yes": "Yes",
+  "no": "No",
+  "record": "Record {v0}",
+  "@record": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "someFieldsAreUncertainCheckThemAgainst": "Some fields are uncertain. Check them against the image before confirming.",
+  "title": "Title",
+  "notes": "Notes",
+  "status": "Status",
+  "priority": "Priority",
+  "due": "Due",
+  "category": "Category",
+  "steps": "Steps",
+  "tags": "Tags",
+  "completedAt": "Completed at",
+  "recurrence": "Recurrence",
+  "recurrenceTimeZone": "Recurrence time zone",
+  "unavailableCategory": "Unavailable category",
+  "completed": "Completed",
+  "task": "Task",
+  "inProgress": "In progress",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "urgent": "Urgent",
+  "canceled": "Canceled",
+  "taskChanges": "Task changes: {v0}",
+  "@taskChanges": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "onlyTheSelectedOccurrenceWillChangeOther": "Only the selected occurrence will change. Other dates keep their existing rule.",
+  "stopsFutureOccurrencesInThisRangeAnd": "Stops future occurrences in this range and retains other completed records. Accept or reject the changes together.",
+  "acceptOrRejectTheSeriesChangesTogether": "Accept or reject the series changes together. New occurrences will be created as needed.",
+  "viewAllChanges": "View all changes",
+  "seriesTemplate": "Series template ",
+  "newLabel": "New",
+  "update": "Update",
+  "timeZone": "Time zone {v0} ",
+  "@timeZone": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "keepRepeating": "Keep repeating",
+  "endBoundarySet": "End boundary set",
+  "saveAKimiApiKeyInModel": "Save a Kimi API key in Model connections before sending.",
+  "modelSettingsChangedSendANewRequest": "Model settings changed. Send a new request. Completed actions have been saved.",
+  "inputIsTooLongShortenItOr": "Input is too long. Shorten it or split your request. Your history is saved.",
+  "requestStopped": "Request stopped.",
+  "theContextOrActionLimitHasBeen": "The context or action limit has been reached. Start a new chat.",
+  "theChatOrRecordHasChangedFinish": "The chat or record has changed. Finish the pending request or reopen the chat.",
+  "theRecordOrTableStructureHasSince": "The record or table structure has since changed and cannot be overwritten.",
+  "couldntCompleteTheActionYourDataIs": "Couldn’t complete the action. Your data is safe. Try again.",
+  "checkYourModelCredentialsAndAccessIn": "Check your model credentials and access in Model connections.",
+  "modelRateLimitReachedTryAgainLater": "Model rate limit reached. Try again later.",
+  "thisAccountIsOutOfQuotaSelect": "This account is out of quota. Select another model and retry.",
+  "theSourceImageIsUnavailableSelectIt": "The source image is unavailable. Select it again in Screenshot import.",
+  "couldntReadTheSourceImageTryAgain": "Couldn’t read the source image. Try again later.",
+  "modelSettingsChangedDuringTheRequestRetry": "Model settings changed during the request. Retry with the current model.",
+  "inputOrToolResultsAreTooLong": "Input or tool results are too long. Split the request. Completed actions are saved.",
+  "actionLimitReachedSendAnotherRequestOr": "Action limit reached. Send another request or start a new chat.",
+  "theTargetHasChangedYouCanReplan": "The target has changed. You can replan.",
+  "connectionInterruptedOrModelTimedOutTry": "Connection interrupted or model timed out. Try again.",
+  "theModelResponseFailedValidationThisBatch": "The model response failed validation. This batch was not applied.",
+  "requestIncompleteYouCanRetryCompletedActions": "Request incomplete. You can retry. Completed actions are saved.",
+  "changesUndone": "Changes undone",
+  "awaitingConfirmation": "Awaiting confirmation: {v0}",
+  "@awaitingConfirmation": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "requestSavedReadyToContinue": "Request saved. Ready to continue.",
+  "working": "Working",
+  "replySaved": "Reply saved",
+  "actionBatchesSubmitted": "Action batches submitted: {v0}",
+  "@actionBatchesSubmitted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "requestStoppedBuild": "Request stopped",
+  "completedActionBatchesRetained": "Completed action batches retained: {v0}.",
+  "@completedActionBatchesRetained": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "earlierTurnsOutsideThisRequestFullHistory": "Earlier turns outside this request: {v0}. Full history is available.",
+  "@earlierTurnsOutsideThisRequestFullHistory": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "earlierTurnsOutsideThisRequestFullHistoryIsAvailable": "Earlier turns outside this request: {v0}. Full history is available. Add context if you refer to earlier messages.",
+  "@earlierTurnsOutsideThisRequestFullHistoryIsAvailable": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "actions": "Actions",
+  "selectLabel": "Select {v0}",
+  "@selectLabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "acceptAll": "Accept all",
+  "acceptSelected": "Accept selected ({v0})",
+  "@acceptSelected": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "rejectSelected": "Reject selected ({v0})",
+  "@rejectSelected": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "refreshChanges": "Refresh changes",
+  "continueLabel": "Continue",
+  "cancelRequest": "Cancel request",
+  "retry": "Retry",
+  "undoThisBatch": "Undo this batch",
+  "undoAllChangesInThisRequest": "Undo all changes in this request",
+  "undo": "Undo",
+  "name": "Name: {v0} → {v1}",
+  "@name": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "description": "Description: {v0}{v1}",
+  "@description": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "addField": "Add field: ",
+  "editField": "Edit field: {v0} → {v1}",
+  "@editField": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "removeField": "Remove field: {v0}",
+  "@removeField": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "field": "Field",
+  "type": "Type",
+  "requirement": "Requirement",
+  "required": "Required",
+  "optional": "Optional",
+  "createTable": "Create table",
+  "editTable": "Edit table",
+  "noChangesToTheTable": "No changes to the table",
+  "number": "Number",
+  "currencyDecimalPlaces": "Currency, {v0} decimal places",
+  "@currencyDecimalPlaces": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "date": "Date",
+  "dateAndTime": "Date and time",
+  "singleSelect": "Single select",
+  "yesNo": "Yes/No",
+  "text": "Text",
+  "glm": "GLM",
+  "otherOpenaiCompatible": "Other (OpenAI-compatible)",
+  "enterAValidKeyWithoutSpacesOr": "Enter a valid key without spaces or line breaks",
+  "secureStorageIsUnavailableUnlockTheDevice": "Secure storage is unavailable. Unlock the device and try again.",
+  "settingsChangedReloadAndTryAgain": "Settings changed. Reload and try again.",
+  "enterAKeyForTheSelectedProvider": "Enter a key for the selected provider and region",
+  "couldntReadOrSaveLocalSettingsTry": "Couldn’t read or save local settings. Try again.",
+  "enterAValidModelNameAndKey": "Enter a valid model name and key",
+  "authenticationFailedCheckTheKeyApiProduct": "Authentication failed. Check the key, API product and model access (401).",
+  "accessDeniedCheckYourSubscriptionAndApi": "Access denied. Check your subscription and API permissions (403).",
+  "rateLimitReachedTryAgainLater": "Rate limit reached. Try again later (429).",
+  "quotaOrBalanceExhaustedCheckTheProvider": "Quota or balance exhausted. Check the provider console.",
+  "modelOrEndpointNotFoundCheckYour": "Model or endpoint not found. Check your settings (404).",
+  "testCanceled": "Test canceled",
+  "connectionTimedOutCheckYourNetworkAnd": "Connection timed out. Check your network and retry.",
+  "connectionFailedTryAgain": "Connection failed. Try again.",
+  "theServiceReturnedAnIncompleteResponseTry": "The service returned an incomplete response. Try again later.",
+  "couldntCompleteTheActionTryAgain": "Couldn’t complete the action. Try again.",
+  "fast": "Fast",
+  "viewSourceChat": "View source chat",
+  "viewTaskSourceChat": "View task source chat",
+  "resetsSoon": "Resets soon",
+  "resetsInMin": "Resets in {v0} min",
+  "@resetsInMin": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "resetsInHr": "Resets in {v0} hr",
+  "@resetsInHr": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "resetsInHrMin": "Resets in {v0} hr {v1} min",
+  "@resetsInHrMin": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "resetsInDays": "Resets in {v0} days",
+  "@resetsInDays": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noKey": "No key",
+  "unavailable": "Unavailable",
+  "reset": "Reset",
+  "restore": "Restore",
+  "left": "{v0}: {v1}% left",
+  "@left": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "balance": "Balance {v0}",
+  "@balance": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "quotaUsed": "{v0} quota: {v1}% used{v2}",
+  "@quotaUsed": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "used": "{v0}% used",
+  "@used": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "checkQuotaInTheProviderConsole": "Check quota in the provider console",
+  "quotaNotCheckedYet": "Quota not checked yet",
+  "accountBalance": "Account balance",
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "remaining": "{v0}, {v1} remaining",
+  "@remaining": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "upwardTrend": "Upward trend",
+  "archiveBox": "Archive box",
+  "home": "Home",
+  "briefcase": "Briefcase",
+  "heart": "Heart",
+  "openBook": "Open book",
+  "wallet": "Wallet",
+  "shoppingCart": "Shopping cart",
+  "cutlery": "Cutlery",
+  "plane": "Plane",
+  "dumbbell": "Dumbbell",
+  "graduationCap": "Graduation cap",
+  "camera": "Camera",
+  "gift": "Gift",
+  "car": "Car",
+  "pawPrint": "Paw print",
+  "leaf": "Leaf",
+  "star": "Star",
+  "flag": "Flag",
+  "code": "Code",
+  "pen": "Pen",
+  "person": "Person",
+  "folder": "Folder",
+  "mistBlue": "Mist blue",
+  "stone": "Stone",
+  "sage": "Sage",
+  "wheat": "Wheat",
+  "terracotta": "Terracotta",
+  "lavenderGray": "Lavender gray",
+  "slate": "Slate",
+  "warmGray": "Warm gray",
+  "newSubcategory": "New subcategory",
+  "rename": "Rename",
+  "reorder": "Reorder",
+  "moveUp": "Move up",
+  "moveDown": "Move down",
+  "archive": "Archive",
+  "restoreCategory": "Restore category",
+  "deletePermanently": "Delete permanently",
+  "tasks": "{v0, plural, =1{1 task} other{{v0} tasks}}",
+  "@tasks": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "subcategories": "{v0, plural, =1{1 subcategory} other{{v0} subcategories}}",
+  "@subcategories": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "recurringSeries": "{v0, plural, =1{1 recurring series} other{{v0} recurring series}}",
+  "@recurringSeries": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "deleteLabelBuild": "Delete “{v0}”?",
+  "@deleteLabelBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "contains": "Contains {v0}.",
+  "@contains": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "moveTasksToUncategorizedAndPromoteSubcategories": "Move tasks to Uncategorized and promote subcategories to top level",
+  "deleteTasksAndSubcategories": "Delete tasks and subcategories",
+  "futureTasksInThisCategoryWillMove": "Future tasks in this category will move to Uncategorized. Subcategory series keep their categories.",
+  "alsoStopTheseSeries": "Also stop these {v0} series.",
+  "@alsoStopTheseSeries": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "keepTheTasksMovedElsewhereOrUncategorized": "Keep the {v0} tasks moved elsewhere or uncategorized, and stop their recurrence.",
+  "@keepTheTasksMovedElsewhereOrUncategorized": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "icon": "Icon",
+  "color": "Color",
+  "done": "Done",
+  "deleteCategory": "Delete category",
+  "editCategory": "Edit category",
+  "newCategory": "New category",
+  "close": "Close",
+  "categoryName": "Category name",
+  "iconIcongrid": "Icon, {v0}",
+  "@iconIcongrid": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "selected": "Selected",
+  "notSelected": "Not selected",
+  "colorItemOf": "Color, {v0}, {v1}, item {v3} of {v2}",
+  "@colorItemOf": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      }
+    }
+  },
+  "topLevel": "Top level",
+  "parent": "Parent, {v0}",
+  "@parent": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "parentParentrow": "Parent",
+  "aCategoryWithSubcategoriesMustStayAt": "A category with subcategories must stay at the top level",
+  "moveUnder": "Move under {v0}",
+  "@moveUnder": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "archiveCategory": "Archive category",
+  "hidesThisCategoryWhenCreatingTasksIts": "Hides this category when creating tasks. Its data is retained.",
+  "notificationsAndReminders": "Notifications and reminders",
+  "couldntOpenNotificationSettingsTryAgain": "Couldn’t open notification settings. Try again.",
+  "localWorkspaceIsntReady": "Local workspace isn’t ready.",
+  "checkingPermissions": "Checking permissions…",
+  "localNotificationsAreUnavailableOnThisPlatform": "Local notifications are unavailable on this platform",
+  "systemNotificationsEnabled": "System notifications enabled",
+  "notificationsAreOffYourReminderRulesAre": "Notifications are off. Your reminder rules are saved.",
+  "backgroundMaintenanceRegisteredTheSystemControlsTiming": "Background maintenance registered. The system controls timing.",
+  "backgroundRegistrationFailedRemindersCanStillBe": "Background registration failed. Reminders can still be scheduled while the app is open.",
+  "foregroundMaintenanceOnlyDigestGenerationPausesWhen": "Foreground maintenance only. Digest generation pauses when the app closes.",
+  "retryBackgroundMaintenance": "Retry background maintenance",
+  "scheduledPending": "Scheduled: {v0}. Pending: {v1}.",
+  "@scheduledPending": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "dueRemindersMayArriveLateEnableExact": "Due reminders may arrive late. Enable exact alarms for precise timing.",
+  "someRemindersWerentScheduledTryAgain": "Some reminders weren’t scheduled. Try again.",
+  "checkAndRetry": "Check and retry",
+  "enableNotifications": "Enable notifications",
+  "enableExactAlarms": "Enable exact alarms",
+  "systemNotificationSettings": "System notification settings",
+  "scheduleDetails": "Schedule details",
+  "setAReminderOnTheTaskUp": "Set a reminder on the task. Up to 60 reminders are scheduled for the next 30 days and digests up to 7 days ahead, using current device data.",
+  "schedulingResumesInTheBackgroundOrWhen": "Scheduling resumes in the background or when you reopen the app. Battery saver, Do Not Disturb and force stop can affect digest delivery.",
+  "created": "Created",
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "nextMonday": "Next Monday",
+  "formattedValue": "{v0}/{v1}",
+  "@formattedValue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "noDueDate": "No due date",
+  "whenDue": "When due",
+  "minutesBeforeBuild": "15 minutes before",
+  "hourBefore": "1 hour before",
+  "dayBefore": "1 day before",
+  "newTask": "New task",
+  "taskTitle": "Task title",
+  "create": "Create",
+  "addANote": "Add a note",
+  "dueDate": "Due date",
+  "setTime": "Set time",
+  "chooseDate": "Choose date",
+  "ok": "OK",
+  "uncategorized": "Uncategorized",
+  "backToToday": "Back to today",
+  "restored": "Restored",
+  "deleted": "Deleted",
+  "filterCategory": "Filter category: {v0}",
+  "@filterCategory": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "chooseDateBuild": "{v0}, choose date",
+  "@chooseDateBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "collapseDailyOverview": "Collapse daily overview",
+  "mtwtfss": "MTWTFSS",
+  "formattedValueBuild": "{v3}, {v1}/{v2}/{v0}",
+  "@formattedValueBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      }
+    }
+  },
+  "thatDay": "That day",
+  "pending": "{v0}: {v1} pending",
+  "@pending": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "overdue": ", {v0} overdue",
+  "@overdue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completion": "{v0} completion",
+  "@completion": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "allLabel": "All",
+  "overdueBuild": "Overdue",
+  "noTasks": "No tasks",
+  "completedBuild": "Completed: {v0}",
+  "@completedBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "allTasks": "All tasks",
+  "setADueDateBeforeEnablingRecurrence": "Set a due date before enabling recurrence",
+  "selectedOccurrencesDeleted": "Selected occurrences deleted",
+  "recurringTaskUpdated": "Recurring task updated",
+  "undone": "Undone",
+  "dateIsOutsideAvailableTimeZoneData": "Date is outside available time zone data. Choose an earlier end date.",
+  "updatesRecurrenceForTheSelectedRangeEarlier": "Updates recurrence for the selected range. Earlier records and other completed tasks are retained.",
+  "changesOnlyThisOccurrenceOtherDatesAnd": "Changes only this occurrence. Other dates and the recurrence schedule are retained.",
+  "changesAddedEditedDeleted": "Changes: {v0} added, {v1} edited, {v2} deleted",
+  "@changesAddedEditedDeleted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "collapseRecords": "Collapse records",
+  "viewAllRecords": "View all {v0} records",
+  "@viewAllRecords": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "confirmDeletion": "Confirm deletion",
+  "confirmChanges": "Confirm changes",
+  "previously": "Previously: {v0}",
+  "@previously": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "repeat": "Repeat",
+  "timeZoneBuild": "Time zone",
+  "setADueTimeToPreviewUpcoming": "Set a due time to preview upcoming dates",
+  "thisOccurrenceBuild": "This occurrence: {v0}",
+  "@thisOccurrenceBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noUpcomingDatesTheEndConditionHas": "No upcoming dates. The end condition has been reached.",
+  "upcomingDates": "Upcoming dates",
+  "timeZoneDataIsAvailableThroughShorten": "Time zone data is available through {v0}. Shorten the preview range.",
+  "@timeZoneDataIsAvailableThroughShorten": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "previewUnavailableForThisRuleOrTime": "Preview unavailable for this rule or time zone",
+  "dateRangeIsTooLargeShortenThe": "Date range is too large. Shorten the interval or range.",
+  "enterATitleBeforeClosing": "Enter a title before closing",
+  "taskUnavailable": "Task unavailable",
+  "itMayHaveBeenDeletedOrChanged": "It may have been deleted or changed on another device.",
+  "backToTasks": "Back to tasks",
+  "more": "More",
+  "markIncomplete": "Mark incomplete, {v0}",
+  "@markIncomplete": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "markComplete": "Mark complete, {v0}",
+  "@markComplete": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "addANoteBuildtitlearea": "Add a note…",
+  "originalCategoryArchived": "Original category archived",
+  "dueBuildfields": "Due",
+  "overdueBuildfields": "Overdue",
+  "addTag": "Add tag",
+  "fromChat": "From chat",
+  "originalChatDeleted": "Original chat deleted",
+  "originalChatUnavailable": "Original chat unavailable",
+  "createdFromChatDoubleTapToView": "Created from chat: {v0}. Double-tap to view.",
+  "@createdFromChatDoubleTapToView": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "createdBuildmeta": "Created {v0}",
+  "@createdBuildmeta": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "updated": "Updated {v0}",
+  "@updated": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completedBuildmeta": "Completed {v0}",
+  "@completedBuildmeta": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteThisTask": "Delete this task",
+  "copyTitle": "Copy title",
+  "titleCopied": "Title copied",
+  "deleteThisTaskConfirmdelete": "Delete this task?",
+  "willBeDeletedYouCanUndoWithin": "“{v0}” will be deleted. You can undo within 10 seconds.",
+  "@willBeDeletedYouCanUndoWithin": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "chooseDateBuild2": "Choose date…",
+  "time": "Time",
+  "allDay": "All day",
+  "clearTime": "Clear time",
+  "addTime": "Add time",
+  "clearDueDate": "Clear due date",
+  "removesTheTaskFromTodayThisWeek": "Removes the task from Today, This week and Overdue filters",
+  "decrease": "Decrease",
+  "increase": "Increase",
+  "doubleTapToEdit": "{v0}, {v1}. Double-tap to edit.",
+  "@doubleTapToEdit": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "selectTask": "Select task: {v0}",
+  "@selectTask": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "restoreTask": "Restore task: {v0}",
+  "@restoreTask": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completeTask": "Complete task: {v0}",
+  "@completeTask": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "rescheduleTask": "Reschedule task",
+  "deleteTask": "Delete task",
+  "restoreTaskCustomactions": "Restore task",
+  "completeTaskConfirmremainingsteps": "Complete task",
+  "addReminder": "Add reminder",
+  "deleteReminder": "Delete reminder: {v0}",
+  "@deleteReminder": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "upToReminders": "Up to 5 reminders",
+  "recurringTasksSendRemindersBeforeEachDue": "Recurring tasks send reminders before each due date",
+  "minutes": "Minutes",
+  "hours": "Hours",
+  "days": "Days",
+  "minutesBeforeBuild2": "5 minutes before",
+  "minutesBeforeBuild3": "15 minutes before",
+  "minutesBeforeBuild4": "30 minutes before",
+  "hourBeforeBuild": "1 hour before",
+  "dayBeforeBuild": "1 day before",
+  "relativeToDueTime": "Relative to due time",
+  "setADueTimeFirst": "Set a due time first",
+  "custom": "Custom",
+  "reminderLeadTime": "Reminder lead time",
+  "addBuild": "Add",
+  "specificTime": "Specific time",
+  "am": "9:00 AM",
+  "pm": "12:00 PM",
+  "pmBuild": "6:00 PM",
+  "pmBuild2": "8:00 PM",
+  "customRuleReadOnly": "Custom rule (read only)",
+  "resetRule": "Reset rule",
+  "week": "Week",
+  "frequency": "Frequency",
+  "dailyBuild": "Daily",
+  "weeklyBuild": "Weekly",
+  "monthlyBuild": "Monthly",
+  "yearly": "Yearly",
+  "interval": "Interval",
+  "every": "Every",
+  "repeatInterval": "Repeat interval",
+  "repeatOn": "Repeat on",
+  "dayOfMonth": "Day of month",
+  "day": "Day",
+  "ends": "Ends",
+  "never": "Never",
+  "onDate": "On date",
+  "afterNOccurrences": "After N occurrences",
+  "numberOfOccurrences": "Number of occurrences",
+  "times": "times",
+  "fixedTimeZone": "Fixed time zone",
+  "shortMonthsUseTheLastDayDuring": "Short months use the last day. During daylight saving changes, missing times move forward and repeated times run once.",
+  "summary": "Summary: {v0}",
+  "@summary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "saveRecurrence": "Save recurrence",
+  "clearRecurrence": "Clear recurrence?",
+  "clearRecurrenceBuild": "Clear recurrence",
+  "unfinishedSteps": "Unfinished steps: {v0}",
+  "@unfinishedSteps": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "back": "Back",
+  "taskCompleted": "Task completed",
+  "taskReopened": "Task reopened",
+  "stepDeleted": "Step deleted",
+  "progressUpdated": "Progress updated",
+  "enterAStepName": "Enter a step name",
+  "stepsHaveChangedReviewThemBeforeSaving": "Steps have changed. Review them before saving.",
+  "stepName": "Step name",
+  "discardEdits": "Discard edits",
+  "saveStep": "Save step",
+  "addStep": "Add step",
+  "doneOrganizing": "Done organizing",
+  "organize": "Organize",
+  "moveStepUp": "Move step {v0} up",
+  "@moveStepUp": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "moveStepDown": "Move step {v0} down",
+  "@moveStepDown": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteStep": "Delete step {v0}",
+  "@deleteStep": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "nextStep": "Next step",
+  "nextStepRow": ", next step",
+  "step": "Step {v0}, {v1}{v2}",
+  "@step": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "tagName": "Tag name",
+  "thisWeek": "This week",
+  "pendingLabel": "Pending",
+  "todayDuesmartlabel": "Today{v0}",
+  "@todayDuesmartlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "tomorrowDuesmartlabel": "Tomorrow{v0}",
+  "@tomorrowDuesmartlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "yesterday": "Yesterday{v0}",
+  "@yesterday": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueDuesmartlabel": "{v0}/{v1}{v2}",
+  "@formattedValueDuesmartlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "overdueDuebadgelabel": "Overdue {v0}",
+  "@overdueDuebadgelabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "daysOverdue": "{v0, plural, =1{1 day overdue} other{{v0} days overdue}}",
+  "@daysOverdue": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursOverdue": "{v0, plural, =1{1 hour overdue} other{{v0} hours overdue}}",
+  "@hoursOverdue": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "justOverdue": "Just overdue",
+  "daysLeft": "{v0, plural, =1{1 day left} other{{v0} days left}}",
+  "@daysLeft": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursLeft": "{v0, plural, =1{1 hour left} other{{v0} hours left}}",
+  "@hoursLeft": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesLeft": "{v0, plural, =1{1 minute left} other{{v0} minutes left}}",
+  "@minutesLeft": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "todayRelativetimelabel": "Today {v0}",
+  "@todayRelativetimelabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "yesterdayRelativetimelabel": "Yesterday {v0}",
+  "@yesterdayRelativetimelabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "later": "Later",
+  "mon": "Mon",
+  "tue": "Tue",
+  "wed": "Wed",
+  "thu": "Thu",
+  "fri": "Fri",
+  "sat": "Sat",
+  "everySummary": "Every {v0}",
+  "@everySummary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "everySummary2": "Every {v0} {v1}",
+  "@everySummary2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueSummary": "{v0}",
+  "@formattedValueSummary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "daySummary": ", day {v0}",
+  "@daySummary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "neverEnds": "Never ends",
+  "occurrences": "{v0} occurrences",
+  "@occurrences": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "endsSummary": "Ends {v1}/{v2}/{v0}",
+  "@endsSummary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "doesNotRepeat": "Does not repeat",
+  "customRule": "Custom rule",
+  "minBeforeDue": "{v0} min before due",
+  "@minBeforeDue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "hrBeforeDue": "{v0} hr before due",
+  "@hrBeforeDue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "hrMinBeforeDue": "{v0} hr {v1} min before due",
+  "@hrMinBeforeDue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "daysBeforeDue": "{v0} days before due",
+  "@daysBeforeDue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "daysHrBeforeDue": "{v0} days {v1} hr before due",
+  "@daysHrBeforeDue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "customRemindrulelabel": "{v0}/{v1} {v2} (custom)",
+  "@customRemindrulelabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "copyCode": "Copy code",
+  "codeCopied": "Code copied",
+  "avatar": "Avatar",
+  "processing": "Processing",
+  "formattedValueBuild2": "{v1}/{v0}",
+  "@formattedValueBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "previousWeek": "Previous week",
+  "previousMonth": "Previous month",
+  "nextWeek": "Next week",
+  "nextMonth": "Next month",
+  "tasksBuild": ", tasks: {v0}",
+  "@tasksBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueBuild3": "{v1}/{v2}/{v0}{v3}",
+  "@formattedValueBuild3": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      }
+    }
+  },
+  "dismiss": "Dismiss",
+  "collapseSidebar": "Collapse sidebar",
+  "copyReply": "Copy reply",
+  "copied": "Copied",
+  "saving": "Saving",
+  "subscriptionTier": "Subscription tier {v0}",
+  "@subscriptionTier": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "inDevelopment": "In development",
+  "search": "Search",
+  "clearSearch": "Clear search",
+  "newType": "New type",
+  "items": ", items: {v0}",
+  "@items": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "savingTryAgainShortly": "Saving. Try again shortly.",
+  "recordChangedReopenAndTryAgain": "Record changed. Reopen and try again.",
+  "actionAlreadySubmittedCheckTheLatestRecord": "Action already submitted. Check the latest record.",
+  "invalidContentOrCategoryRelationshipCheckAnd": "Invalid content or category relationship. Check and try again.",
+  "recordNoLongerExistsRefreshAndTry": "Record no longer exists. Refresh and try again.",
+  "couldntSaveYourDataIsSafeTry": "Couldn’t save. Your data is safe. Try again.",
+  "webToolsMonthly": "Web tools, monthly",
+  "dailyOrder": "Daily",
+  "quota": "Quota",
+  "periodQuota": "Period quota",
+  "hoursOrder": "5 hours",
+  "tasksAndDailyDigest": "Tasks and daily digest",
+  "yourTaskRemindersAndDailyDigests": "Your task reminders and daily digests",
+  "textFiles": "Text files",
+  "chooseAValidTopLevelCategory": "Choose a valid top-level category",
+  "invalidChatForThisMessage": "Invalid chat for this message",
+  "newChat": "New chat",
+  "chatNotFound": "Chat not found",
+  "messageIdAlreadyExists": "Message ID already exists",
+  "messageIdBelongsToAnotherChat": "Message ID belongs to another chat",
+  "messagesCantBeMovedBetweenChats": "Messages can’t be moved between chats",
+  "chatName": "Chat name",
+  "typeAlreadyExists": "Type already exists",
+  "tableName": "Table name",
+  "fieldNotFound": "Field not found",
+  "fieldName": "Field name",
+  "provideAValueForExistingRecordsBefore": "Provide a value for existing records before requiring this field",
+  "keepAtLeastOneField": "Keep at least one field",
+  "aTableWithThisIdentifierAlreadyExists": "A table with this identifier already exists",
+  "invalidOrDuplicateRowId": "Invalid or duplicate row ID",
+  "thisRecordAlreadyExistsAndCantBe": "This record already exists and can’t be restored over it",
+  "recordDeleted": "Record deleted",
+  "analysisOfHoldingsPng": "Analysis of “Holdings_0921.png”",
+  "nameNewTableSheet": "Name",
+  "kweichowMoutai": "Kweichow Moutai",
+  "sharesHeld": "Shares held",
+  "currentPrice": "Current price",
+  "byd": "BYD",
+  "newRecord": "New record",
+  "theseAiChangesHaveBeenProcessedReopen": "These AI changes have been processed. Reopen the pending record.",
+  "theSelectedChangeNoLongerExists": "The selected change no longer exists",
+  "recordDeletedOrMovedToAnotherTable": "Record deleted or moved to another table. Review again.",
+  "aChangeCannotIncludeTheSameField": "A change cannot include the same field twice",
+  "incompleteDeletionSnapshotReviewAgain": "Incomplete deletion snapshot. Review again.",
+  "recordUpdatedReviewTheAiChangesAgain": "Record updated. Review the AI changes again.",
+  "recordChangedSinceThisAiUpdateUndo": "Record changed since this AI update. Undo is unavailable.",
+  "tableMissingOrArchived": "Table missing or archived",
+  "dataTypeNoLongerExistsChooseAgain": "Data type no longer exists. Choose again.",
+  "invalidOrDuplicateDataTypeName": "Invalid or duplicate data type name",
+  "tableTypeNotFound": "Table type not found",
+  "parentTableNotFoundForRow": "Parent table not found for row",
+  "parentTableNotFoundForAiBatch": "Parent table not found for AI batch",
+  "typeName": "Type name",
+  "useUpToCharactersForTheType": "Use up to 24 characters for the type name",
+  "addAtLeastOneField": "Add at least one field",
+  "fieldNamesCannotBeEmptyOrBegin": "Field names cannot be empty or begin or end with whitespace",
+  "fieldNamesMustBeUnique": "Field names must be unique",
+  "requiresAtLeastOneOption": "“{v0}” requires at least one option",
+  "@requiresAtLeastOneOption": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "optionsForCannotBeBlankOrBegin": "Options for “{v0}” cannot be blank or begin or end with whitespace",
+  "@optionsForCannotBeBlankOrBegin": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "optionsForMustBeUnique": "Options for “{v0}” must be unique",
+  "@optionsForMustBeUnique": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dataContainsAnUndefinedField": "Data contains an undefined field: “{v0}”",
+  "@dataContainsAnUndefinedField": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "isRequired": "“{v0}” is required",
+  "@isRequired": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "aFiniteNumber": "a finite number",
+  "aValidDateYyyyMmDd": "a valid date (yyyy-MM-dd)",
+  "aValidDateAndTimeYyyyMm": "a valid date and time (yyyy-MM-dd HH:mm)",
+  "anExistingOption": "an existing option",
+  "trueOrFalse": "true or false",
+  "mustBe": "“{v0}” must be {v1}",
+  "@mustBe": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "memoryContent": "Memory content",
+  "memoryType": "Memory type",
+  "useUpToCharactersForTheTypeName": "Use up to 20 characters for the type name",
+  "endDateCannotPrecedeStartDate": "End date cannot precede start date",
+  "reportGenerationFailedTryAgain": "Report generation failed. Try again.",
+  "weeklyReport": "Weekly report",
+  "monthlyReport": "Monthly report",
+  "report": "Report",
+  "investing": "Investing",
+  "archives": "Archives",
+  "family": "Family",
+  "work": "Work",
+  "overview": "## Overview",
+  "scope": "Scope: {v0}.",
+  "@scope": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "recordIdsCannotBeEmptyOrDuplicated": "Record IDs cannot be empty or duplicated",
+  "isRequiredRequiretext": "{v0} is required",
+  "@isRequiredRequiretext": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "taskIdAlreadyExists": "Task ID already exists",
+  "quotaExhausted": "Quota exhausted",
+  "tooManyRequests": "Too many requests",
+  "invalidKey": "Invalid key",
+  "accessDenied": "Access denied",
+  "modelUnavailable": "Model unavailable",
+  "serviceTemporarilyUnavailable": "Service temporarily unavailable",
+  "alwaysAsk": "Always ask",
+  "askBeforeTheAiChangesTasksOr": "Ask before the AI changes tasks or tables",
+  "smartConfirmation": "Smart confirmation",
+  "applyTaskAdditionsEditsAndCompletionsImmediately": "Apply task additions, edits and completions immediately. Confirm deletions and table changes.",
+  "runAutomatically": "Run automatically",
+  "applyTaskChangesAndKeepAHistory": "Apply task changes and keep a history. Confirm table changes.",
+  "kimiCodeSubscription": "Kimi Code subscription",
+  "kimiKHighspeed": "Kimi K2.8 HighSpeed",
+  "glmCodingPlanSubscription": "GLM Coding Plan subscription",
+  "thisPlanIsRestrictedToSupportedCoding": "This plan is restricted to supported coding tools. Other clients may be throttled or disabled.",
+  "deepseekPlatform": "DeepSeek Platform",
+  "kimiPlatform": "Kimi Platform",
+  "zhipuGlmPlatform": "Zhipu GLM Platform",
+  "zhipuGlm": "Zhipu GLM",
+  "openaiCompatibleApi": "OpenAI-compatible API",
+  "fact": "Fact",
+  "preference": "Preference",
+  "event": "Event",
+  "profile": "Profile",
+  "active": "Active",
+  "expired": "Expired",
+  "intentRecognition": "Intent recognition",
+  "chat": "Chat",
+  "reportGeneration": "Report generation",
+  "screenshotAnalysis": "Screenshot analysis",
+  "stepsStepprogress": "Steps {v0}/{v1}",
+  "@stepsStepprogress": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "dueEarlierUnfinished": "{v0}/{v1}: {v2} due, {v3} overdue. ",
+  "@dueEarlierUnfinished": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      }
+    }
+  },
+  "scheduledSnapshotOpenForTheLatest": "{v0}Open for the latest.",
+  "@scheduledSnapshotOpenForTheLatest": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "taskReminder": "Task reminder",
+  "dailyTaskDigest": "Daily task digest",
+  "unknownVersion": "Unknown version",
+  "restoreBaseVersion": "Restore base version",
+  "patchP": "Patch P{v0}",
+  "@patchP": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "exitReorderMode": "Exit reorder mode",
+  "reorderCategories": "Reorder categories",
+  "finishReordering": "Finish reordering",
+  "inUse": "In use",
+  "allCategoriesArchived": "All categories archived",
+  "noCategories": "No categories",
+  "createSampleCategories": "Create sample categories",
+  "createsInvestingArchivesAndFamily": "Creates Investing, Archives and Family",
+  "archivedTapToCollapse": "Archived, tap to collapse",
+  "archivedTapToExpand": "Archived, tap to expand",
+  "archived": "Archived: {v0}",
+  "@archived": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dropBetweenTopLevelRowsToReorder": "Drop between top-level rows to reorder or promote",
+  "dropOntoATopLevelRowTo": "Drop onto a top-level row to make a subcategory",
+  "upToTwoCategoryLevels": "Up to two category levels",
+  "restoredOpenarchivedactions": "“{v0}” restored",
+  "@restoredOpenarchivedactions": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "archivedAndHiddenWhenCreatingTasks": "“{v0}” archived and hidden when creating tasks",
+  "@archivedAndHiddenWhenCreatingTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deletedEditcategory": "Deleted “{v0}”",
+  "@deletedEditcategory": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completionRateUnknown": "Completion rate unknown",
+  "completeSemanticslabel": "{v0}% complete",
+  "@completeSemanticslabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "archivedCategoryTasksDoubleTapForRestore": "Archived category {v0}, {v1} tasks. Double-tap for restore options.",
+  "@archivedCategoryTasksDoubleTapForRestore": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "subcategoryTasks": "Subcategory {v0}, {v1} tasks, {v2}",
+  "@subcategoryTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "categoryTasks": "Category {v0}, {v1} tasks, {v2}",
+  "@categoryTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "subcategoriesExpanded": ", subcategories expanded",
+  "subcategoriesCollapsed": ", subcategories collapsed",
+  "doubleTapToEditHoldAndDrag": ". Double-tap to edit. Hold and drag to reorder.",
+  "collapseSubcategories": "Collapse subcategories",
+  "expandSubcategories": "Expand subcategories",
+  "itemsStats": "{v0} items —",
+  "@itemsStats": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "itemsStats2": "{v0} items ",
+  "@itemsStats2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "moreActionsFor": "More actions for {v0}",
+  "@moreActionsFor": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "itemsBuild": "{v0, plural, =1{1 item} other{{v0} items}}",
+  "@itemsBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "advanced": " Advanced",
+  "couldntReplyTryAgain": "Couldn’t reply. Try again.",
+  "couldntRefreshLocalChatsShowingTheLast": "Couldn’t refresh local chats. Showing the last saved content.",
+  "reload": "Reload",
+  "renameChat": "Rename chat",
+  "save": "Save",
+  "deleteThisChat": "Delete this chat?",
+  "tasksCreatedInThisChatWillBe": "Tasks created in this chat will be kept.",
+  "deleteChat": "Delete chat",
+  "hiWhatsOnYourListToday": "Hi {v0}, what’s on your list today?",
+  "@hiWhatsOnYourListToday": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "replyIncomplete": "Reply incomplete",
+  "voiceInputInterrupted": "Voice input interrupted",
+  "couldntStartVoiceInput": "Couldn’t start voice input",
+  "transcriptIsTooLongSplitItInto": "Transcript is too long. Split it into shorter requests.",
+  "couldntHearThatTryAgain": "Couldn’t hear that. Try again.",
+  "recognitionTimedOutTryAgain": "Recognition timed out. Try again.",
+  "couldntSendYourTextIsSaved": "Couldn’t send. Your text is saved.",
+  "allowMicrophoneAccessInSystemSettings": "Allow microphone access in system settings",
+  "selectedLanguageIsUnavailable": "Selected language is unavailable",
+  "thisRecognizerDoesNotSupportOnDevice": "This recognizer does not support on-device mode. Network recognition is off.",
+  "couldntConnectToSpeechService": "Couldn’t connect to speech service",
+  "microphoneInUse": "Microphone in use",
+  "recordingInterrupted": "Recording interrupted",
+  "voiceInputUnavailable": "Voice input unavailable",
+  "notSentTryAgain": "Not sent. Try again.",
+  "answered": "Answered",
+  "chatContinued": "Chat continued",
+  "addToYourAnswer": "Add to your answer",
+  "collapseAdditionalAnswer": "Collapse additional answer",
+  "addAnAnswer": "Add an answer",
+  "collapse": "Collapse",
+  "otherAnswer": "Other answer",
+  "confirmAnswer": "Confirm answer",
+  "sending": "Sending",
+  "send": "Send",
+  "sendSelections": "Send {v0} selections",
+  "@sendSelections": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "undoTask": "Undo task",
+  "restoredToPending": "Restored to pending",
+  "editTask": "Edit task",
+  "previousPage": "Previous page",
+  "page": "Page",
+  "nextPage": "Next page",
+  "moreItems": "{v0} more items",
+  "@moreItems": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "itemsRemoved": "{v0} items removed",
+  "@itemsRemoved": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completeBuild": "{v0}/{v1} complete",
+  "@completeBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "view": "View {v0}",
+  "@view": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "theTasksInThisListHaveBeen": "The tasks in this list have been removed",
+  "noTasksInThisRange": "No tasks in this range",
+  "taskBuild": "{v0} task: {v1}",
+  "@taskBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "editTaskBuild": "Edit task: {v0}",
+  "@editTaskBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "scrollToLatest": "Scroll to latest",
+  "schedule": "Schedule",
+  "data": "Data",
+  "memory": "Memory",
+  "settings": "Settings",
+  "collapseCategories": "Collapse categories",
+  "expandCategories": "Expand categories",
+  "reorderCategoriesBuild": "Reorder categories",
+  "chatHistory": "Chat history",
+  "noChatsYet": "No chats yet",
+  "toggleLightOrDarkTheme": "Toggle light or dark theme",
+  "editCategorylist": "Edit {v0}",
+  "@editCategorylist": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dragToReorder": "Drag to reorder {v0}",
+  "@dragToReorder": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "expandSubcategoriesOf": "Expand subcategories of {v0}",
+  "@expandSubcategoriesOf": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "yesterdayGroup": "Yesterday",
+  "lastDays": "Last 7 days",
+  "earlier": "Earlier",
+  "openMenu": "Open menu",
+  "searchChatsAndTasks": "Search chats and tasks",
+  "openDailyOverview": "Open daily overview",
+  "newChatBuild": "New chat",
+  "chatOptions": "Chat options",
+  "image": "Image “{v0}”:",
+  "@image": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "takeALookAtThisImage": "Take a look at this image",
+  "contentTruncated": "{v0}\n… (content truncated)",
+  "@contentTruncated": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "contentsOf": "Contents of “{v0}”:\n{v1}",
+  "@contentsOf": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "contentsOfSubmitwithattachment": "{v0}\n\nContents of “{v1}”:\n{v2}",
+  "@contentsOfSubmitwithattachment": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "connectAnAccountInModelsAndUsage": "Connect an account in Models and usage first",
+  "addToChat": "Add to chat",
+  "takePhoto": "Take photo",
+  "chooseImage": "Choose image",
+  "fileTooLargeImagesUpToMb": "File too large. Images: up to 10 MB. Text: up to 512 KB.",
+  "couldntReadTheImageChooseAStatic": "Couldn’t read the image. Choose a static PNG or JPEG.",
+  "couldntReadTheFileTryAgain": "Couldn’t read the file. Try again.",
+  "holdToTranscribe": "Hold to transcribe",
+  "askAnything": "Ask anything…",
+  "holdToRecordReleaseToSend": "Hold to record, release to send",
+  "holdToTalk": "Hold to talk",
+  "stopGenerating": "Stop generating",
+  "sendMessage": "Send message",
+  "switchToKeyboard": "Switch to keyboard",
+  "switchToVoice": "Switch to voice",
+  "addAttachment": "Add attachment",
+  "attachmentToSend": "Attachment to send: {v0}",
+  "@attachmentToSend": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "removeAttachment": "Remove attachment",
+  "tomorrowFormatdue": "Tomorrow {v0}",
+  "@tomorrowFormatdue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dayAfterTomorrow": "Day after tomorrow {v0}",
+  "@dayAfterTomorrow": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueExportlabel": "{v0}/{v1} {v2}",
+  "@formattedValueExportlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "monFormatrelative": "Mon",
+  "tueFormatrelative": "Tue",
+  "wedFormatrelative": "Wed",
+  "thuFormatrelative": "Thu",
+  "friFormatrelative": "Fri",
+  "satFormatrelative": "Sat",
+  "sun": "Sun",
+  "stopped": "Stopped",
+  "thinking": "Thinking…",
+  "connectModel": "Connect model",
+  "chooseModel": "Choose model",
+  "chooseModelBuild": "Choose model, {v0}",
+  "@chooseModelBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "couldntLoadModelSettings": "Couldn’t load model settings",
+  "couldntSwitchModelsTurnAutomaticFallbackBack": "Couldn’t switch models. Turn automatic fallback back on to retry.",
+  "couldntSwitchTryAgainLater": "Couldn’t switch. Try again later.",
+  "backToProviders": "Back to providers",
+  "automaticFallback": "Automatic fallback",
+  "addModelAccount": "Add model account",
+  "manageAccounts": "Manage accounts",
+  "account": "Account {v0} ",
+  "@account": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "accountRemovedGoBackAndChooseAnother": "Account removed. Go back and choose another.",
+  "deepThinking": "Deep thinking",
+  "voiceInputFailedYourTranscriptIsSaved": "Voice input failed. Your transcript is saved.",
+  "taskUndone": "Task undone",
+  "theTaskChangedAndCannotBeRestored": "The task changed and cannot be restored",
+  "completedToggledone": "Completed {v0}",
+  "@completedToggledone": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "updatedEdittodo": "Updated",
+  "nextWeekBuild": "Next week",
+  "preparingMicrophone": "Preparing microphone",
+  "recording": "Recording",
+  "transcribingAudio": "Transcribing audio",
+  "voiceReadyToSend": "Voice ready to send",
+  "sendingVoiceInput": "Sending voice input",
+  "typeAMessage": "Type a message",
+  "tapToTypeHoldToTranscribe": "Tap to type, hold to transcribe",
+  "activateToDictateOrHoldToRecord": "Activate to dictate, or hold to record",
+  "activateToFinishRecordingAndSendThe": "Activate to finish recording and send the transcript",
+  "cancelVoiceInputOrSwitchToThe": "Cancel voice input or switch to the keyboard",
+  "preparingToRecord": "Preparing to record",
+  "releaseToCancel": "Release to cancel",
+  "releaseToEdit": "Release to edit",
+  "releaseToSend": "Release to send",
+  "transcribing": "Transcribing",
+  "sendingShortly": "Sending shortly",
+  "endRecording": "End recording",
+  "voiceInput": "Voice input",
+  "listening": "Listening…",
+  "cancelVoiceInput": "Cancel voice input",
+  "editTranscript": "Edit transcript",
+  "offlineSpeechRecognition": "Offline speech recognition",
+  "offlineModelReady": "Offline model ready",
+  "startVoiceInput": "Start voice input",
+  "transcribesOnThisDeviceWithTheBuilt": "Transcribes on this device with the built-in model, even offline.",
+  "installingTheBuiltInOfflineModel": "Installing the built-in offline model…",
+  "downloadAboutMb": "Download (about {v0} MB)",
+  "@downloadAboutMb": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "cancelDownload": "Cancel download",
+  "retryDownload": "Retry download",
+  "reinstallBuiltInModel": "Reinstall built-in model",
+  "installBuiltInOfflineModel": "Install built-in offline model",
+  "downloadInsteadAboutMb": "Download instead (about {v0} MB)",
+  "@downloadInsteadAboutMb": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "downloadedOfMb": "Downloaded {v0} of {v1} MB",
+  "@downloadedOfMb": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "modelsAndUsage": "Models and usage, {v0}",
+  "@modelsAndUsage": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "remainingBuild": "Remaining",
+  "closeSearch": "Close search",
+  "noResults": "No results",
+  "goToChat": "Go to chat",
+  "analysisDiscarded": "Analysis discarded",
+  "chooseFromPhotos": "Choose from photos",
+  "rowAdded": "Row added",
+  "exportedRowsTo": "Exported {v0} rows to {v1}",
+  "@exportedRowsTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "exportFailedTryAgain": "Export failed. Try again.",
+  "changeType": "Change type",
+  "manageFields": "Manage fields",
+  "exportCsv": "Export CSV",
+  "archiveThisTable": "Archive this table?",
+  "archivedTablesAreHiddenFromTheList": "Archived tables are hidden from the list. Their data is retained.",
+  "deleteTable": "Delete table",
+  "deleteThisTable": "Delete this table?",
+  "youCanUndoTheDeletion": "You can undo the deletion.",
+  "alsoDeletesRowsYouCanUndoThe": "Also deletes {v0} rows. You can undo the deletion.",
+  "@alsoDeletesRowsYouCanUndoThe": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "renamedTo": "Renamed to “{v0}”",
+  "@renamedTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "source": "Source",
+  "addedByMe": "Added by me",
+  "addedByAi": "Added by AI",
+  "recentlyUpdatedFirst": "Recently updated first",
+  "firstFieldAZ": "First field A–Z",
+  "firstFieldZA": "First field Z–A",
+  "noMatchingRecords": "No matching records",
+  "noResultsFor": "No results for “{v0}”",
+  "@noResultsFor": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "adjustTheFiltersOrTryAnotherKeyword": "Adjust the filters or try another keyword",
+  "clearFilters": "Clear filters",
+  "results": "Results: {v0}",
+  "@results": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "loadMore": "Load more",
+  "tableUnavailable": "Table unavailable",
+  "itMayHaveBeenArchivedOrDeleted": "It may have been archived or deleted.",
+  "backToList": "Back to list",
+  "tableSettings": "Table settings",
+  "importScreenshot": "Import screenshot",
+  "newRow": "New row",
+  "rows": "{v0, plural, =1{1 row} other{{v0} rows}}",
+  "@rows": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "aiChangesAwaitingReview": "AI changes awaiting review",
+  "searchRows": "Search rows",
+  "filter": "Filter",
+  "noDataYet": "No data yet",
+  "createARow": "Create a row",
+  "changeHistory": "Change history",
+  "copyRow": "Copy row",
+  "rowCopied": "Row copied",
+  "deleteThisRow": "Delete this row?",
+  "willBeDeletedYouCanReviewIt": "“{v0}” will be deleted. You can review it in change history.",
+  "@willBeDeletedYouCanReviewIt": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "recordBuild": "Record",
+  "untitled": "(Untitled)",
+  "createdCreatetable": "Created “{v0}”",
+  "@createdCreatetable": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "createFromTemplate": "Create from template",
+  "createFromTemplateShowtemplates": "Create from template: {v0}",
+  "@createFromTemplateShowtemplates": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "fields": "{v0, plural, =1{1 field} other{{v0} fields}}",
+  "@fields": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "dataTables": "Data tables",
+  "tables": "{v0, plural, =1{1 table} other{{v0} tables}}",
+  "@tables": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "recentlyUpdated": "Recently updated",
+  "noMatchingTables": "No matching tables",
+  "noTablesYet": "No tables yet",
+  "newTable": "New table",
+  "searchTables": "Search tables",
+  "fieldsRows": "{v0} fields, {v1} rows {v2}",
+  "@fieldsRows": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "fieldsRowsAiChangesToReview": "{v0}, {v1} fields, {v2} rows, {v3} AI changes to review",
+  "@fieldsRowsAiChangesToReview": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      }
+    }
+  },
+  "fieldsRowsBuild": "{v0}, {v1} fields, {v2} rows",
+  "@fieldsRowsBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "csvExported": "CSV exported: {v0}",
+  "@csvExported": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "copyTableStructure": "Copy table structure",
+  "copy": "{v0} copy",
+  "@copy": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "createdCopy": "Created copy “{v0}”",
+  "@createdCopy": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "archivedTablesAreHiddenArchiveATable": "Archived tables are hidden. Archive a table before deleting it.",
+  "archivedShowcontextsheet": "Archived “{v0}”",
+  "@archivedShowcontextsheet": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "addRow": "Add row",
+  "discardThisAnalysis": "Discard this analysis?",
+  "includesOneDeletionDiscardingRemovesThisAi": "Includes one deletion. Discarding removes this AI analysis.",
+  "discard": "Discard",
+  "aiProposesChanges": "AI proposes {v0} changes",
+  "@aiProposesChanges": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "viewSource": "View source",
+  "from": "From {v0} ›",
+  "@from": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "applySelected": "Apply selected ({v0})",
+  "@applySelected": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deselect": "Deselect",
+  "selectLabelBuild": "Select",
+  "aiAddedRows": "AI added {v0} rows",
+  "@aiAddedRows": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "aiMadeChanges": "AI made {v0} changes",
+  "@aiMadeChanges": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "undoneChangesReverted": "Undone. Changes reverted.",
+  "aiEdits": "AI edits",
+  "aiChangesAwaitingReviewBuild": "AI changes awaiting review: {v0}",
+  "@aiChangesAwaitingReviewBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "review": "Review {v0}",
+  "@review": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "confirm": "Confirm",
+  "chooseType": "Choose type {v0}",
+  "@chooseType": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "typeBuild": "Type: {v0}",
+  "@typeBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "aiIsUnsurePleaseVerify": "AI is unsure. Please verify.",
+  "enterText": "Enter text",
+  "enterANumber": "Enter a number",
+  "clear": "Clear",
+  "currency": "Currency",
+  "boolean": "Boolean",
+  "deletionUnavailable": "Deletion unavailable",
+  "tooManyRecordsUseThisFieldTo": "Too many records use this field to delete it here",
+  "gotIt": "Got it",
+  "deleteField": "Delete field “{v0}”?",
+  "@deleteField": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "thisFieldHasNoValues": "This field has no values.",
+  "alsoClearsThisFieldInRows": "Also clears this field in {v0} rows.",
+  "@alsoClearsThisFieldInRows": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "fieldDeleted": "Field deleted",
+  "enterOneOfTheOptions": "Enter one of the options",
+  "enterAnOptionEG": "Enter an option, e.g. “{v0}”",
+  "@enterAnOptionEG": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "eG": "e.g. 3.5",
+  "eGBackfillhint": "e.g. 1250.00",
+  "defaultForExistingRecords": "Default for existing records",
+  "fieldNameIsRequired": "Field name is required",
+  "provideAtLeastOneCommaSeparatedOption": "Provide at least one comma-separated option",
+  "fieldAdded": "Field added",
+  "fieldsBuildfieldlist": "Fields: {v0}",
+  "@fieldsBuildfieldlist": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noFieldsYet": "No fields yet",
+  "addFieldBuildfieldlist": "Add field",
+  "fieldNameBuildaddform": "Field name",
+  "options": "Options",
+  "commaSeparated": "Comma-separated",
+  "optionsBuildaddform": "{v0, plural, =1{1 option} other{{v0} options}}",
+  "@optionsBuildaddform": {
+    "placeholders": {
+      "v0": {
+        "type": "num"
+      }
+    }
+  },
+  "unitOptional": "Unit (optional)",
+  "eGSharesMinutes": "e.g. shares, minutes",
+  "decimalPlaces": "Decimal places",
+  "setADefaultForExistingRecords": "Set a default for existing records",
+  "appliesToAllExistingRows": "Applies to all {v0} existing rows",
+  "@appliesToAllExistingRows": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "renameBuild": "Rename “{v0}”",
+  "@renameBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteLabelBuild2": "Delete “{v0}”",
+  "@deleteLabelBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "renameField": "Rename field",
+  "justNow": "Just now",
+  "minAgo": "{v0} min ago",
+  "@minAgo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "switchLabel": "Switch",
+  "thisRow": "This row",
+  "couldntLoadChangeHistory": "Couldn’t load change history",
+  "noChangesYet": "No changes yet",
+  "restoreThisVersion": "Restore this version?",
+  "restoresTheVersionFromTheRestoreWill": "Restores the version from {v0}. The restore will appear in history.",
+  "@restoresTheVersionFromTheRestoreWill": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "restoresTheVersionFromAndUndoesLater": "Restores the version from {v0} and undoes {v1} later changes. The restore will appear in history.",
+  "@restoresTheVersionFromAndUndoesLater": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "restoreVersion": "Restore version",
+  "restoredTheVersionFrom": "Restored the version from {v0}",
+  "@restoredTheVersionFrom": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "me": "Me",
+  "createdThisRow": "Created this row",
+  "deletedThisRow": "Deleted this row",
+  "viewOriginalImage": "View original image",
+  "viewOriginal": "{v0} View original ▸",
+  "@viewOriginal": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "imageTooLargeChooseAPngOr": "Image too large. Choose a PNG or JPEG under 10 MB or crop it.",
+  "couldntReadThisImageChooseAComplete": "Couldn’t read this image. Choose a complete, static PNG or JPEG.",
+  "theOriginalAndItsCopyAreUnavailable": "The original and its copy are unavailable. Choose the image again.",
+  "thisImageIsLinkedToARecognition": "This image is linked to a recognition record and is retained for history.",
+  "couldntReadOrSaveTheImageExisting": "Couldn’t read or save the image. Existing data is retained.",
+  "addTheClearlyIdentifiableRecordsToThis": "Add the clearly identifiable records to this table. Ask me about anything uncertain.",
+  "imageStart": "Image “{v0}”: {v1}",
+  "@imageStart": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "unavailableBuild": "Unavailable",
+  "targetTable": "Target table: {v0}",
+  "@targetTable": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "stopRecognition": "Stop recognition",
+  "savedImages": "Saved images",
+  "saved": "Saved",
+  "incompleteFileChooseItAgain": "Incomplete file. Choose it again.",
+  "removeUnusedImage": "Remove unused image",
+  "retryReading": "Retry reading",
+  "importInstructions": "Import instructions",
+  "addRecordsOrSpecifyWhichRecordsTo": "Add records or specify which records to update",
+  "theImageWillBeSentToThe": "The image will be sent to the selected model and use its quota.",
+  "analyzeAndImport": "Analyze and import",
+  "viewSourceImage": "View source image",
+  "thisRecordHasNoLinkedSourceImage": "This record has no linked source image.",
+  "demoImagePlaceholder": "Demo image placeholder",
+  "closeImage": "Close image",
+  "enterATableName": "Enter a table name",
+  "fieldsBuild": "Fields ({v0})",
+  "@fieldsBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteFieldBuild": "Delete field {v0}",
+  "@deleteFieldBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "optionOneOptionTwo": "Option one\nOption two",
+  "enterUniqueOptionsOnePerLine": "Enter unique options, one per line",
+  "oneOptionPerLine": "One option per line",
+  "invalidContentOrFieldFormatCheckAnd": "Invalid content or field format. Check and try again.",
+  "savingPleaseWait": "Saving. Please wait.",
+  "recordNoLongerExists": "Record no longer exists",
+  "backToTable": "Back to table",
+  "recordDetails": "Record details",
+  "equals": "Equals",
+  "containsRowFilterSheet": "Contains",
+  "greaterThan": "Greater than",
+  "atLeast": "At least",
+  "lessThan": "Less than",
+  "atMost": "At most",
+  "enterANumberWithUpToDecimal": "Enter a number with up to {v0} decimal places",
+  "@enterANumberWithUpToDecimal": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "addUpToFourFieldConditions": "Add up to four field conditions",
+  "conditions": "Conditions: {v0}",
+  "@conditions": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noFilterableFieldsInThisTable": "No filterable fields in this table",
+  "addCondition": "Add condition",
+  "upToConditions": "Up to {v0} conditions",
+  "@upToConditions": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "applyFilters": "Apply filters",
+  "removeCondition": "Remove condition",
+  "value": "Value",
+  "clearDate": "Clear date",
+  "eGBuildvalueeditor": "e.g. 3.5 ({v0})",
+  "@eGBuildvalueeditor": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "chooseDateAndTime": "Choose date and time",
+  "holdingsPng": "Holdings_0921.png",
+  "fromTheHoldingsScreenshotAddedSharesOf": "From the holdings screenshot: added 200 shares of Kweichow Moutai and bought 300 shares of Tencent.",
+  "kweichowMoutaiShares": "Kweichow Moutai shares",
+  "shares": "500 shares",
+  "kweichowMoutaiPrice": "Kweichow Moutai price",
+  "tencentAdded": "Tencent added",
+  "tencentShares": "Tencent shares",
+  "sharesBuildplan": "300 shares",
+  "tencentCostBasis": "Tencent cost basis",
+  "tencent": "Tencent",
+  "costBasis": "Cost basis",
+  "receiptJpg": "Receipt_0923.jpg",
+  "extractedAnArchiveReceiptFromThePhoto": "Extracted an archive receipt from the photo. The volume count is hard to read.",
+  "analysisOfReceiptJpg": "Analysis of “Receipt_0923.jpg”",
+  "archiveId": "Archive ID",
+  "titleBuildplan": "Title",
+  "planningRecordsTransferredByTheHousingBureau": "Planning records transferred by the housing bureau",
+  "volumesBuildplan": "Volumes",
+  "transferringAgency": "Transferring agency",
+  "municipalHousingBureau": "Municipal housing bureau",
+  "yearBuildplan": "Year",
+  "receivedDate": "Received date",
+  "classification": "Classification",
+  "internal": "Internal",
+  "digitized": "Digitized",
+  "recordFromScreenshot": "Record from screenshot",
+  "screenshotPng": "Screenshot_0923.png",
+  "foundARecordInTheScreenshotConfirm": "Found a record in the screenshot. Confirm to save it.",
+  "analysisOfScreenshotPng": "Analysis of “Screenshot_0923.png”",
+  "importScreenshotBuild": "Import screenshot {v0}",
+  "@importScreenshotBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "cancelImageAnalysis": "Cancel image analysis",
+  "startAnalysis": "Start analysis",
+  "chooseAgain": "Choose again",
+  "extractionComplete": "Extraction complete",
+  "uploadingImage": "Uploading image…",
+  "readingImage": "Reading image…",
+  "takingLongerThanExpected": "Taking longer than expected…",
+  "monthlyCredits": "Monthly credits",
+  "credits": "{v0} credits",
+  "@credits": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "modelAccess": "Model access",
+  "context": "Context",
+  "yourOwnApiKey": "Your own API key",
+  "shortContext": "Short context",
+  "yearlyBuild": "Yearly",
+  "monthlyBuild2": "Monthly",
+  "toworkMembership": "ToWork membership",
+  "closeMembership": "Close membership",
+  "currentPlan": "Current plan",
+  "switchTo": "Switch to {v0}",
+  "@switchTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "selectLabelBuild2": "Select {v0}",
+  "@selectLabelBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dismissSuccessAnimation": "Dismiss success animation",
+  "membership": "{v0} membership",
+  "@membership": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "planChanged": "Plan changed",
+  "creditsPerMonth": "{v0} credits per month",
+  "@creditsPerMonth": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "membershipBadge": "{v0} membership badge",
+  "@membershipBadge": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "memoryIsPausedResumeItInSettings": "Memory is paused. Resume it in Settings first.",
+  "invalidContentOrType": "Invalid content or type",
+  "couldntSaveTryAgain": "Couldn’t save. Try again.",
+  "resumeMemoryToAddAnItem": "Resume memory to add an item",
+  "remembered": "Remembered",
+  "updatedOpeneditor": "Updated",
+  "rememberAgain": "Remember again",
+  "originalChatNoLongerExists": "Original chat no longer exists",
+  "memoryRestored": "Memory restored",
+  "memoryCleared": "Memory cleared",
+  "memoryLibrary": "Memory library",
+  "onLabel": "On",
+  "memoryOffModeIs": "Memory off mode is {v0}",
+  "@memoryOffModeIs": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "moreActions": "More actions",
+  "couldntLoadMemories": "Couldn’t load memories",
+  "searchMemories": "Search memories",
+  "newMemory": "New memory",
+  "memoryIsOffNewChatsWontAdd": "Memory is off. New chats won’t add memories.",
+  "resumeMemory": "Resume memory",
+  "noMemoriesYet": "No memories yet",
+  "noMatchingMemories": "No matching memories",
+  "hrAgo": "{v0} hr ago",
+  "@hrAgo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "daysAgo": "{v0} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "memoryConfidence": "{v0} memory, {v1}, confidence {v2}",
+  "@memoryConfidence": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "expiredBuild": ", expired",
+  "doubleTapToExpandHoldForActions": "{v0}. Double-tap to expand. Hold for actions.",
+  "@doubleTapToExpandHoldForActions": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "extractedByAi": "Extracted by AI",
+  "manual": "Manual",
+  "pendingReview": "Pending review",
+  "confidence": "Confidence {v0}",
+  "@confidence": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "expiresInDays": "{v0, plural, =1{Expires in 1 day} other{Expires in {v0} days}}",
+  "@expiresInDays": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "openSourceChat": "Open source chat {v0}",
+  "@openSourceChat": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "fromChatShowmemorydetailsheet": "From chat “{v0}”",
+  "@fromChatShowmemorydetailsheet": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueDate": "{v1}/{v2}/{v0}",
+  "@formattedValueDate": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "memoryDetails": "Memory details",
+  "addedManually": "Added manually",
+  "confidenceShowmemorydetailsheet": "Confidence",
+  "retention": "Retention",
+  "noExpiration": "No expiration",
+  "expiredShowmemorydetailsheet": " Expired",
+  "expires": "Expires",
+  "viewOriginalChat": "View original chat",
+  "copyShowmemorydetailsheet": "Copy",
+  "longTerm": "Long term",
+  "expiresExpirylabel": "Expires {v0}-{v1}-{v2}",
+  "@expiresExpirylabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "editMemory": "Edit memory",
+  "memoryRetention": "Memory retention",
+  "customDate": "Custom date",
+  "chatBuild": "Chat",
+  "memoryBuild": "Memory: {v0}, {v1}",
+  "@memoryBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "moreFilters": "More filters",
+  "memoryRules": "Memory rules",
+  "clearAllMemories": "Clear all memories",
+  "theAiRemembersInformationYouMentionThat": "The AI remembers information you mention that is likely to matter later.",
+  "longTermPreferences": "Long-term preferences",
+  "leadWithTheConclusion": "Lead with the conclusion",
+  "recurringWorkflows": "Recurring workflows",
+  "groupWeeklyReportsByProject": "Group weekly reports by project",
+  "responsibilities": "Responsibilities",
+  "iHandleContractApprovals": "I handle contract approvals",
+  "projectAgreements": "Project agreements",
+  "useTheSignedVersionForAcceptance": "Use the signed version for acceptance",
+  "terminology": "Terminology",
+  "northMeansTheNorthChinaProjectTeam": "“North” means the North China project team",
+  "corrections": "Corrections",
+  "weeklyReportsAreNowDueOnThursdays": "Weekly reports are now due on Thursdays",
+  "youCanPauseMemoryAtAnyTime": "You can pause memory at any time.",
+  "copyContent": "Copy content",
+  "deleteThisMemory": "Delete this memory?",
+  "theAiWillNoLongerRememberIt": "The AI will no longer remember it.",
+  "pauseMemory": "Pause memory",
+  "newChatsWontAddMemoriesExistingMemories": "New chats won’t add memories. Existing memories are retained.",
+  "clearAllMemoriesShowclearallconfirm": "Clear all memories?",
+  "deletesAllMemoriesIncludingAiExtractedAnd": "Deletes all {v0} memories, including AI-extracted and manually added entries. This cannot be undone.",
+  "@deletesAllMemoriesIncludingAiExtractedAnd": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "holdForOneSecondToConfirmClearing": "Hold for one second to confirm clearing all memories",
+  "keepHolding": "Keep holding…",
+  "holdForSecondToClear": "Hold for 1 second to clear",
+  "closeQuickAsk": "Close Quick Ask",
+  "quickAsk": "Quick Ask",
+  "collapseQuickAsk": "Collapse Quick Ask",
+  "expandQuickAsk": "Expand Quick Ask",
+  "copiedAsMarkdown": "Copied as Markdown",
+  "exported": "Exported {v0}",
+  "@exported": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "shareReport": "Share report",
+  "exportMarkdown": "Export Markdown",
+  "copyFullText": "Copy full text",
+  "regenerate": "Regenerate?",
+  "rebuildsThisReportUsingTheLatestData": "Rebuilds this report using the latest data and replaces its current content.",
+  "regenerateConfirmregenerate": "Regenerate",
+  "deleteThisReport": "Delete this report?",
+  "sourceDataWillBeKept": "Source data will be kept.",
+  "reportDeleted": "Report deleted",
+  "countingCompletedTasks": "Counting completed tasks",
+  "summarizingCategories": "Summarizing categories",
+  "aggregatingData": "Aggregating data",
+  "generatingSummary": "Generating summary",
+  "theReportWillContinueInTheBackground": "The report will continue in the background. You’ll be notified when it’s ready.",
+  "stopGeneratingConfirmstop": "Stop generating?",
+  "thePartialDraftWillBeDiscarded": "The partial draft will be discarded.",
+  "keepGenerating": "Keep generating",
+  "stop": "Stop",
+  "markUnread": "Mark unread",
+  "markRead": "Mark read",
+  "markedUnread": "Marked unread",
+  "markedRead": "Marked read",
+  "generating": "Generating",
+  "share": "Share",
+  "aboutSeconds": "About 10–30 seconds",
+  "thisReportHasBeenDeleted": "This report has been deleted",
+  "dataForWasntAvailableInTimeThis": "Data for {v0} wasn’t available in time. This report uses the available data.",
+  "@dataForWasntAvailableInTimeThis": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "user": "- User: {v0}",
+  "@user": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "added": "- Added: {v0}",
+  "@added": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completedReportmarkdown": "- Completed: {v0}",
+  "@completedReportmarkdown": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completionRate": "- Completion rate: {v0}",
+  "@completionRate": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "unfinishedAtPeriodEndIncludingOverdue": "- Unfinished at period end: {v0}, including {v1} overdue",
+  "@unfinishedAtPeriodEndIncludingOverdue": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "tableRecordsIncludingAddedThisPeriod": "- Table records: {v0}, including {v1} added this period",
+  "@tableRecordsIncludingAddedThisPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "completedLastPeriod": "- Completed last period: {v0}",
+  "@completedLastPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "categories": "## Categories",
+  "categoryAddedCompleted": "| Category | Added | Completed |",
+  "summaryReportmarkdown": "## Summary",
+  "noSummaryYet": "(No summary yet)",
+  "method": "Method: {v0}",
+  "@method": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "snapshot": "Snapshot: {v0}",
+  "@snapshot": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "monthWeek": "Month {v0}, week {v1} ({v2})",
+  "@monthWeek": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "formattedValueProductionperiodlabel": "{v1}/{v0}",
+  "@formattedValueProductionperiodlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "weeklyReportMonthWeek": "Weekly report: month {v0}, week {v1}",
+  "@weeklyReportMonthWeek": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "monthlyReportProductionnavtitle": "Monthly report: {v1}/{v0}",
+  "@monthlyReportProductionnavtitle": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "customReport": "Custom report",
+  "awaitingSummary": "Awaiting summary",
+  "summarized": "Summarized",
+  "failed": "Failed",
+  "weeklyReportReportnavtitle": "{v0} weekly report",
+  "@weeklyReportReportnavtitle": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "monthlyReportReportnavtitle": "{v0} monthly report",
+  "@monthlyReportReportnavtitle": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "vsLastWeek": "vs. last week",
+  "vsLastMonth": "vs. last month",
+  "vsLastPeriod": "vs. last period",
+  "hourQuotaExhaustedResetsAtTheEnd": "5-hour quota exhausted. Resets at the end of the window.",
+  "quotaExhaustedForThisPeriodResetsNext": "Quota exhausted for this period. Resets next period.",
+  "reportGenerationFailed": "Report generation failed",
+  "generateReport": "Generate report",
+  "searchReports": "Search reports",
+  "noReportsYet": "No reports yet",
+  "noReports": "No reports",
+  "noMatchingReports": "No matching reports",
+  "generatingBuild": "Generating…",
+  "completedBuild2": " Completed {v0}",
+  "@completedBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "unread": ". Unread",
+  "couldntGenerate": "Couldn’t generate {v0}",
+  "@couldntGenerate": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "lastWeek": "Last week",
+  "thisMonth": "This month",
+  "lastMonth": "Last month",
+  "weekSubmit": "Week {v0}",
+  "@weekSubmit": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "period": "Period",
+  "formattedValueBuild4": "{v0}/{v1}",
+  "@formattedValueBuild4": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "includedCategories": "Included categories",
+  "clearAll": "Clear all",
+  "selectAll": "Select all",
+  "saveAsDefaultForScheduledReports": "Save as default for scheduled reports",
+  "weeklyOnMondayAtMonthlyOnThe": "Weekly on Monday at 08:00. Monthly on the 1st at 08:00.",
+  "adjustInScheduledReports": "Adjust in Scheduled reports",
+  "adjustScheduledReports": "Adjust scheduled reports",
+  "adjust": "Adjust ›",
+  "chooseDateBuild3": "Choose date: {v0}",
+  "@chooseDateBuild3": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "posterSaved": "Poster saved: {v0}",
+  "@posterSaved": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "posterExportFailedTryAgain": "Poster export failed. Try again.",
+  "markdownCopied": "Markdown copied",
+  "summaryFailedYouCanRetry": "Summary failed. You can retry.",
+  "couldntReadReport": "Couldn’t read report",
+  "localSnapshotRetained": "Local snapshot retained.",
+  "reportNotFound": "Report not found",
+  "tasksCreatedDuringThePeriod": "Tasks created during the period",
+  "unfinishedAtPeriodEnd": "Unfinished at period end",
+  "byCategory": "By category",
+  "dataRows": "Data rows",
+  "poster": "Poster",
+  "exportPosterPng": "Export poster PNG",
+  "copyMarkdown": "Copy Markdown",
+  "completionRateCompletioncard": "Completion rate {v0}",
+  "@completionRateCompletioncard": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noCategoryRecordsThisPeriod": "No category records this period",
+  "createdCompleted": "Created {v0}, completed {v1}",
+  "@createdCompleted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "noPreviousCompletionRate": "No previous completion rate",
+  "previousPeriod": "{v0} (previous period: ",
+  "@previousPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noPreviousRecords": "No previous records",
+  "itemsComparelist": "items",
+  "itemsComparelist2": "{v0} items)",
+  "@itemsComparelist2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completionRateBuildpie": "Completion rate",
+  "totalRows": "Total rows: {v0}",
+  "@totalRows": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "rowsAddedThisPeriod": "Rows added this period: {v0}",
+  "@rowsAddedThisPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "aiSummary": "AI summary",
+  "summaryFailedSnapshotRetained": "Summary failed. Snapshot retained.",
+  "kimiWritesTheSummaryUsingTheFigures": "Kimi writes the summary using the figures captured in this report.",
+  "retrySummary": "Retry summary",
+  "reportServiceUnavailable": "Report service unavailable",
+  "generatingReport": "Generating report",
+  "generate": "Generate",
+  "generateThisWeeksReport": "Generate this week’s report",
+  "generateThisMonthsReport": "Generate this month’s report",
+  "periodUsesTheTimeZone": "Period uses the {v0} time zone",
+  "@periodUsesTheTimeZone": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completionRateBuild": "Completion rate {v0}.",
+  "@completionRateBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "aiObservationsAndSuggestions": "AI observations and suggestions",
+  "upcomingTasksBullets": "Upcoming tasks",
+  "nextMonthsFocus": "Next month’s focus",
+  "aiGeneratedContent": "AI-generated content",
+  "aiInsights": "AI insights",
+  "weeklyReportPeriodlabel": "Weekly report {v0}/{v1}–",
+  "@weeklyReportPeriodlabel": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "sToworkReport": "{v0}’s ToWork report",
+  "@sToworkReport": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "methodThisPeriod": "Method: {v0} (this period {v1}/{v2})",
+  "@methodThisPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "completedByCategory": "Completed by category",
+  "completedAdded": "{v0} completed, {v1} added",
+  "@completedAdded": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "summaryBuild": "Summary",
+  "noSummaryYetOpenTheReportTo": "No summary yet. Open the report to generate one.",
+  "noPreviousComparison": "No previous comparison",
+  "addedDonecard": "Added {v0}",
+  "@addedDonecard": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "needsAttention": "Needs attention",
+  "noneOverdue": "None overdue",
+  "newData": "New data",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "systemDefault": "System default",
+  "light": "Light",
+  "dark": "Dark",
+  "textSize": "Text size",
+  "small": "Small",
+  "standard": "Standard",
+  "large": "Large",
+  "newMoon": "New moon",
+  "aGoodTimeToStartAList": "a good time to start a list",
+  "waxingCrescent": "Waxing crescent",
+  "aGoodTimeToBegin": "a good time to begin",
+  "firstQuarter": "First quarter",
+  "aGoodTimeToWrapUp": "a good time to wrap up",
+  "waxingGibbous": "Waxing gibbous",
+  "aGoodTimeForAFinalPush": "a good time for a final push",
+  "fullMoon": "Full moon",
+  "aGoodTimeToCelebrate": "a good time to celebrate",
+  "waningGibbous": "Waning gibbous",
+  "aGoodTimeToReflect": "a good time to reflect",
+  "lastQuarter": "Last quarter",
+  "aGoodTimeToDeclutter": "a good time to declutter",
+  "waningCrescent": "Waning crescent",
+  "aGoodTimeForAnEarlyNight": "a good time for an early night",
+  "tonight": "{v0} Tonight: {v1}, {v2}",
+  "@tonight": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "instructionsAdded": "Instructions added",
+  "vocabularyWords": "Vocabulary: {v0} words",
+  "@vocabularyWords": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "notSetAssistantpreferencessummary": "Not set",
+  "savedAppliesFromTheNextChat": "Saved. Applies from the next chat.",
+  "eachTermCanHaveUpToCharacters": "Each term can have up to {v0} characters",
+  "@eachTermCanHaveUpToCharacters": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "isAlreadyInTheList": "“{v0}” is already in the list",
+  "@isAlreadyInTheList": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "limitTermsRemoveAnUnusedTermFirst": "Limit: {v0} terms. Remove an unused term first.",
+  "@limitTermsRemoveAnUnusedTermFirst": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "assistantPreferences": "Assistant preferences",
+  "saveInstructions": "Save instructions",
+  "customInstructions": "Custom instructions",
+  "eGReplyInEnglish": "e.g. Reply in English",
+  "vocabulary": "Vocabulary",
+  "personProjectOrProductName": "Person, project or product name",
+  "speechVocabulary": "Speech vocabulary {v0}/{v1}",
+  "@speechVocabulary": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "whatTheModelReceives": "What the model receives",
+  "eachRequestIncludesTheTimeYourName": "Each request includes the time, your name, custom instructions and vocabulary. Agent mode also includes categories and the titles and due dates of up to 12 active tasks.",
+  "deleteTerm": "Delete term {v0}",
+  "@deleteTerm": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "nameSavedOnThisDevice": "Name saved on this device",
+  "useCharactersWithoutLineBreaksOrControl": "Use 1–40 characters without line breaks or control characters",
+  "profileChangedReloadBeforeSaving": "Profile changed. Reload before saving.",
+  "couldntReadOrSaveYourLocalProfile": "Couldn’t read or save your local profile. Try again.",
+  "profileBuild": "Profile",
+  "saveName": "Save name",
+  "nameBuild": "Name",
+  "enterAName": "Enter a name",
+  "reloadBuild": "Reload",
+  "couldntReadLocalSettingsTryAgain": "Couldn’t read local settings. Try again.",
+  "quotaUpdated": "Quota updated",
+  "thisProviderDoesntOfferAQuotaApi": "This provider doesn’t offer a quota API",
+  "couldntCheckQuota": "Couldn’t check quota: {v0}",
+  "@couldntCheckQuota": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteThisAccount": "Delete this account?",
+  "theSettingsForAndTheKeySaved": "The settings for {v0} and the key saved on this device will be deleted ",
+  "@theSettingsForAndTheKeySaved": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "permanentlyChatHistoryIsRetained": "permanently. Chat history is retained.",
+  "deleteAccount": "Delete account",
+  "accountDeleted": "Account deleted",
+  "manualOnly": "  Manual only",
+  "priorityOpenmenu": "Priority {v0}{v1}",
+  "@priorityOpenmenu": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "useThisAccount": "Use this account",
+  "switchedToOpenmenu": "Switched to {v0}",
+  "@switchedToOpenmenu": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "editModelAndKey": "Edit model and key",
+  "refreshQuota": "Refresh quota",
+  "resumeAccount": "Resume account",
+  "rejoinAutomaticFallback": "Rejoin automatic fallback",
+  "accountResumed": "Account resumed",
+  "excludeFromFallback": "Exclude from fallback",
+  "includeInFallback": "Include in fallback",
+  "increasePriority": "Increase priority",
+  "decreasePriority": "Decrease priority",
+  "modelsAndUsageBuild": "Models and usage",
+  "switchAccountsByPriorityWhenQuotaRuns": "Switch accounts by priority when quota runs out, requests are limited or a key expires.",
+  "switchAutomaticallyWhenQuotaRunsOut": "Switch automatically when quota runs out",
+  "couldntReadLocalSettings": "Couldn’t read local settings",
+  "noModelAccountsYet": "No model accounts yet",
+  "checkProviderConsole": "Check provider console",
+  "inUseBuild": ", in use",
+  "priorityBuild": "{v0}, priority {v1}, {v2}",
+  "@priorityBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "inUseBuild2": "In use",
+  "connectedUnsaved": "Connected (unsaved)",
+  "connected": "Connected",
+  "serviceRegion": "Service region",
+  "china": "China",
+  "international": "International",
+  "chooseProvider": "Choose provider",
+  "editModelAccount": "Edit model account",
+  "apiEndpoint": "API endpoint",
+  "savedLeaveBlankToKeep": "Saved. Leave blank to keep.",
+  "enterKey": "Enter key",
+  "cancelTest": "Cancel test",
+  "testConnection": "Test connection",
+  "defaultAssistantEnabled": "Default assistant enabled",
+  "notTheDefaultAssistant": "Not the default assistant",
+  "quickLaunch": "Quick launch",
+  "tryNow": "Try now",
+  "quickAskIsUnavailableOnThisDevice": "Quick Ask is unavailable on this device",
+  "defaultAssistant": "Default assistant",
+  "openQuickAskWithTheAssistantGesture": "Open Quick Ask with the assistant gesture. The system controls power-button shortcuts.",
+  "setAsDefaultAssistant": "Set as default assistant",
+  "openSystemSettingsAppsDefaultAppsAnd": "Open System settings → Apps → Default apps and select ToWork",
+  "otherShortcuts": "Other shortcuts",
+  "addQuickAskToHomeScreen": "Add Quick Ask to home screen",
+  "theLauncherDidntAddTheShortcutHold": "The launcher didn’t add the shortcut. Hold the ToWork icon and drag Quick Ask to the home screen.",
+  "addVoiceQuickAskToHomeScreen": "Add Voice Quick Ask to home screen",
+  "theLauncherDidntAddTheShortcutHoldTheTowork": "The launcher didn’t add the shortcut. Hold the ToWork icon and drag Voice Quick Ask to the home screen.",
+  "systemShortcuts": "System shortcuts",
+  "selectToworkQuickAskOrToworkVoice": "Select ToWork Quick Ask or ToWork Voice Quick Ask in the system menu.",
+  "huaweiSmartControlDoubleTap": "Huawei Smart Control double-tap",
+  "confirmTheSystemPromptThenChooseQuick": "Confirm the system prompt, then choose Quick Ask or Voice Quick Ask under Smart Control → Double-tap.",
+  "controlCenter": "Control Center",
+  "editTheQuickSettingsTilesAndAdd": "Edit the quick settings tiles and add Quick Ask.",
+  "selectTextOrShare": "Select text or share",
+  "chooseAskTowork": "Choose Ask ToWork.",
+  "holdTheAppIcon": "Hold the app icon",
+  "selectQuickAskOrVoiceQuickAsk": "Select Quick Ask or Voice Quick Ask.",
+  "morningDigestTime": "Morning digest time",
+  "morningDigestSetTo": "Morning digest set to {v0}:{v1}",
+  "@morningDigestSetTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "memoryPaused": "Memory paused",
+  "addKey": "Add key",
+  "accountBuild": "Account",
+  "accountDetails": "Account details",
+  "privacyAndPermissions": "Privacy and permissions",
+  "aiWritePermissions": "AI write permissions",
+  "pauseMemoryBuild": "Pause memory",
+  "inputAndQuickLaunch": "Input and quick launch",
+  "speechDiagnostics": "Speech diagnostics",
+  "defaultInputMethod": "Default input method",
+  "voice": "Voice",
+  "keyboard": "Keyboard",
+  "couldntSaveTryAgainBuild": "Couldn’t save. Try again.",
+  "notifications": "Notifications",
+  "dueReminders": "Due reminders",
+  "morningDigest": "Morning digest",
+  "off": "Off",
+  "morningDigestSwitch": "Morning digest switch",
+  "reportReadyNotifications": "Report ready notifications",
+  "notificationSettings": "Notification settings",
+  "dataBackup": "Data backup",
+  "exportData": "Export data",
+  "lastExport": "Last export",
+  "about": "About",
+  "checkForUpdates": "Check for updates",
+  "version": "Version",
+  "openSourceLicenses": "Open-source licenses",
+  "noMatchingSettings": "No matching settings",
+  "searchSettings": "Search settings",
+  "neverExported": "Never exported",
+  "revokeAiDataConsent": "Revoke AI data consent",
+  "consentRevoked": "Consent revoked",
+  "privacyPolicy": "Privacy policy",
+  "couldntOpen": "Couldn’t open",
+  "thisApiDoesntListModelsEnterA": "This API doesn’t list models. Enter a model ID manually.",
+  "fetchingModels": "Fetching models",
+  "noAvailableModels": "No available models",
+  "noMatchingModels": "No matching models",
+  "searchModels": "Search models",
+  "refreshModelList": "Refresh model list",
+  "availableModels": "Available models",
+  "customModel": "Custom model",
+  "model": "Model",
+  "modelId": "Model ID",
+  "enterModelId": "Enter model ID",
+  "fetchModelList": "Fetch model list",
+  "selectAFetchedModel": "Select a fetched model",
+  "provider": "Provider",
+  "current": ", current",
+  "locked": ", locked",
+  "aiWritePermissionsSetTo": "AI write permissions set to “{v0}”",
+  "@aiWritePermissionsSetTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "savingPermissions": "Saving permissions…",
+  "tableEditsCanBeRevertedInRow": "Table edits can be reverted in row history.",
+  "checkingSystemStatus": "Checking system status…",
+  "couldntCheckSpeechStatusTryAgain": "Couldn’t check speech status. Try again.",
+  "available": "Available",
+  "unavailableBuild2": "Unavailable",
+  "recognitionService": "Recognition service: {v0}",
+  "@recognitionService": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "granted": "Granted",
+  "partiallyGranted": "Partially granted",
+  "microphoneAndSpeechPermissions": "Microphone and speech permissions: {v0}",
+  "@microphoneAndSpeechPermissions": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "supportedWithInstalledLanguageResources": "Supported with installed language resources",
+  "supportNotReported": "Support not reported",
+  "onDeviceRecognition": "On-device recognition: {v0}",
+  "@onDeviceRecognition": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "mandarinLanguageListUnavailable": "English: language list unavailable",
+  "systemLanguages": "System languages: {v0}",
+  "@systemLanguages": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "checksMandarinRecognitionAndPermissionsWithoutRecording": "Checks English recognition and permissions without recording.",
+  "checkAgain": "Check again",
+  "theTaskForThisReminderNoLonger": "The task for this reminder no longer exists",
+  "todayAt": "Today at 18:00",
+  "tomorrowAt": "Tomorrow at 09:00",
+  "nextMondayAt": "Next Monday at 09:00",
+  "reschedule": "Reschedule",
+  "rescheduledTo": "Rescheduled to {v0}",
+  "@rescheduledTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "dueDateCleared": "Due date cleared",
+  "completedTasks": "Completed {v0} tasks",
+  "@completedTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "changeCategory": "Change category",
+  "movedTo": "Moved to {v0}",
+  "@movedTo": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "changeDueDate": "Change due date",
+  "rescheduled": "Rescheduled {v0}",
+  "@rescheduled": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deleteTasks": "Delete {v0} tasks?",
+  "@deleteTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "onlySelectedRecurringOccurrencesAreDeletedUndo": "Only selected recurring occurrences are deleted. Undo within 10 seconds.",
+  "deletedTasks": "Deleted {v0} tasks",
+  "@deletedTasks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "categoryBuild": "Category: {v0}",
+  "@categoryBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noTasksMatchTheseFilters": "No tasks match these filters",
+  "expandCompletedTasks": "Expand completed tasks",
+  "switchToBoard": "Switch to board",
+  "switchToList": "Switch to list",
+  "backToChatHome": "Back to chat home",
+  "list": "List",
+  "board": "Board",
+  "searchTasks": "Search tasks",
+  "selectedBuildselectionbar": "Selected: {v0}",
+  "@selectedBuildselectionbar": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "deselectAll": "Deselect all",
+  "itemsBuildgroupheader": "{v0}, {v1} items",
+  "@itemsBuildgroupheader": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "newTaskIn": "New task in {v0}",
+  "@newTaskIn": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noItems": "No items",
+  "noMatchingTasks": "No matching tasks",
+  "goToChatBuildempty": "Go to chat",
+  "thisListIsEmpty": "This list is empty",
+  "noTasksToday": "No tasks today",
+  "nothingScheduledThisWeek": "Nothing scheduled this week",
+  "noOverdueTasks": "No overdue tasks",
+  "noTasksWithoutADueDate": "No tasks without a due date",
+  "noCompletedTasksYet": "No completed tasks yet",
+  "listSettings": "List settings",
+  "groupBy": "Group by",
+  "byCategoryShowmoresheet": "By category",
+  "byDueDate": "By due date",
+  "byPriority": "By priority",
+  "showCompleted": "Show completed",
+  "manageCategories": "Manage categories",
+  "selectedAction": "{v0}, {v1} selected",
+  "@selectedAction": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "someOccurrencesExceedAvailableTimeZoneData": "Some occurrences exceed available time zone data. Adjust the end date. Existing tasks are available.",
+  "someRecurringTasksAreStillPendingExisting": "Some recurring tasks are still pending. Existing records are saved.",
+  "recurringTasksGeneratedThrough": "Recurring tasks generated through {v0}/{v1}/{v2} {v3}:{v4}",
+  "@recurringTasksGeneratedThrough": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      },
+      "v4": {
+        "type": "Object"
+      }
+    }
+  },
+  "recurringTasksWillContinueAfterThisAction": "Recurring tasks will continue after this action",
+  "recurringTasksWillContinueWhenYouReopen": "Recurring tasks will continue when you reopen the app",
+  "generatingRecurringTasksInBatches": "Generating recurring tasks in batches",
+  "selectedSegment": ", selected",
+  "filterByItems": "Filter by {v0}, {v1} items{v2}",
+  "@filterByItems": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "currentVersion": "Current version",
+  "versionHistory": "Version history",
+  "expand": "Expand",
+  "checkingForUpdates": "Checking for updates",
+  "upToDate": "Up to date",
+  "updateAvailable": "Update available",
+  "downloadingUpdate": "Downloading update",
+  "verifyingPatch": "Verifying patch",
+  "verifyingInstaller": "Verifying installer",
+  "buildingInstaller": "Building installer",
+  "patchReady": "Patch ready",
+  "installerReady": "Installer ready",
+  "permissionToInstallAppsRequired": "Permission to install apps required",
+  "confirmInstallationInTheSystemDialog": "Confirm installation in the system dialog",
+  "restartingToApplyUpdate": "Restarting to apply update",
+  "updateCheckFailed": "Update check failed",
+  "inAppInstallationUnavailableOnThisPlatform": "In-app installation unavailable on this platform",
+  "checkAgainBuild": "Check again",
+  "deltaUpdate": "Delta update",
+  "fullInstaller": "Full installer",
+  "whatsNew": "What’s new",
+  "deltaUpdateIncompleteSwitchedToTheFull": "Delta update incomplete. Switched to the full installer.",
+  "allowThisSourceThenReturnToInstall": "Allow this source, then return to install.",
+  "restoreAndRestart": "Restore and restart",
+  "updateAndRestart": "Update and restart",
+  "downloadUpdate": "Download update",
+  "cancelUpdate": "Cancel update",
+  "pauseDownload": "Pause download",
+  "restartNow": "Restart now",
+  "installAndReopen": "Install and reopen",
+  "reopenInstaller": "Reopen installer",
+  "filterCategories": "Filter categories",
+  "askAi": "Ask AI",
+  "scheduleOverview": "Schedule overview",
+  "switchScheduleView": "Switch schedule view",
+  "createTaskOnSelectedDate": "Create task on selected date",
+  "searchSchedule": "Search schedule",
+  "heatmap": "Heatmap",
+  "calendar": "Calendar",
+  "distribution": "Distribution",
+  "trends": "Trends",
+  "tasksCompleted": "Tasks completed",
+  "itemsVizStats": "items",
+  "tasksAdded": "Tasks added",
+  "recordsAdded": "Records added",
+  "rowsVizStats": "rows",
+  "formattedValueOpenday": "{v2}, {v0}/{v1}",
+  "@formattedValueOpenday": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "alreadyHighPriorityItemsThatDay": ". Already {v0} high-priority items that day",
+  "@alreadyHighPriorityItemsThatDay": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "movedToReschedule": "Moved to {v0}/{v1}{v2}",
+  "@movedToReschedule": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "previousMonthBuild": "Previous month",
+  "nextMonthBuild": "Next month",
+  "noTasksThisMonth": "No tasks this month",
+  "todayBuild": "Today, ",
+  "overdueItems": ", overdue items",
+  "tasksBuild2": "{v0}/{v1}, {v2}{v3} tasks{v4}",
+  "@tasksBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      },
+      "v3": {
+        "type": "Object"
+      },
+      "v4": {
+        "type": "Object"
+      }
+    }
+  },
+  "pieChart": "Pie chart",
+  "barChart": "Bar chart",
+  "switchChart": "Switch chart",
+  "addCategoriesToYourTasksToSee": "Add categories to your tasks to see their distribution.",
+  "organizeCategories": "Organize categories",
+  "completeBuildpie": "{v0}: {v1}% complete",
+  "@completeBuildpie": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "itemsComplete": "{v0}, {v1} items, {v2}% complete",
+  "@itemsComplete": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "itemsCompleteBuildpie": "{v0} items, {v1}% complete",
+  "@itemsCompleteBuildpie": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "metric": "Metric",
+  "scale": "Scale: {v0}",
+  "@scale": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "activity": "Activity",
+  "daysRecorded": "{v0} days recorded",
+  "@daysRecorded": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "changeMetricCurrently": "Change metric, currently {v0}",
+  "@changeMetricCurrently": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "activityHeatmapForPastYear": "Activity heatmap for {v0}. Past year: {v1} {v2}.",
+  "@activityHeatmapForPastYear": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "less": "Less",
+  "moreBuild": "More",
+  "yearBuild": "Year: {v0} {v1}",
+  "@yearBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "monthPaint": "Month {v0}",
+  "@monthPaint": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "tablesTablename": "Tables",
+  "rowsAdded": "{v0}: {v1} rows added",
+  "@rowsAdded": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "noActivityThisDay": "No activity this day.",
+  "formattedValueBuild5": "{v2}, {v0}/{v1}",
+  "@formattedValueBuild5": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "noMatchingTasksBuild": "No matching tasks",
+  "noTasksOnThisDay": "No tasks on this day",
+  "createdVsCompleted": "Created vs. completed",
+  "weeks": "{v0} weeks",
+  "@weeks": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "changePeriod": "Change period",
+  "trendsAppearAfterTwoWeeksOfActivity": "Trends appear after two weeks of activity.",
+  "thisWeekCreatedCompleted": "This week: {v0} created, {v1} completed",
+  "@thisWeekCreatedCompleted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "lastWeeksCreatedCompleted": "Last {v0} weeks: {v1} created, {v2} completed",
+  "@lastWeeksCreatedCompleted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "completeComparedWithLastPeriod": "{v0}% complete, compared with last period: ",
+  "@completeComparedWithLastPeriod": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noChange": "No change",
+  "weekCreatedCompleted": "Week {v0}: {v1} created, {v2} completed",
+  "@weekCreatedCompleted": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      },
+      "v2": {
+        "type": "Object"
+      }
+    }
+  },
+  "noDueTime": "No due time",
+  "dueAt": "Due at {v0}:{v1}",
+  "@dueAt": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "markIncompleteBuild": "Mark incomplete: {v0}",
+  "@markIncompleteBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "completeBuild2": "Complete: {v0}",
+  "@completeBuild2": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "noFiltersShowingAll": "No filters, showing all",
+  "filteredByChartsUpdated": "Filtered by {v0}. Charts updated.",
+  "@filteredByChartsUpdated": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "selectedDoubleTapToClear": "Selected. Double-tap to clear.",
+  "filterBuild": "Filter: {v0}, {v1}",
+  "@filterBuild": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      },
+      "v1": {
+        "type": "Object"
+      }
+    }
+  },
+  "closeModelAccount": "Close model account",
+  "toworkQuickAsk": "ToWork Quick Ask",
+  "generatingInBackground": "Generating in background",
+  "newChatHeader": "New chat",
+  "openInTowork": "Open in ToWork",
+  "whatsLeftToday": "What’s left today?",
+  "whatElseDoINeedToDo": "What else do I need to do today?",
+  "addATask": "Add a task",
+  "helpMeAddATask": "Help me add a task:",
+  "whatDidIDoThisWeek": "What did I do this week?",
+  "summarizeWhatICompletedThisWeek": "Summarize what I completed this week",
+  "saveAsTask": "Save as task",
+  "turnThisIntoATask": "Turn this into a task:\n{v0}",
+  "@turnThisIntoATask": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "summarize": "Summarize",
+  "summarizeTheseKeyPoints": "Summarize these key points:\n{v0}",
+  "@summarizeTheseKeyPoints": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "workWithThisText": "Work with this text",
+  "couldntOpenTheWorkspaceYourDataIs": "Couldn’t open the workspace. Your data is safe.",
+  "closeProfile": "Close profile",
+  "pageNotFound": "Page not found",
+  "thisPageMayHaveMovedOrBeen": "This page may have moved or been deleted.",
+  "backToHome": "Back to home",
+  "toworkAvailable": "ToWork {v0} available",
+  "@toworkAvailable": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "restoreBaseVersionAvailable": "Restore base version available",
+  "patchPAvailable": "Patch P{v0} available",
+  "@patchPAvailable": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "viewUpdate": "{v0}, view update",
+  "@viewUpdate": {
+    "placeholders": {
+      "v0": {
+        "type": "Object"
+      }
+    }
+  },
+  "viewUpdateBuild": "View update",
+  "remindMeLater": "Remind me later",
+  "expandSidebar": "Expand sidebar",
+  "languageLabel": "Language",
+  "english": "English",
+  "weekdaySunday": "Sun",
+  "windowHours": "{v0, plural, =1{1 hour} other{{v0} hours}}",
+  "@windowHours": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "windowDays": "{v0, plural, =1{1 day} other{{v0} days}}",
+  "@windowDays": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "windowMinutes": "{v0, plural, =1{1 minute} other{{v0} minutes}}",
+  "@windowMinutes": {
+    "placeholders": {
+      "v0": {
+        "type": "int"
+      }
+    }
+  },
+  "defaultNickname": "Local user"
+}

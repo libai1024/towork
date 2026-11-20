@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/local_workspace_session.dart';
 import '../../app/routes.dart';
 
@@ -51,7 +53,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
   void _openGenerateSheet() {
     AppSheet.show<void>(
       context,
-      title: '生成报告',
+      title: context.strings.generateReport,
       child: GenerateReportSheet(
         onGenerate: (start, end, type, periodLabel, categories, saveDefault) {
           ref.read(reportLastCategoryIdsProvider.notifier).state = categories
@@ -113,7 +115,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
         child: Column(
           children: [
             WorkspaceNavBar(
-              title: '报告',
+              title: context.strings.report,
               onBack: () =>
                   context.canPop() ? context.pop() : context.go(AppRoutes.home),
             ),
@@ -122,19 +124,19 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
                 items: [
                   WorkspaceScopeItem(
                     id: 'all',
-                    label: '全部',
+                    label: context.strings.allLabel,
                     count: reports.length,
                   ),
                   WorkspaceScopeItem(
                     id: 'weekly',
-                    label: '周报',
+                    label: context.strings.weeklyReport,
                     count: reports
                         .where((r) => r.type == ReportType.weekly)
                         .length,
                   ),
                   WorkspaceScopeItem(
                     id: 'monthly',
-                    label: '月报',
+                    label: context.strings.monthlyReport,
                     count: reports
                         .where((r) => r.type == ReportType.monthly)
                         .length,
@@ -154,8 +156,8 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               onSearchChanged: (value) => setState(() => _query = value),
               onClear: _clearSearch,
               onAdd: _openGenerateSheet,
-              addLabel: '生成报告',
-              hint: '搜索报告',
+              addLabel: context.strings.generateReport,
+              hint: context.strings.searchReports,
             ),
           ],
         ),
@@ -235,7 +237,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
             Icon(LucideIcons.trash2, size: 16, color: c.onBrand),
             const SizedBox(width: 4),
             Text(
-              '删除',
+              context.strings.deleteLabel,
               style: AppTextStyles.body.copyWith(
                 color: c.onBrand,
                 fontWeight: FontWeight.w500,
@@ -265,7 +267,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
             children: [
               ReportMenuRow(
                 icon: LucideIcons.fileText,
-                label: '导出 Markdown',
+                label: context.strings.exportMarkdown,
                 onTap: () {
                   Navigator.of(context).pop();
                   exportReportMarkdown(context, ref, report);
@@ -273,7 +275,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               ),
               ReportMenuRow(
                 icon: LucideIcons.copy,
-                label: '复制全文',
+                label: context.strings.copyFullText,
                 onTap: () {
                   Navigator.of(context).pop();
                   copyReportMarkdown(context, report);
@@ -281,7 +283,9 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               ),
               ReportMenuRow(
                 icon: report.isRead ? LucideIcons.mail : LucideIcons.mailOpen,
-                label: report.isRead ? '标为未读' : '标为已读',
+                label: report.isRead
+                    ? context.strings.markUnread
+                    : context.strings.markRead,
                 onTap: () {
                   Navigator.of(context).pop();
                   ref
@@ -291,7 +295,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               ),
               ReportMenuRow(
                 icon: LucideIcons.refreshCw,
-                label: '重新生成',
+                label: context.strings.regenerateConfirmregenerate,
                 onTap: () {
                   Navigator.of(context).pop();
                   confirmRegenerate(context, ref, report);
@@ -299,7 +303,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               ),
               ReportMenuRow(
                 icon: LucideIcons.trash2,
-                label: '删除',
+                label: context.strings.deleteLabel,
                 destructive: true,
                 onTap: () {
                   Navigator.of(context).pop();
@@ -319,15 +323,17 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
 
   Widget _buildEmptyAll(AppColors c) => AppEmptyState(
     icon: LucideIcons.fileText,
-    title: '还没有报告',
-    actionLabel: '生成报告',
+    title: context.strings.noReportsYet,
+    actionLabel: context.strings.generateReport,
     onAction: _openGenerateSheet,
   );
 
   Widget _buildEmptyFiltered(AppColors c) => AppEmptyState(
     icon: LucideIcons.search,
-    title: _query.trim().isEmpty ? '暂无报告' : '没有找到相关报告',
-    actionLabel: '清除筛选',
+    title: _query.trim().isEmpty
+        ? context.strings.noReports
+        : context.strings.noMatchingReports,
+    actionLabel: context.strings.clearFilters,
     onAction: () {
       _searchController.clear();
       setState(() {
@@ -361,8 +367,8 @@ class _ReportRow extends StatelessWidget {
     final metadata = failed
         ? failureText(report.failureReason)
         : generating
-        ? '生成中…'
-        : '${rangeLabel(report.periodStart, report.periodEnd)}${done == null ? '' : ' 完成 $done 项'}';
+        ? context.strings.generatingBuild
+        : '${rangeLabel(report.periodStart, report.periodEnd)}${done == null ? '' : context.strings.completedBuild2(done)}';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -376,7 +382,7 @@ class _ReportRow extends StatelessWidget {
               onLongPress: onLongPress,
               behavior: HitTestBehavior.opaque,
               semanticLabel:
-                  '${reportTypeLabel(report.type)}，${report.periodLabel}。${report.title}${unread ? '。未读' : ''}',
+                  '${reportTypeLabel(report.type)}，${report.periodLabel}。${report.title}${unread ? context.strings.unread : ''}',
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 72),
                 child: Padding(
@@ -418,7 +424,9 @@ class _ReportRow extends StatelessWidget {
                           children: [
                             Text(
                               failed
-                                  ? '${reportNavTitle(report)}没写成'
+                                  ? context.strings.couldntGenerate(
+                                      reportNavTitle(report),
+                                    )
                                   : report.title,
                               style: AppTextStyles.body.copyWith(
                                 color: c.labelPrimary,
@@ -467,11 +475,11 @@ class _ReportRow extends StatelessWidget {
           if (failed)
             AppPressable(
               onTap: onRetry,
-              semanticLabel: '重试',
+              semanticLabel: context.strings.retry,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  '重试',
+                  context.strings.retry,
                   style: AppTextStyles.footnote.copyWith(
                     color: c.labelPrimary,
                     fontWeight: FontWeight.w500,

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,12 +7,13 @@ import '../view_models/speech_capture_controller.dart';
 
 String voiceControlLabel(SpeechPhase? phase, {bool keyboardEntry = false}) =>
     switch (phase) {
-      SpeechPhase.requesting || SpeechPhase.starting => '准备录音中',
-      SpeechPhase.recording => '正在录音',
-      SpeechPhase.finalizing => '正在识别语音',
-      SpeechPhase.pending => '语音待发送',
-      SpeechPhase.submitting => '正在发送语音',
-      _ => keyboardEntry ? '输入消息' : '按住说话',
+      SpeechPhase.requesting ||
+      SpeechPhase.starting => strings.preparingMicrophone,
+      SpeechPhase.recording => strings.recording,
+      SpeechPhase.finalizing => strings.transcribingAudio,
+      SpeechPhase.pending => strings.voiceReadyToSend,
+      SpeechPhase.submitting => strings.sendingVoiceInput,
+      _ => keyboardEntry ? strings.typeAMessage : strings.holdToTalk,
     };
 
 /// Touch holds and keyboard Space share release/cancel semantics. Screen readers
@@ -70,10 +72,12 @@ class _ChatVoiceControlState extends State<ChatVoiceControl> {
     enabled: widget.enabled && _canActivate,
     label: voiceControlLabel(widget.phase, keyboardEntry: widget.keyboardEntry),
     hint: widget.phase == null
-        ? (widget.keyboardEntry ? '点按输入，长按转文字' : '激活开始听写，或长按录音')
+        ? (widget.keyboardEntry
+              ? context.strings.tapToTypeHoldToTranscribe
+              : context.strings.activateToDictateOrHoldToRecord)
         : widget.phase == SpeechPhase.recording
-        ? '激活结束录音，识别后发送'
-        : '可取消语音输入或切换键盘',
+        ? context.strings.activateToFinishRecordingAndSendThe
+        : context.strings.cancelVoiceInputOrSwitchToThe,
     onTap: widget.enabled && _canActivate
         ? (widget.keyboardEntry ? widget.onTap : widget.onAccessibleActivate)
         : null,

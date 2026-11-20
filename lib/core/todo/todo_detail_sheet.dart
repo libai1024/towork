@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/workspace_clock.dart';
 
 import 'package:flutter/material.dart';
@@ -31,6 +33,8 @@ import 'todo_field_row.dart';
 import 'todo_reminder_editor.dart';
 import 'todo_repeat_editor.dart';
 import 'todo_utils.dart';
+
+part 'todo_detail_source.dart';
 
 /// 待办详情底部 Sheet（03-todo-detail.md §3）：92% 屏高，
 /// 标题/备注就地编辑，字段行就地/二级 Sheet 编辑，AI 溯源卡片，删除确认。
@@ -175,7 +179,10 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
       final noteChanged = note != _noteBaseline;
       if (!titleChanged && !noteChanged) return true;
       if (title.isEmpty) {
-        AppToast.show(context, message: '标题不能为空，请填写后再关闭');
+        AppToast.show(
+          context,
+          message: context.strings.enterATitleBeforeClosing,
+        );
         return false;
       }
       final saved = await workspaceUi(context, () async {
@@ -232,17 +239,17 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
             Icon(LucideIcons.inbox, size: 48, color: c.labelQuaternary),
             const SizedBox(height: 16),
             Text(
-              '这条待办不在了',
+              context.strings.taskUnavailable,
               style: AppTextStyles.title3.copyWith(color: c.labelSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              '它可能被删除，也可能在另一台设备上改过',
+              context.strings.itMayHaveBeenDeletedOrChanged,
               style: AppTextStyles.body.copyWith(color: c.labelTertiary),
             ),
             const SizedBox(height: 16),
             AppButton(
-              label: '回到待办列表',
+              label: context.strings.backToTasks,
               type: AppButtonType.ghost,
               onPressed: () => Navigator.of(context).pop(),
             ),
@@ -317,7 +324,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           AppPressable(
             onTap: _close,
             behavior: HitTestBehavior.translucent,
-            semanticLabel: '关闭',
+            semanticLabel: context.strings.close,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Icon(LucideIcons.x, size: 24, color: c.labelSecondary),
@@ -352,7 +359,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           AppPressable(
             onTap: () => _showMoreMenu(todo),
             behavior: HitTestBehavior.translucent,
-            semanticLabel: '更多',
+            semanticLabel: context.strings.more,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Icon(
@@ -392,8 +399,8 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
                 );
               },
               semanticLabel: done
-                  ? '标记未完成，${todo.title}'
-                  : '标记完成，${todo.title}',
+                  ? context.strings.markIncomplete(todo.title)
+                  : context.strings.markComplete(todo.title),
             ),
           ),
           Expanded(
@@ -412,7 +419,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
                   textInputAction: TextInputAction.done,
                   onEditingComplete: _saveTitle,
                   decoration: appInlineInput(
-                    hintText: '待办标题',
+                    hintText: context.strings.taskTitle,
                     hintStyle: AppTextStyles.title3.copyWith(
                       color: c.labelTertiary,
                     ),
@@ -427,7 +434,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
                   maxLines: null,
                   onEditingComplete: _saveNote,
                   decoration: appInlineInput(
-                    hintText: '添加备注…',
+                    hintText: context.strings.addANoteBuildtitlearea,
                     hintStyle: AppTextStyles.callout.copyWith(
                       color: c.labelTertiary,
                     ),
@@ -456,22 +463,23 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
       children: [
         TodoFieldRow(
           icon: LucideIcons.circleDot,
-          label: '状态',
+          label: context.strings.status,
           value: todo.status.label,
           onTap: () => _pickStatus(todo),
         ),
         TodoFieldRow(
           icon: LucideIcons.flag,
-          label: '优先级',
+          label: context.strings.priority,
           value: todo.priority.label,
           onTap: () => _pickPriority(todo),
         ),
         TodoFieldRow(
           icon: LucideIcons.folder,
-          label: '分类',
+          label: context.strings.category,
           value: categoryArchived
-              ? '原分类已归档'
-              : _categoryPath(todo, categories) ?? '未分类',
+              ? context.strings.originalCategoryArchived
+              : _categoryPath(todo, categories) ??
+                    context.strings.uncategorized,
           valueColor: category == null || categoryArchived
               ? c.labelTertiary
               : null,
@@ -479,11 +487,13 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         ),
         TodoFieldRow(
           icon: LucideIcons.calendar,
-          label: '截止',
+          label: context.strings.dueBuildfields,
           value: todo.dueAt == null
-              ? '无截止'
+              ? context.strings.noDueDate
               : dueSmartLabel(todo.dueAt!, now) +
-                    (todo.isOverdue(now) ? '（${countdown ?? '已逾期'}）' : ''),
+                    (todo.isOverdue(now)
+                        ? '（${countdown ?? context.strings.overdueBuildfields}）'
+                        : ''),
           valueColor: todo.isOverdue(now)
               ? c.overdueForeground
               : (todo.dueAt == null ? c.labelTertiary : null),
@@ -498,7 +508,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         ),
         TodoFieldRow(
           icon: LucideIcons.bell,
-          label: '提醒',
+          label: context.strings.reminder,
           value: remindSummaryOf(todo.remindRules),
           valueColor: todo.remindRules.isEmpty ? c.labelTertiary : null,
           expanded: _expanded == 'remind',
@@ -511,7 +521,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         ),
         TodoFieldRow(
           icon: LucideIcons.repeat,
-          label: '重复',
+          label: context.strings.repeat,
           value: repeatLabelOf(todo.repeatRule),
           valueColor: todo.repeatRule == null ? c.labelTertiary : null,
           expanded: _expanded == 'repeat',
@@ -530,9 +540,9 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         ),
         TodoFieldRow(
           icon: LucideIcons.tag,
-          label: '标签',
+          label: context.strings.tags,
           value: todo.tags.isEmpty
-              ? '添加标签'
+              ? context.strings.addTag
               : todo.tags.map((t) => '#$t').join(' '),
           valueColor: todo.tags.isEmpty ? c.labelTertiary : null,
           expanded: _expanded == 'tags',
@@ -560,183 +570,15 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
   }
 
   // D. 来源溯源区
-  Widget _buildTraceCard(AppColors c, Todo todo) {
-    final chatRepo = ref.read(sessionListProvider.notifier);
-    final message = chatRepo.messageById(todo.sourceMessageId);
-    final session = message == null
-        ? null
-        : chatRepo.sessionById(message.sessionId);
-    final now = DateTime.now();
-
-    if (message == null || session == null) {
-      // §6.4 来源消息失效降级
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: c.bgSecondary,
-            borderRadius: AppRadii.brXl,
-          ),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Icon(LucideIcons.sparkles, size: 16, color: c.labelSecondary),
-              Text(
-                '来自对话',
-                style: AppTextStyles.footnote.copyWith(
-                  color: c.labelSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                '原始对话已删除',
-                style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: AppPressable(
-        onTap: () {
-          final source = chatRepo.messageById(todo.sourceMessageId);
-          final currentSession = chatRepo.sessionById(source?.sessionId);
-          if (currentSession == null) {
-            AppToast.show(context, message: '原始对话已不可用');
-            return;
-          }
-          final router = GoRouter.of(context);
-          ref.read(currentSessionIdProvider.notifier).state = currentSession.id;
-          Navigator.of(context).pop();
-          router.go(AppRoutes.home);
-        },
-        behavior: HitTestBehavior.opaque,
-        borderRadius: AppRadii.brXl,
-        semanticLabel: '由对话生成，原文：${message.content}，双击查看对话',
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: c.bgSecondary,
-            borderRadius: AppRadii.brXl,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(LucideIcons.sparkles, size: 16, color: c.labelSecondary),
-                  const SizedBox(width: 8),
-                  Text(
-                    '来自对话',
-                    style: AppTextStyles.footnote.copyWith(
-                      color: c.labelSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 2,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c.labelSecondary,
-                      borderRadius: AppRadii.brFull,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '「${message.content}」',
-                      style: AppTextStyles.footnote.copyWith(
-                        color: c.labelPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${session.title} ${relativeTimeLabel(message.createdAt, now)}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: c.labelTertiary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Icon(
-                    LucideIcons.chevronRight,
-                    size: 16,
-                    color: c.labelTertiary,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   // E. 元信息区
-  Widget _buildMeta(AppColors c, Todo todo) {
-    // 等宽数字：Geist Mono 未随包内置，用 Inter tabular figures 近似（TODO: 接入 Geist Mono asset）。
-    final style = AppTextStyles.caption.copyWith(
-      color: c.labelTertiary,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    final lines = <String>[
-      '创建于 ${metaTimeLabel(todo.createdAt)}',
-      if (todo.updatedAt != null) '更新于 ${metaTimeLabel(todo.updatedAt!)}',
-      if (todo.completedAt != null) '完成于 ${metaTimeLabel(todo.completedAt!)}',
-    ];
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(height: 0.5, color: c.separator),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final line in lines)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(line, style: style),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // F. 危险区
   Widget _buildDanger(AppColors c, Todo todo) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: AppButton(
-        label: '删除这条待办',
+        label: context.strings.deleteThisTask,
         type: AppButtonType.destructive,
         icon: LucideIcons.trash2,
         expand: true,
@@ -757,16 +599,16 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
         children: [
           TodoOptionRow(
             icon: LucideIcons.copy,
-            label: '复制标题',
+            label: context.strings.copyTitle,
             onTap: () {
               Navigator.of(context).pop();
               Clipboard.setData(ClipboardData(text: todo.title));
-              AppToast.show(context, message: '已复制标题');
+              AppToast.show(context, message: context.strings.titleCopied);
             },
           ),
           TodoOptionRow(
             icon: LucideIcons.trash2,
-            label: '删除',
+            label: context.strings.deleteLabel,
             onTap: () {
               Navigator.of(context).pop();
               _confirmDelete(todo);
@@ -781,7 +623,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
   void _pickStatus(Todo todo) {
     AppSheet.show<void>(
       context,
-      title: '状态',
+      title: context.strings.status,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -814,7 +656,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
     final c = AppColors.of(context);
     AppSheet.show<void>(
       context,
-      title: '优先级',
+      title: context.strings.priority,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -841,13 +683,13 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     AppSheet.show<void>(
       context,
-      title: '分类',
+      title: context.strings.category,
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TodoOptionRow(
-              label: '未分类',
+              label: context.strings.uncategorized,
               selected: todo.categoryId == null,
               onTap: () {
                 Navigator.of(context).pop();
@@ -906,14 +748,14 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '删除这条待办？',
+              context.strings.deleteThisTaskConfirmdelete,
               style: AppTextStyles.title2.copyWith(
                 color: AppColors.of(context).labelPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '「${todo.title}」将被删除，删除后 10 秒内可撤销。',
+              context.strings.willBeDeletedYouCanUndoWithin(todo.title),
               style: AppTextStyles.body.copyWith(
                 color: AppColors.of(context).labelSecondary,
               ),
@@ -921,7 +763,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
             ),
             const SizedBox(height: 20),
             AppButton(
-              label: '删除',
+              label: context.strings.deleteLabel,
               type: AppButtonType.destructive,
               expand: true,
               onPressed: () {
@@ -932,7 +774,7 @@ class _TodoDetailSheetState extends ConsumerState<TodoDetailSheet> {
             ),
             const SizedBox(height: 8),
             AppButton(
-              label: '取消',
+              label: context.strings.cancel,
               type: AppButtonType.secondary,
               expand: true,
               onPressed: () => Navigator.of(context).pop(),

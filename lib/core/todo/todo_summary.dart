@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -149,7 +150,10 @@ class TodoSummary extends StatelessWidget {
               children: [
                 if (todo.steps.isNotEmpty)
                   Text(
-                    todo.stepProgress,
+                    context.strings.stepsStepprogress(
+                      todo.completedSteps,
+                      todo.steps.length,
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelSecondary,
                     ),

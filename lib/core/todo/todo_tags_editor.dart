@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -66,10 +67,14 @@ class TodoTagsEditorState extends State<TodoTagsEditor> {
                 controller: _ctrl,
                 style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                 onSubmitted: (_) => _add(),
-                decoration: const InputDecoration(hintText: '标签名'),
+                decoration: InputDecoration(hintText: context.strings.tagName),
               ),
             ),
-            AppButton(label: '添加', type: AppButtonType.ghost, onPressed: _add),
+            AppButton(
+              label: context.strings.addBuild,
+              type: AppButtonType.ghost,
+              onPressed: _add,
+            ),
           ],
         ),
       ],

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -62,7 +64,7 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
     setState(() {
       _sending = false;
       _sent = accepted;
-      _error = accepted ? null : '未发送，请重试';
+      _error = accepted ? null : context.strings.notSentTryAgain;
     });
     if (accepted) FocusManager.instance.primaryFocus?.unfocus();
   }
@@ -107,7 +109,9 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
                   Expanded(child: title),
                   const SizedBox(width: 6),
                   Text(
-                    widget.answer != null || _sent ? '已回答' : '已继续对话',
+                    widget.answer != null || _sent
+                        ? context.strings.answered
+                        : context.strings.chatContinued,
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelSecondary,
                     ),
@@ -164,7 +168,7 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
               maxLength: 2000,
               style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
               decoration: appInlineInput(
-                hintText: '补充你的回答',
+                hintText: context.strings.addToYourAnswer,
                 hintStyle: AppTextStyles.footnote.copyWith(
                   color: c.labelTertiary,
                 ),
@@ -179,7 +183,9 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
             children: [
               Flexible(
                 child: Tooltip(
-                  message: _editing ? '收起补充回答' : '补充回答',
+                  message: _editing
+                      ? context.strings.collapseAdditionalAnswer
+                      : context.strings.addAnAnswer,
                   child: AppPressable(
                     onTap: enabled
                         ? () => setState(() => _editing = !_editing)
@@ -200,7 +206,9 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            _editing ? '收起' : '其他回答',
+                            _editing
+                                ? context.strings.collapse
+                                : context.strings.otherAnswer,
                             style: AppTextStyles.footnote.copyWith(
                               color: c.labelSecondary,
                             ),
@@ -215,7 +223,7 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
                 Flexible(
                   child: AppPressable(
                     key: const ValueKey('question-submit'),
-                    semanticLabel: '确认回答',
+                    semanticLabel: context.strings.confirmAnswer,
                     onTap: enabled && hasAnswer
                         ? () => _submit(
                             question.options.where(_selected.contains),
@@ -235,10 +243,12 @@ class _AiQuestionCardState extends State<AiQuestionCard> {
                           ),
                           child: Text(
                             _sending
-                                ? '发送中'
+                                ? context.strings.sending
                                 : _selected.isEmpty
-                                ? '发送'
-                                : '发送 ${_selected.length} 项',
+                                ? context.strings.send
+                                : context.strings.sendSelections(
+                                    _selected.length,
+                                  ),
                             textAlign: TextAlign.center,
                             style: AppTextStyles.footnote.copyWith(
                               fontWeight: FontWeight.w500,

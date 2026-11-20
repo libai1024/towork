@@ -5,9 +5,13 @@ class UserProfile {
     required this.nickname,
     required this.tier,
     this.avatarUrl,
+    this.hasDefaultNickname = false,
   });
 
   final String nickname;
+  final bool hasDefaultNickname;
+  String displayName(String defaultName) =>
+      hasDefaultNickname ? defaultName : nickname;
 
   /// 档位名，如 "Allegretto"（规范 §7.1）。
   final String tier;

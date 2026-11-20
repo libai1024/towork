@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -59,7 +60,7 @@ class AiCodeBlock extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    language.isEmpty ? '代码' : language,
+                    language.isEmpty ? context.strings.code : language,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.caption.copyWith(
@@ -68,7 +69,7 @@ class AiCodeBlock extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: '复制代码',
+                  tooltip: context.strings.copyCode,
                   constraints: const BoxConstraints(
                     minWidth: 48,
                     minHeight: 48,
@@ -76,7 +77,10 @@ class AiCodeBlock extends StatelessWidget {
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: code));
                     if (context.mounted) {
-                      AppToast.show(context, message: '已复制代码');
+                      AppToast.show(
+                        context,
+                        message: context.strings.codeCopied,
+                      );
                     }
                   },
                   icon: Icon(

@@ -14,6 +14,7 @@ class AppPreferences {
   const AppPreferences({
     this.version = 0,
     this.theme = 'system',
+    this.language = 'system',
     this.inputMode = 'voice',
     this.permission = AiWritePermission.askOnChange,
     this.memoryPaused = false,
@@ -30,6 +31,7 @@ class AppPreferences {
   });
   final int version;
   final String theme;
+  final String language;
   final String inputMode;
   final AiWritePermission permission;
   final bool memoryPaused;
@@ -61,6 +63,7 @@ class AppPreferences {
 
   Map<String, Object?> toJson() => {
     'theme': theme,
+    'language': language,
     'input_mode': inputMode,
     'permission': permission.name,
     'memory_paused': memoryPaused,
@@ -94,6 +97,7 @@ class AppPreferences {
     };
     const knownFields = {
       ...requiredFields,
+      'language',
       'font_scale',
       'last_export_at',
       'auto_route',
@@ -108,6 +112,8 @@ class AppPreferences {
     if (data.keys.any((key) => !knownFields.contains(key)) ||
         requiredFields.any((key) => !data.containsKey(key)) ||
         version < 0 ||
+        (data.containsKey('language') &&
+            !{'system', 'en', 'zh'}.contains(data['language'])) ||
         !{'system', 'light', 'dark'}.contains(data['theme']) ||
         !{'voice', 'keyboard'}.contains(data['input_mode']) ||
         !AiWritePermission.values.any((p) => p.name == data['permission']) ||
@@ -144,6 +150,7 @@ class AppPreferences {
     return AppPreferences(
       version: version,
       theme: data['theme']! as String,
+      language: data['language'] as String? ?? 'system',
       inputMode: data['input_mode']! as String,
       permission: AiWritePermission.values.byName(
         data['permission']! as String,

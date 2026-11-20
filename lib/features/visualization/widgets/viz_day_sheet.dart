@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../core/todo/todo_step_actions.dart';
 
 import 'package:flutter/material.dart';
@@ -21,14 +23,14 @@ class VizDaySheet extends ConsumerWidget {
     super.key,
     required this.title,
     required this.filter,
-    this.emptyText = '这一天很安静，什么也没有发生。',
+    this.emptyText,
   });
 
   final String title;
 
   /// 在仓库全量 Todo 上的过滤条件（Sheet 内部 watch，勾选即时刷新）。
   final bool Function(Todo todo) filter;
-  final String emptyText;
+  final String? emptyText;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,7 +66,7 @@ class VizDaySheet extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 32),
                       child: Center(
                         child: Text(
-                          emptyText,
+                          emptyText ?? context.strings.noActivityThisDay,
                           style: AppTextStyles.body.copyWith(
                             color: c.labelTertiary,
                           ),
@@ -102,8 +104,11 @@ class _TodoRow extends ConsumerWidget {
     final done = todo.status == TodoStatus.done;
     final due = todo.dueAt;
     final dueText = due == null
-        ? '无截止时间'
-        : '${due.hour.toString().padLeft(2, '0')}:${due.minute.toString().padLeft(2, '0')} 截止';
+        ? context.strings.noDueTime
+        : context.strings.dueAt(
+            due.hour.toString().padLeft(2, '0'),
+            due.minute.toString().padLeft(2, '0'),
+          );
 
     return SizedBox(
       height: 56,
@@ -123,7 +128,9 @@ class _TodoRow extends ConsumerWidget {
             },
 
             behavior: HitTestBehavior.translucent,
-            semanticLabel: done ? '取消完成：${todo.title}' : '完成：${todo.title}',
+            semanticLabel: done
+                ? context.strings.markIncompleteBuild(todo.title)
+                : context.strings.completeBuild2(todo.title),
             child: AnimatedContainer(
               duration: AppMotion.todoComplete,
               curve: Curves.easeOutBack,
@@ -183,7 +190,7 @@ class _TodoRow extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${category?.name ?? '未分类'} $dueText',
+                  '${category?.name ?? context.strings.uncategorized} $dueText',
                   style: AppTextStyles.footnote.copyWith(
                     color: c.labelTertiary,
                   ),

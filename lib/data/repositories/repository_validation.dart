@@ -18,7 +18,9 @@ List<T> requireUniqueIds<T>(Iterable<T> items, String Function(T) idOf) {
 String requireText(String text, String label) {
   final value = text.trim();
   if (value.isEmpty) {
-    throw RepositoryException(RepositoryErrorCode.invalidInput, '$label不能为空');
+    throw RepositoryException(RepositoryErrorCode.invalidInput, '{0}不能为空', [
+      label,
+    ]);
   }
   return value;
 }

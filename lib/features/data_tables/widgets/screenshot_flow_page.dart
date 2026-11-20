@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/local_workspace_session.dart';
 import 'local_image_import_page.dart';
 
@@ -21,6 +23,8 @@ import 'ai_confirm_sheet.dart';
 import 'ai_write_feedback.dart';
 import 'formatters.dart';
 import 'repository_command.dart';
+
+part 'screenshot_progress.dart';
 
 /// 截图上传分析流程（07-data-tables.md §3.6，纯 UI 模拟，不接 OCR/上传）：
 /// 已选图 →（压缩上传进度）→ AI 提取中逐字段填充 → diff 确认 → 落库。
@@ -71,19 +75,28 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
         }
       }
       return _ExtractionPlan(
-        fileLabel: '持仓_0921.png',
-        reason: '从持仓截图识别：加仓贵州茅台 200 股，新买入腾讯控股 300 股。',
-        sourceLabel: '截图「持仓_0921.png」的分析',
-        items: const [
-          _ExtractItem(label: '贵州茅台 持仓(股)', value: '500 股'),
+        fileLabel: context.strings.holdingsPng,
+        reason: context.strings.fromTheHoldingsScreenshotAddedSharesOf,
+        sourceLabel: context.strings.analysisOfHoldingsPng,
+        items: [
           _ExtractItem(
-            label: '贵州茅台 现价',
+            label: context.strings.kweichowMoutaiShares,
+            value: context.strings.shares,
+          ),
+          _ExtractItem(
+            label: context.strings.kweichowMoutaiPrice,
             value: '¥1,680.50',
             lowConfidence: true,
           ),
-          _ExtractItem(label: '腾讯控股 新增', value: '00700'),
-          _ExtractItem(label: '腾讯控股 持仓(股)', value: '300 股'),
-          _ExtractItem(label: '腾讯控股 成本价', value: '¥320.50'),
+          _ExtractItem(label: context.strings.tencentAdded, value: '00700'),
+          _ExtractItem(
+            label: context.strings.tencentShares,
+            value: context.strings.sharesBuildplan,
+          ),
+          _ExtractItem(
+            label: context.strings.tencentCostBasis,
+            value: '¥320.50',
+          ),
         ],
         changes: [
           if (mtId != null)
@@ -91,7 +104,7 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
               id: 'pc_flow_update',
               action: DataChangeAction.update,
               rowId: mtId,
-              rowLabel: '贵州茅台',
+              rowLabel: context.strings.kweichowMoutai,
               fields: [
                 PendingFieldChange(
                   field: '持仓(股)',
@@ -110,9 +123,9 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
           PendingRowChange(
             id: 'pc_flow_create',
             action: DataChangeAction.create,
-            rowLabel: '腾讯控股',
+            rowLabel: context.strings.tencent,
             createValues: {
-              '名称': '腾讯控股',
+              '名称': context.strings.tencent,
               '代码': '00700',
               '持仓(股)': '300',
               '成本价': '320.50',
@@ -124,14 +137,24 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
     }
     if (widget.tableId == 'dt_archive') {
       return _ExtractionPlan(
-        fileLabel: '接收单_0923.jpg',
-        reason: '从接收单照片提取一条档案接收记录，卷数字迹不太清楚。',
-        sourceLabel: '截图「接收单_0923.jpg」的分析',
-        items: const [
-          _ExtractItem(label: '档号', value: 'JS-2026-0033'),
-          _ExtractItem(label: '题名', value: '住建局移交规划档案'),
-          _ExtractItem(label: '卷数', value: '6', lowConfidence: true),
-          _ExtractItem(label: '移交单位', value: '市住建局'),
+        fileLabel: context.strings.receiptJpg,
+        reason: context.strings.extractedAnArchiveReceiptFromThePhoto,
+        sourceLabel: context.strings.analysisOfReceiptJpg,
+        items: [
+          _ExtractItem(label: context.strings.archiveId, value: 'JS-2026-0033'),
+          _ExtractItem(
+            label: context.strings.titleBuildplan,
+            value: context.strings.planningRecordsTransferredByTheHousingBureau,
+          ),
+          _ExtractItem(
+            label: context.strings.volumesBuildplan,
+            value: '6',
+            lowConfidence: true,
+          ),
+          _ExtractItem(
+            label: context.strings.transferringAgency,
+            value: context.strings.municipalHousingBureau,
+          ),
         ],
         changes: [
           PendingRowChange(
@@ -140,10 +163,11 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
             rowLabel: 'JS-2026-0033',
             createValues: {
               '档号': 'JS-2026-0033',
-              '题名': '住建局移交规划档案',
+              '题名':
+                  context.strings.planningRecordsTransferredByTheHousingBureau,
               '年度': '2026',
               '卷数': '6',
-              '移交单位': '市住建局',
+              '移交单位': context.strings.municipalHousingBureau,
               '接收日期': '2026-09-23',
               '密级': '内部',
               '已数字化': 'false',
@@ -165,14 +189,14 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
         DataFieldType.selection =>
           col.enumOptions.isEmpty ? '' : col.enumOptions.first,
         DataFieldType.boolean => 'false',
-        DataFieldType.text => '截图提取的记录',
+        DataFieldType.text => context.strings.recordFromScreenshot,
       };
     }
     values.removeWhere((_, v) => v.isEmpty);
     return _ExtractionPlan(
-      fileLabel: '截图_0923.png',
-      reason: '从截图里读出了一条记录，确认后写入。',
-      sourceLabel: '截图「截图_0923.png」的分析',
+      fileLabel: context.strings.screenshotPng,
+      reason: context.strings.foundARecordInTheScreenshotConfirm,
+      sourceLabel: context.strings.analysisOfScreenshotPng,
       items: [
         for (final e in values.entries)
           _ExtractItem(label: e.key, value: e.value),
@@ -181,7 +205,9 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
         PendingRowChange(
           id: 'pc_flow_create',
           action: DataChangeAction.create,
-          rowLabel: values.values.isEmpty ? '新记录' : values.values.first,
+          rowLabel: values.values.isEmpty
+              ? context.strings.newRecord
+              : values.values.first,
           createValues: values,
         ),
       ],
@@ -313,8 +339,10 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
         child: Column(
           children: [
             WorkspaceNavBar(
-              title: '截图导入${table == null ? '' : ' ${table.name}'}',
-              backLabel: '取消截图分析',
+              title: context.strings.importScreenshotBuild(
+                table == null ? '' : ' ${table.name}',
+              ),
+              backLabel: context.strings.cancelImageAnalysis,
               onBack: () => Navigator.of(context).pop(),
             ),
             Expanded(
@@ -344,14 +372,14 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
           ),
           const Spacer(),
           AppButton(
-            label: '开始分析',
+            label: context.strings.startAnalysis,
             icon: LucideIcons.scanLine,
             expand: true,
             onPressed: _startAnalysis,
           ),
           const SizedBox(height: 8),
           AppButton(
-            label: '重选',
+            label: context.strings.chooseAgain,
             type: AppButtonType.ghost,
             expand: true,
             onPressed: () => Navigator.of(context).pop(),
@@ -387,17 +415,17 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
           const SizedBox(height: 8),
           Text(
             _finished
-                ? '提取完成'
+                ? context.strings.extractionComplete
                 : _step == _FlowStep.uploading
-                ? '正在上传图片…'
-                : 'AI 正在读图…',
+                ? context.strings.uploadingImage
+                : context.strings.readingImage,
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
           ),
           if (_slow)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '比预期慢，仍在努力…',
+                context.strings.takingLongerThanExpected,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
             ),
@@ -441,7 +469,7 @@ class _ScreenshotFlowPageState extends ConsumerState<ScreenshotFlowPage> {
                                   ),
                                   if (item.lowConfidence)
                                     Text(
-                                      'AI 不太确定，请核对',
+                                      context.strings.aiIsUnsurePleaseVerify,
                                       style: AppTextStyles.caption.copyWith(
                                         color: c.labelSecondary,
                                       ),
@@ -492,137 +520,4 @@ class _ExtractItem {
   final String label;
   final String value;
   final bool lowConfidence;
-}
-
-/// 图片占位（纯 UI 阶段无真实图片文件）。
-class _ImagePlaceholder extends StatelessWidget {
-  const _ImagePlaceholder({
-    required this.label,
-    required this.height,
-    this.width,
-    this.iconSize = 48,
-  });
-
-  final String label;
-  final double height;
-  final double? width;
-  final double iconSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      height: height,
-      width: width ?? double.infinity,
-      decoration: BoxDecoration(color: c.fill2, borderRadius: AppRadii.brXl),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(LucideIcons.images, size: iconSize, color: c.labelQuaternary),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 上传进度：2px brand 细条压在图片底部（§3.6 步骤 1）。
-class _UploadProgressBar extends StatelessWidget {
-  const _UploadProgressBar();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        bottom: Radius.circular(AppRadii.xl),
-      ),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 650),
-        curve: Curves.easeOut,
-        builder: (context, value, _) => SizedBox(
-          height: 2,
-          width: double.infinity,
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: value,
-            child: Container(color: c.brand),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 三点脉冲（规范 §4.8 AI 思考中）。
-class _DotsPulse extends StatefulWidget {
-  const _DotsPulse();
-
-  @override
-  State<_DotsPulse> createState() => _DotsPulseState();
-}
-
-class _DotsPulseState extends State<_DotsPulse>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _controller.stop();
-      _controller.value = 0;
-    } else if (!_controller.isAnimating) {
-      _controller.repeat();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < 3; i++) ...[
-              if (i > 0) const SizedBox(width: 6),
-              // 三角波错峰：每个点相位错开 1/3 周期。
-              Opacity(
-                opacity: () {
-                  final phase = (_controller.value - i / 3) % 1.0;
-                  final bump = phase < 0.5 ? phase * 2 : (1 - phase) * 2;
-                  return 0.25 + 0.75 * bump;
-                }(),
-                child: Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: c.brand,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      },
-    );
-  }
 }

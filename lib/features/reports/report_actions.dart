@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -60,7 +62,7 @@ class ReportMenuRow extends StatelessWidget {
 /// 复制全文：复制 Markdown 源码（纯客户端行为）。
 void copyReportMarkdown(BuildContext context, Report report) {
   Clipboard.setData(ClipboardData(text: report.contentMarkdown));
-  AppToast.show(context, message: '已复制，Markdown 格式');
+  AppToast.show(context, message: context.strings.copiedAsMarkdown);
 }
 
 /// 导出 Markdown：报告全文写入应用支持目录/exports 下的 .md 文件。
@@ -77,9 +79,9 @@ Future<void> exportReportMarkdown(
       '${directory.path}/report_${report.id}_${DateTime.now().millisecondsSinceEpoch}.md',
     );
     file.writeAsStringSync(report.contentMarkdown);
-    present('已导出 ${file.uri.pathSegments.last}');
+    present(strings.exported(file.uri.pathSegments.last));
   } catch (_) {
-    present('导出失败，请重试');
+    present(strings.exportFailedTryAgain);
   }
 }
 
@@ -87,7 +89,7 @@ Future<void> exportReportMarkdown(
 void showReportShareSheet(BuildContext context, WidgetRef ref, Report report) {
   AppSheet.show<void>(
     context,
-    title: '分享报告',
+    title: context.strings.shareReport,
     child: SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -101,7 +103,7 @@ void showReportShareSheet(BuildContext context, WidgetRef ref, Report report) {
           children: [
             ReportMenuRow(
               icon: LucideIcons.fileType2,
-              label: '导出 Markdown',
+              label: context.strings.exportMarkdown,
               onTap: () {
                 Navigator.of(context).pop();
                 exportReportMarkdown(context, ref, report);
@@ -109,7 +111,7 @@ void showReportShareSheet(BuildContext context, WidgetRef ref, Report report) {
             ),
             ReportMenuRow(
               icon: LucideIcons.copy,
-              label: '复制全文',
+              label: context.strings.copyFullText,
               onTap: () {
                 Navigator.of(context).pop();
                 copyReportMarkdown(context, report);
@@ -127,7 +129,7 @@ void confirmRegenerate(BuildContext context, WidgetRef ref, Report report) {
   final c = AppColors.of(context);
   AppSheet.show<void>(
     context,
-    title: '重新生成？',
+    title: context.strings.regenerate,
     child: Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -139,7 +141,7 @@ void confirmRegenerate(BuildContext context, WidgetRef ref, Report report) {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '将用最新数据重新生成本期报告，当前内容会被覆盖。',
+            context.strings.rebuildsThisReportUsingTheLatestData,
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -147,7 +149,7 @@ void confirmRegenerate(BuildContext context, WidgetRef ref, Report report) {
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -155,7 +157,7 @@ void confirmRegenerate(BuildContext context, WidgetRef ref, Report report) {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: AppButton(
-                  label: '重新生成',
+                  label: context.strings.regenerateConfirmregenerate,
                   onPressed: () {
                     ref.read(reportListProvider.notifier).regenerate(report.id);
                     Navigator.of(context).pop();
@@ -180,7 +182,7 @@ void confirmDeleteReport(
   final c = AppColors.of(context);
   AppSheet.show<void>(
     context,
-    title: '删掉这份报告？',
+    title: context.strings.deleteThisReport,
     child: Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -192,7 +194,7 @@ void confirmDeleteReport(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '删除报告后保留原始数据。',
+            context.strings.sourceDataWillBeKept,
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -200,7 +202,7 @@ void confirmDeleteReport(
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -208,7 +210,7 @@ void confirmDeleteReport(
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: AppButton(
-                  label: '删除',
+                  label: context.strings.deleteLabel,
                   type: AppButtonType.destructive,
                   onPressed: () {
                     HapticFeedback.mediumImpact();
@@ -218,8 +220,8 @@ void confirmDeleteReport(
                     if (popAfter) Navigator.of(context).pop();
                     AppToast.show(
                       context,
-                      message: '报告已删除',
-                      actionLabel: '撤销',
+                      message: context.strings.reportDeleted,
+                      actionLabel: context.strings.undo,
                       duration: const Duration(seconds: 5),
                       onAction: () {
                         if (repository.mounted) repository.restore(report.id);

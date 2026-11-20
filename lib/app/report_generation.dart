@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -160,7 +162,7 @@ class ReportGenerationService {
               'content':
                   '你是周报/月报的总结撰写者。下面 JSON 里的数字来自本地统计快照，是唯一事实：'
                   '只能引用给出的数字，不得编造、推算或补充任何新数字；没有数据就说明本周没有记录。'
-                  '输出中文，仅写有依据的进展、问题和必要动作，最多 240 字，不凑段落，不输出 JSON。'
+                  '使用${strings.localeName == 'en' ? '英语' : '中文'}，仅写有依据的进展、问题和必要动作，最多 240 字，不凑段落，不输出 JSON。'
                   '${AgentPrompt.responseStyle}',
             },
             {

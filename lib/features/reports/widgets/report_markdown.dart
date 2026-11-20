@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -7,6 +9,8 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_radii.dart';
 import '../../../theme/app_text_styles.dart';
 import 'report_common.dart';
+
+part 'report_markdown_blocks.dart';
 
 /// 报告正文 Markdown 渲染（06-reports.md §3.3 渲染规格表）。
 ///
@@ -119,7 +123,10 @@ class ReportMarkdown extends StatelessWidget {
       final block = blocks[i];
       if (block is _H2) {
         currentH2 = block.text;
-        if (block.text.contains('AI 观察与建议')) {
+        if (matchesReportHeading(
+          block.text,
+          (copy) => copy.aiObservationsAndSuggestions,
+        )) {
           final inner = <_Block>[];
           i++;
           while (i < blocks.length && blocks[i] is! _H2) {
@@ -195,8 +202,10 @@ class ReportMarkdown extends StatelessWidget {
   /// 列表：默认 4px 圆点；「逾期」节前置红圆点；「下期待办/关注」节前置空心方框（只读）。
   Widget _bullets(BuildContext context, List<String> items, String currentH2) {
     final c = AppColors.of(context);
-    final isRisk = currentH2.contains('逾期');
-    final isTodo = currentH2.contains('下期待办') || currentH2.contains('下月关注');
+    final isRisk = matchesReportHeading(currentH2, (copy) => copy.overdueBuild);
+    final isTodo =
+        matchesReportHeading(currentH2, (copy) => copy.upcomingTasksBullets) ||
+        matchesReportHeading(currentH2, (copy) => copy.nextMonthsFocus);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -290,7 +299,7 @@ class ReportMarkdown extends StatelessWidget {
   Widget _aiInsightSection(BuildContext context, List<_Block> inner) {
     final c = AppColors.of(context);
     return Semantics(
-      label: 'AI 生成内容',
+      label: context.strings.aiGeneratedContent,
       child: Container(
         margin: const EdgeInsets.only(top: 28, bottom: 12),
         padding: const EdgeInsets.only(left: 10),
@@ -305,14 +314,19 @@ class ReportMarkdown extends StatelessWidget {
                 const AiBadge(),
                 const SizedBox(width: 8),
                 Text(
-                  'AI 洞察',
+                  context.strings.aiInsights,
                   style: AppTextStyles.subhead.copyWith(color: c.labelPrimary),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             // 内层块去掉段落自身的下距差异，由小节统一控制
-            for (final block in inner) _renderBlock(context, block, 'AI 观察与建议'),
+            for (final block in inner)
+              _renderBlock(
+                context,
+                block,
+                context.strings.aiObservationsAndSuggestions,
+              ),
           ],
         ),
       ),
@@ -584,39 +598,4 @@ class ReportMarkdown extends StatelessWidget {
 
 sealed class _Block {
   const _Block();
-}
-
-class _H2 extends _Block {
-  const _H2(this.text);
-  final String text;
-}
-
-class _H3 extends _Block {
-  const _H3(this.text);
-  final String text;
-}
-
-class _Para extends _Block {
-  const _Para(this.text);
-  final String text;
-}
-
-class _Bullets extends _Block {
-  const _Bullets(this.items);
-  final List<String> items;
-}
-
-class _Quote extends _Block {
-  const _Quote(this.lines);
-  final List<String> lines;
-}
-
-class _Table extends _Block {
-  const _Table(this.header, this.rows);
-  final List<String> header;
-  final List<List<String>> rows;
-}
-
-class _Divider extends _Block {
-  const _Divider();
 }

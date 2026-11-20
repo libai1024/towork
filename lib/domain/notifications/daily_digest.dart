@@ -4,7 +4,18 @@ import '../workspace/workspace_commands.dart';
 
 /// Counts use the target local calendar day, not a fixed 24-hour interval.
 /// This is an explicit snapshot for future delivery, not a live AI summary.
-String dailyDigest(WorkspaceSnapshot snapshot, DateTime day) {
+typedef DigestFormatter = String Function(
+  DateTime day,
+  int due,
+  int overdue,
+  List<String> titles,
+);
+
+String dailyDigest(
+  WorkspaceSnapshot snapshot,
+  DateTime day,
+  DigestFormatter format,
+) {
   final start = DateTime(day.year, day.month, day.day);
   final end = DateTime(day.year, day.month, day.day + 1);
   final due = <WorkspaceEntity>[];
@@ -39,7 +50,6 @@ String dailyDigest(WorkspaceSnapshot snapshot, DateTime day) {
             .take(24)
             .toString(),
       )
-      .join('、');
-  return '${day.month}/${day.day} 到期 ${due.length} 项，此前未完成 $overdue 项。'
-      '${titles.isEmpty ? '' : '$titles。'}预排快照，打开查看最新。';
+      .toList();
+  return format(day, due.length, overdue, titles);
 }

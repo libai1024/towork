@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Quick panel entry points. The app label itself comes from the manifest placeholder. -->
+    <string name="quick_ask_short">Quick Ask</string>
+    <string name="quick_ask_long">ToWork Quick Ask</string>
+    <string name="quick_ask_voice_short">Voice Quick Ask</string>
+    <string name="quick_ask_voice_long">ToWork Voice Quick Ask</string>
+    <!-- Shown in other apps' share sheet and text-selection menu. -->
+    <string name="quick_ask_text">Ask ToWork</string>
+    <string name="update_channel">App updates</string>
+    <string name="update_installed">ToWork updated to %1$s</string>
+    <string name="update_open">Tap to open the new version</string>
+</resources>

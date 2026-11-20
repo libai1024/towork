@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -125,16 +126,21 @@ class CategoryRow extends StatelessWidget {
 
   String get _semanticsLabel {
     final rate = stats.completionRate;
-    final rateText = archived || rate == null ? '完成率未知' : '完成率 $rate%';
+    final rateText = archived || rate == null
+        ? strings.completionRateUnknown
+        : strings.completeSemanticslabel(rate);
     if (archived) {
-      return '已归档分类，${category.name}，${stats.open} 条待办，双击查看恢复选项';
+      return strings.archivedCategoryTasksDoubleTapForRestore(
+        category.name,
+        stats.open,
+      );
     }
     if (isChild) {
-      return '子分类，${category.name}，${stats.open} 条待办，$rateText';
+      return strings.subcategoryTasks(category.name, stats.open, rateText);
     }
-    return '分类，${category.name}，${stats.open} 条待办，$rateText'
-        '${hasChildren ? (expanded ? '，子分类已展开' : '，含子分类，已收起') : ''}'
-        '。双击编辑，长按拖拽排序。';
+    return '${strings.categoryTasks(category.name, stats.open, rateText)}'
+        '${hasChildren ? (expanded ? strings.subcategoriesExpanded : strings.subcategoriesCollapsed) : ''}'
+        '${strings.doubleTapToEditHoldAndDrag}';
   }
 
   /// 展开箭头：仅含子分类时渲染，否则占位保持对齐（04 §3.2）。
@@ -143,7 +149,9 @@ class CategoryRow extends StatelessWidget {
     return AppPressable(
       onTap: sortMode ? null : onToggleExpand,
       behavior: HitTestBehavior.opaque,
-      semanticLabel: expanded ? '收起子分类' : '展开子分类',
+      semanticLabel: expanded
+          ? strings.collapseSubcategories
+          : strings.expandSubcategories,
       child: Center(
         child: AnimatedRotation(
           turns: expanded ? 0.25 : 0,
@@ -177,17 +185,17 @@ class CategoryRow extends StatelessWidget {
   Widget _stats(AppColors c) {
     final base = AppTextStyles.footnote.copyWith(color: c.labelTertiary);
     if (archived) {
-      return Text('${stats.open} 项 —', style: base);
+      return Text(strings.itemsStats(stats.open), style: base);
     }
     final rate = stats.completionRate;
     if (rate == null) {
-      return Text('${stats.open} 项 —', style: base);
+      return Text(strings.itemsStats(stats.open), style: base);
     }
     return Text.rich(
       TextSpan(
         style: base,
         children: [
-          TextSpan(text: '${stats.open} 项 '),
+          TextSpan(text: strings.itemsStats2(stats.open)),
           TextSpan(
             text: '$rate%',
             style: TextStyle(color: c.labelTertiary),
@@ -201,7 +209,7 @@ class CategoryRow extends StatelessWidget {
     return AppPressable(
       onTap: onMore,
       behavior: HitTestBehavior.opaque,
-      semanticLabel: '${category.name} 更多操作',
+      semanticLabel: strings.moreActionsFor(category.name),
       child: Center(
         child: Icon(LucideIcons.ellipsis, size: 20, color: c.labelTertiary),
       ),
@@ -293,7 +301,7 @@ class CategoryRowFeedback extends StatelessWidget {
                 ),
               ),
               Text(
-                '${stats.open} 项',
+                context.strings.itemsBuild(stats.open),
                 style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
               ),
               const SizedBox(width: 16),

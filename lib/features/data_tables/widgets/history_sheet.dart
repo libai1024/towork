@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 
 import 'package:flutter/material.dart' hide DataRow;
@@ -48,7 +50,8 @@ class _RowHistorySheet extends ConsumerWidget {
     for (final r in repo.rowsOf(table.id)) {
       if (r.id == rowId) row = r;
     }
-    final rowLabel = row?.values[table.columns.firstOrNull?.name] ?? '这行记录';
+    final rowLabel =
+        row?.values[table.columns.firstOrNull?.name] ?? context.strings.thisRow;
 
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -63,7 +66,7 @@ class _RowHistorySheet extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  '变更历史',
+                  context.strings.changeHistory,
                   style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
                 ),
                 const SizedBox(width: 8),
@@ -93,9 +96,9 @@ class _RowHistorySheet extends ConsumerWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('暂时无法读取变更历史'),
+                        Text(context.strings.couldntLoadChangeHistory),
                         AppButton(
-                          label: '重试',
+                          label: context.strings.retry,
                           onPressed: () => ref.invalidate(dataTableProvider),
                         ),
                       ],
@@ -114,7 +117,7 @@ class _RowHistorySheet extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '暂无变更记录',
+                          context.strings.noChangesYet,
                           style: AppTextStyles.body.copyWith(
                             color: c.labelTertiary,
                           ),
@@ -156,11 +159,11 @@ class _RowHistorySheet extends ConsumerWidget {
         '${log.createdAt.month}/${log.createdAt.day} ${log.createdAt.hour.toString().padLeft(2, '0')}:${log.createdAt.minute.toString().padLeft(2, '0')}';
     final confirmed = await showAppConfirmDialog(
       context,
-      title: '回滚到这次修改？',
+      title: context.strings.restoreThisVersion,
       message: later == 0
-          ? '将回到 $time 的版本。回滚本身也会留下一条记录。'
-          : '将回到 $time 的版本，此后的 $later 次变更也会被撤销。回滚本身也会留下一条记录。',
-      confirmLabel: '回滚',
+          ? context.strings.restoresTheVersionFromTheRestoreWill(time)
+          : context.strings.restoresTheVersionFromAndUndoesLater(time, later),
+      confirmLabel: context.strings.restoreVersion,
     );
     if (!confirmed || !context.mounted) return;
     if (!await runDataCommand(
@@ -170,7 +173,10 @@ class _RowHistorySheet extends ConsumerWidget {
       return;
     }
     if (context.mounted) {
-      AppToast.show(context, message: '已回滚到 $time 的版本');
+      AppToast.show(
+        context,
+        message: context.strings.restoredTheVersionFrom(time),
+      );
     }
   }
 }
@@ -256,7 +262,7 @@ class _HistoryEntry extends StatelessWidget {
                         const AiBadge()
                       else
                         Text(
-                          '我',
+                          context.strings.me,
                           style: AppTextStyles.footnote.copyWith(
                             color: c.labelPrimary,
                           ),
@@ -264,7 +270,7 @@ class _HistoryEntry extends StatelessWidget {
                       const Spacer(),
                       if (log.action != DataChangeAction.delete)
                         AppButton(
-                          label: '回滚',
+                          label: context.strings.restoreVersion,
                           type: AppButtonType.ghost,
                           onPressed: onRollback,
                         ),
@@ -300,7 +306,7 @@ class _HistoryEntry extends StatelessWidget {
         return DiffCard(
           children: [
             Text(
-              '新建了这行',
+              strings.createdThisRow,
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             ),
             const SizedBox(height: 4),
@@ -313,7 +319,7 @@ class _HistoryEntry extends StatelessWidget {
           danger: true,
           children: [
             Text(
-              '删除了这行',
+              strings.deletedThisRow,
               style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             ),
             const SizedBox(height: 4),
@@ -389,9 +395,9 @@ class _ReasonBubble extends StatelessWidget {
                     onTap: onViewSource,
                     behavior: HitTestBehavior.translucent,
 
-                    semanticLabel: '查看原图',
+                    semanticLabel: context.strings.viewOriginalImage,
                     child: Text(
-                      '$sourceLabel 查看原图 ▸',
+                      context.strings.viewOriginal(sourceLabel.toString()),
                       style: AppTextStyles.footnote.copyWith(color: c.brand),
                     ),
                   ),

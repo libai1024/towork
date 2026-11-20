@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -59,7 +60,7 @@ class AppButton extends StatelessWidget {
     final radius = BorderRadius.circular(999);
     return Semantics(
       liveRegion: loading,
-      value: loading ? '处理中' : null,
+      value: loading ? context.strings.processing : null,
       child: AppPressable(
         onTap: active ? onPressed : null,
         semanticLabel: label,

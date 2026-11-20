@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -20,7 +21,7 @@ class AiTodoCard extends StatefulWidget {
     this.onToggleDone,
     this.completionResult = false,
     this.animateCompletion = false,
-    this.undoLabel = '撤销待办',
+    this.undoLabel,
   });
 
   final Todo todo;
@@ -28,7 +29,7 @@ class AiTodoCard extends StatefulWidget {
   final VoidCallback? onEdit, onUndo;
   final Future<void> Function()? onToggleDone;
   final bool completionResult, animateCompletion;
-  final String undoLabel;
+  final String? undoLabel;
 
   @override
   State<AiTodoCard> createState() => _AiTodoCardState();
@@ -56,10 +57,13 @@ class _AiTodoCardState extends State<AiTodoCard> {
     final c = AppColors.of(context);
     final done = widget.todo.status == TodoStatus.done;
     final label = switch (widget.todo.status) {
-      TodoStatus.done => '已完成',
-      TodoStatus.cancelled => '已取消',
-      TodoStatus.inProgress => '进行中',
-      TodoStatus.pending => widget.completionResult ? '已恢复为待办' : '已创建',
+      TodoStatus.done => context.strings.completed,
+      TodoStatus.cancelled => context.strings.canceled,
+      TodoStatus.inProgress => context.strings.inProgress,
+      TodoStatus.pending =>
+        widget.completionResult
+            ? context.strings.restoredToPending
+            : context.strings.created,
     };
     return Container(
       key: const ValueKey('created-todo-content'),
@@ -91,7 +95,7 @@ class _AiTodoCardState extends State<AiTodoCard> {
                       ? null
                       : _toggle,
                   semanticLabel:
-                      '${done ? '恢复待办' : '完成待办'} ${widget.todo.title}',
+                      '${done ? context.strings.restoreTaskCustomactions : context.strings.completeTaskConfirmremainingsteps} ${widget.todo.title}',
                 ),
                 if (_busy)
                   ExcludeSemantics(
@@ -126,13 +130,13 @@ class _AiTodoCardState extends State<AiTodoCard> {
           ),
           if (widget.onEdit != null)
             _ResultAction(
-              label: '修改待办',
+              label: context.strings.editTask,
               icon: LucideIcons.pencil,
               onTap: _busy ? null : widget.onEdit,
             ),
           if (widget.onUndo != null)
             _ResultAction(
-              label: widget.undoLabel,
+              label: widget.undoLabel ?? context.strings.undoTask,
               icon: LucideIcons.undo2,
               onTap: _busy ? null : widget.onUndo,
             ),

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -13,13 +14,13 @@ class WorkspaceNavBar extends StatelessWidget {
     super.key,
     required this.title,
     required this.onBack,
-    this.backLabel = '返回',
+    this.backLabel,
     this.actions = const [],
   });
 
   final String title;
   final VoidCallback onBack;
-  final String backLabel;
+  final String? backLabel;
   final List<Widget> actions;
 
   @override
@@ -31,7 +32,7 @@ class WorkspaceNavBar extends StatelessWidget {
           icon: LucideIcons.chevronLeft,
           iconSize: 20,
           elevated: false,
-          label: backLabel,
+          label: backLabel ?? context.strings.back,
           onTap: onBack,
         ),
         const SizedBox(width: 8),
@@ -140,7 +141,7 @@ class WorkspaceSearchField extends StatelessWidget {
     required this.hint,
     required this.onChanged,
     required this.onClear,
-    this.clearLabel = '清除搜索',
+    this.clearLabel,
     this.focusNode,
     this.autofocus = false,
   });
@@ -148,7 +149,7 @@ class WorkspaceSearchField extends StatelessWidget {
   final String hint;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
-  final String clearLabel;
+  final String? clearLabel;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -183,7 +184,7 @@ class WorkspaceSearchField extends StatelessWidget {
             ),
             if (controller.text.isNotEmpty)
               AppPressable(
-                semanticLabel: clearLabel,
+                semanticLabel: clearLabel ?? context.strings.clearSearch,
                 onTap: onClear,
                 borderRadius: BorderRadius.circular(24),
                 child: Icon(

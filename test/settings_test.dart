@@ -47,7 +47,8 @@ void main() {
     expect(find.text('每日晨报'), findsOneWidget);
     expect(find.text('08:30'), findsOneWidget);
     expect(find.text('主题'), findsOneWidget);
-    expect(find.text('跟随系统'), findsOneWidget);
+    expect(find.text('语言'), findsOneWidget);
+    expect(find.text('跟随系统'), findsNWidgets(2));
     expect(find.text('一键导出'), findsOneWidget);
     expect(find.text('尚未导出'), findsOneWidget);
     expect(find.text('1.1.2 (4)'), findsOneWidget);
@@ -157,7 +158,7 @@ void main() {
     expect(ProviderScope.containerOf(el).read(fontScaleProvider), 0.9);
 
     // 长按彩蛋：真实月相 Toast
-    await tester.longPress(find.text('跟随系统'));
+    await tester.longPress(find.text('跟随系统').last);
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.textContaining('今晚是'), findsOneWidget);

@@ -6,10 +6,18 @@ class ReleaseHistoryEntry {
     required this.date,
     required this.title,
     required this.notes,
+    this.titleEn,
+    this.notesEn,
   });
   final int build, patch;
   final String version, date, title;
   final List<String> notes;
+  final String? titleEn;
+  final List<String>? notesEn;
+  String titleFor(String language) =>
+      language == 'en' ? titleEn ?? title : title;
+  List<String> notesFor(String language) =>
+      language == 'en' ? notesEn ?? notes : notes;
   String get label => patch == 0 ? version : '$version P$patch';
   String get id => '$build/$patch';
 
@@ -39,6 +47,13 @@ class ReleaseHistoryEntry {
           version: version,
           date: date,
           title: title,
+          titleEn: row['titleEn'] is String ? row['titleEn'] as String : null,
+          notesEn: switch (row['notesEn']) {
+            final List<dynamic> value
+                when value.isNotEmpty && value.every((n) => n is String) =>
+              List.unmodifiable(value.cast<String>()),
+            _ => null,
+          },
           notes: List.unmodifiable(notes.cast<String>()),
         );
         if (!ids.add(entry.id)) throw const FormatException();

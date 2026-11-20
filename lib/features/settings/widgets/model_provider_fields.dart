@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -29,7 +30,7 @@ class ModelProviderField extends StatelessWidget {
       size: 18,
       badge: true,
     ),
-    title: '服务商',
+    title: context.strings.provider,
     value: descriptor.shortLabel,
     trailing: BillingMark(descriptor: descriptor),
     enabled: enabled,

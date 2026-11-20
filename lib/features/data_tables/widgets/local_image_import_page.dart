@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -26,14 +28,14 @@ import '../../../core/widgets/ai_markdown.dart';
 
 String imageFailureMessage(Object error) => switch (error) {
   AttachmentFailure(code: AttachmentFailureCode.tooLarge) =>
-    '图片过大。请选择 10 MB 以内的 PNG/JPEG，或裁剪后重试。',
+    strings.imageTooLargeChooseAPngOr,
   AttachmentFailure(code: AttachmentFailureCode.invalidImage) =>
-    '无法读取这张图片，请选择完整的静态 PNG 或 JPEG。',
+    strings.couldntReadThisImageChooseAComplete,
   AttachmentFailure(code: AttachmentFailureCode.missing) =>
-    '原图或图片副本已不可用，请重新选择图片。',
+    strings.theOriginalAndItsCopyAreUnavailable,
   AttachmentFailure(code: AttachmentFailureCode.inUse) =>
-    '这张图片已关联识别记录，需要保留用于历史溯源。',
-  AttachmentFailure() => '暂时无法保存或读取图片，已保存的数据会保留。',
+    strings.thisImageIsLinkedToARecognition,
+  AttachmentFailure() => strings.couldntReadOrSaveTheImageExisting,
   _ => chatFailureMessage(error),
 };
 
@@ -47,7 +49,7 @@ class LocalImageImportPage extends ConsumerStatefulWidget {
 
 class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
   final _instruction = TextEditingController(
-    text: '将图中可明确识别的记录新增到此表；不确定的内容请先询问我。',
+    text: strings.addTheClearlyIdentifiableRecordsToThis,
   );
   List<ImageAttachment> _items = [];
   ImageAttachment? _selected;
@@ -132,7 +134,7 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
     final credential = await runtime.settings.runtimeCredential();
     final turn = await runtime.persistence.prepare(
       inputId: row.inputId,
-      content: '图片「${row.displayName}」：${_instruction.text.trim()}',
+      content: strings.imageStart(row.displayName, _instruction.text.trim()),
       profile: credential.configuration.profile,
       agentEnabled: true,
       attachmentId: row.id,
@@ -161,7 +163,7 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
             builder: (context, bounds) => Column(
               children: [
                 WorkspaceNavBar(
-                  title: '截图导入',
+                  title: context.strings.importScreenshot,
                   onBack: () {
                     if (!_busy) Navigator.pop(context);
                   },
@@ -171,7 +173,13 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                     children: [
                       Text(
-                        '目标表：${ref.read(dataTableProvider.notifier).tableById(widget.tableId)?.name ?? '已不可用'}',
+                        context.strings.targetTable(
+                          ref
+                                  .read(dataTableProvider.notifier)
+                                  .tableById(widget.tableId)
+                                  ?.name ??
+                              context.strings.unavailableBuild,
+                        ),
                         style: AppTextStyles.subhead,
                       ),
                       const SizedBox(height: 16),
@@ -194,7 +202,7 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                         TextButton(
                           onPressed: () =>
                               showLocalImage(context, ref, _selected!),
-                          child: const Text('查看原图'),
+                          child: Text(context.strings.viewOriginalImage),
                         ),
                       ],
                       if (_error != null)
@@ -222,12 +230,12 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                             onPressed: () => ref
                                 .read(chatViewModelProvider.notifier)
                                 .cancel(),
-                            child: const Text('停止识别'),
+                            child: Text(context.strings.stopRecognition),
                           ),
                       ],
                       const SizedBox(height: 12),
                       AppButton(
-                        label: '选择图片',
+                        label: context.strings.chooseImage,
                         type: AppButtonType.secondary,
                         enabled: !_busy && !generating,
                         onPressed: _pick,
@@ -235,12 +243,17 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                       ),
                       const SizedBox(height: 24),
                       if (_items.isNotEmpty)
-                        Text('已保存的图片', style: AppTextStyles.subhead),
+                        Text(
+                          context.strings.savedImages,
+                          style: AppTextStyles.subhead,
+                        ),
                       for (final row in _items)
                         ListTile(
                           title: Text(row.displayName),
                           subtitle: Text(
-                            row.state == 'ready' ? '已保存' : '文件不完整，请重新选择',
+                            row.state == 'ready'
+                                ? context.strings.saved
+                                : context.strings.incompleteFileChooseItAgain,
                           ),
                           onTap: _busy || generating
                               ? null
@@ -252,7 +265,7 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                                   true
                               ? null
                               : IconButton(
-                                  tooltip: '移除未使用图片',
+                                  tooltip: context.strings.removeUnusedImage,
                                   icon: const Icon(LucideIcons.trash2),
                                   onPressed: _busy
                                       ? null
@@ -284,7 +297,7 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                                   ref.invalidate(attachmentStoreProvider);
                                   unawaited(_load());
                                 },
-                          child: const Text('重试读取'),
+                          child: Text(context.strings.retryReading),
                         ),
                     ],
                   ),
@@ -301,28 +314,30 @@ class _LocalImageImportPageState extends ConsumerState<LocalImageImportPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AppFieldLabel(
-                            label: '导入要求',
+                            label: context.strings.importInstructions,
                             child: TextField(
                               controller: _instruction,
                               minLines: 1,
                               maxLines: 3,
                               maxLength: 2000,
                               enabled: !_busy,
-                              decoration: const InputDecoration(
-                                hintText: '新增记录或指定要更新的记录',
+                              decoration: InputDecoration(
+                                hintText: context
+                                    .strings
+                                    .addRecordsOrSpecifyWhichRecordsTo,
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '图片将发送至当前模型并使用账户额度。',
+                            context.strings.theImageWillBeSentToThe,
                             style: AppTextStyles.footnote.copyWith(
                               color: c.labelSecondary,
                             ),
                           ),
                           const SizedBox(height: 12),
                           AppButton(
-                            label: '分析并导入',
+                            label: context.strings.analyzeAndImport,
                             icon: LucideIcons.scanLine,
                             enabled: !_busy && !generating,
                             onPressed: _start,
@@ -405,14 +420,17 @@ class RowImageSources extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
     icon: const Icon(LucideIcons.image),
-    label: const Text('查看来源图片'),
+    label: Text(context.strings.viewSourceImage),
     onPressed: () async {
       try {
         final store = await ref.read(attachmentStoreProvider.future);
         final sources = await store.sourcesForRow(rowId);
         if (!context.mounted) return;
         if (sources.isEmpty) {
-          AppToast.show(context, message: '这条记录没有已关联的来源图片。');
+          AppToast.show(
+            context,
+            message: context.strings.thisRecordHasNoLinkedSourceImage,
+          );
           return;
         }
         await showModalBottomSheet<void>(

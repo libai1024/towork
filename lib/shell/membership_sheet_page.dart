@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +11,7 @@ Page<void> membershipSheetPage(BuildContext context, GoRouterState state) {
     key: state.pageKey,
     opaque: false,
     barrierDismissible: true,
-    barrierLabel: '关闭会员',
+    barrierLabel: context.strings.closeMembership,
     barrierColor: AppColors.of(context).scrim.withValues(alpha: .22),
     transitionDuration: reduced
         ? Duration.zero

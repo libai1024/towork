@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -123,7 +125,7 @@ class AppDayCalendarState extends State<AppDayCalendar> {
           children: [
             Expanded(
               child: Text(
-                '${_month.year} 年 ${_month.month} 月',
+                context.strings.formattedValueBuild2(_month.year, _month.month),
                 style:
                     (widget.headerTrailing == null
                             ? AppTextStyles.subhead
@@ -139,7 +141,9 @@ class AppDayCalendarState extends State<AppDayCalendar> {
             ?widget.headerTrailing,
             AppPressable(
               onTap: () => _shiftMonth(-1),
-              semanticLabel: widget.weekOnly ? '上一周' : '上个月',
+              semanticLabel: widget.weekOnly
+                  ? context.strings.previousWeek
+                  : context.strings.previousMonth,
               child: Icon(
                 LucideIcons.chevronLeft,
                 size: 20,
@@ -148,7 +152,9 @@ class AppDayCalendarState extends State<AppDayCalendar> {
             ),
             AppPressable(
               onTap: () => _shiftMonth(1),
-              semanticLabel: widget.weekOnly ? '下一周' : '下个月',
+              semanticLabel: widget.weekOnly
+                  ? context.strings.nextWeek
+                  : context.strings.nextMonth,
               child: Icon(
                 LucideIcons.chevronRight,
                 size: 20,
@@ -174,7 +180,15 @@ class AppDayCalendarState extends State<AppDayCalendar> {
                     children: [
                       Row(
                         children: [
-                          for (final w in ['一', '二', '三', '四', '五', '六', '日'])
+                          for (final w in [
+                            context.strings.mon,
+                            context.strings.tue,
+                            context.strings.wed,
+                            context.strings.thu,
+                            context.strings.fri,
+                            context.strings.sat,
+                            context.strings.weekdaySunday,
+                          ])
                             Expanded(
                               child: Center(
                                 child: Text(
@@ -249,8 +263,12 @@ class _CalendarCell extends StatelessWidget {
     return Semantics(
       selected: selected,
       child: AppPressable(
-        semanticLabel:
-            '${day.year}年${day.month}月${day.day}日${count == null ? '' : '，$count项待办'}',
+        semanticLabel: context.strings.formattedValueBuild3(
+          day.year,
+          day.month,
+          day.day,
+          count == null ? '' : context.strings.tasksBuild(count.toString()),
+        ),
         onTap: onTap,
         child: Center(
           child: Container(

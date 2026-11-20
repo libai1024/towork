@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_button.dart';
@@ -11,7 +12,7 @@ Future<bool> showAppConfirmDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = '确认',
+  String? confirmLabel,
   bool destructive = false,
 }) async {
   final c = AppColors.of(context);
@@ -43,13 +44,13 @@ Future<bool> showAppConfirmDialog(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   AppButton(
-                    label: '取消',
+                    label: context.strings.cancel,
                     type: AppButtonType.ghost,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
                   ),
                   const SizedBox(width: 8),
                   AppButton(
-                    label: confirmLabel,
+                    label: confirmLabel ?? context.strings.confirm,
                     type: destructive
                         ? AppButtonType.destructive
                         : AppButtonType.primary,

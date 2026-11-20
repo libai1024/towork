@@ -1,3 +1,4 @@
+import 'package:towork/app/reminder_wording.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:towork/domain/notifications/daily_digest.dart';
 import 'package:towork/domain/notifications/reminder_plans.dart';
@@ -40,7 +41,7 @@ void main() {
       todo('已删除', day, deleted: true),
     ]);
     expect(
-      dailyDigest(snapshot, day),
+      dailyDigest(snapshot, day, reminderWording('zh').format),
       '9/24 到期 2 项，此前未完成 1 项。今天紧急、今天普通。预排快照，打开查看最新。',
     );
   });
@@ -48,8 +49,12 @@ void main() {
     final snapshot = WorkspaceSnapshot([
       todo('今天待办', day.add(const Duration(hours: 10))),
     ]);
-    List<ReminderPlan> plans(WorkspaceSnapshot s, DateTime n) =>
-        reminderPlans(s, const AppPreferences(notifyDue: false), n);
+    List<ReminderPlan> plans(WorkspaceSnapshot s, DateTime n) => reminderPlans(
+      s,
+      const AppPreferences(notifyDue: false),
+      n,
+      reminderWording('zh'),
+    );
     final first = plans(snapshot, day);
     expect(first, hasLength(7));
     expect(first.first.payload['body'], contains('到期 1 项'));

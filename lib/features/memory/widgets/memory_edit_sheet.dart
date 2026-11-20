@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -108,9 +109,13 @@ class _MemoryEditFormState extends State<_MemoryEditForm> {
   }
 
   String get _expiryLabel {
-    if (!_customExpiry || _expiresAt == null) return '长期';
+    if (!_customExpiry || _expiresAt == null) return context.strings.longTerm;
     final d = _expiresAt!;
-    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')} 失效';
+    return context.strings.expiresExpirylabel(
+      d.year,
+      d.month.toString().padLeft(2, '0'),
+      d.day.toString().padLeft(2, '0'),
+    );
   }
 
   MemoryDraft get _draft => MemoryDraft(
@@ -144,20 +149,22 @@ class _MemoryEditFormState extends State<_MemoryEditForm> {
   Widget build(BuildContext context) {
     final kind = widget.kinds.where((kind) => kind.id == _kindId).firstOrNull;
     return SheetComposer(
-      title: widget.existing == null ? '新增记忆' : '编辑记忆',
-      hint: '记忆内容',
+      title: widget.existing == null
+          ? context.strings.newMemory
+          : context.strings.editMemory,
+      hint: context.strings.memoryContent,
       controller: _controller,
       autofocus: widget.existing == null,
       multiline: true,
       maxLines: 6,
-      action: '保存',
+      action: context.strings.save,
       saving: _saving,
       onCommit: _submit,
       tools: [
         SheetChoice(
           icon: LucideIcons.tag,
-          label: '记忆类型',
-          value: kind?.label ?? '类型',
+          label: context.strings.memoryType,
+          value: kind?.label ?? context.strings.type,
           onOpen: (anchor) async {
             final next = await showWorkspaceActionMenu<String>(
               anchor,
@@ -178,15 +185,23 @@ class _MemoryEditFormState extends State<_MemoryEditForm> {
         ),
         SheetChoice(
           icon: LucideIcons.calendar,
-          label: '记忆时效',
+          label: context.strings.memoryRetention,
           value: _expiryLabel,
           onOpen: (anchor) async {
             final custom = await showWorkspaceActionMenu<bool>(
               anchor,
               selected: _customExpiry,
               items: [
-                (value: false, label: '长期', icon: LucideIcons.infinity),
-                (value: true, label: '自定义日期', icon: LucideIcons.calendar),
+                (
+                  value: false,
+                  label: context.strings.longTerm,
+                  icon: LucideIcons.infinity,
+                ),
+                (
+                  value: true,
+                  label: context.strings.customDate,
+                  icon: LucideIcons.calendar,
+                ),
               ],
             );
             if (custom == null || !mounted) return;

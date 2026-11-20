@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -89,18 +91,27 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
         : offered?.notes ?? const <String>[];
     final downloading = state.phase == UpdatePhase.downloading;
     final status = switch (state.phase) {
-      UpdatePhase.idle || UpdatePhase.checking => '正在检查更新',
-      UpdatePhase.current => '已是最新版本',
-      UpdatePhase.available => '发现新版本',
-      UpdatePhase.downloading => '正在下载更新',
-      UpdatePhase.verifying => state.isCode ? '正在验证补丁' : '正在校验安装包',
-      UpdatePhase.applying => '正在合成安装包',
-      UpdatePhase.ready => state.isCode ? '补丁已就绪' : '安装包已就绪',
-      UpdatePhase.permission => '需要安装应用权限',
-      UpdatePhase.installing => '请在系统界面确认安装',
-      UpdatePhase.restarting => '正在重启并加载更新',
-      UpdatePhase.failed => '检查更新失败',
-      UpdatePhase.unsupported => '此平台暂未提供应用内安装',
+      UpdatePhase.idle ||
+      UpdatePhase.checking => context.strings.checkingForUpdates,
+      UpdatePhase.current => context.strings.upToDate,
+      UpdatePhase.available => context.strings.updateAvailable,
+      UpdatePhase.downloading => context.strings.downloadingUpdate,
+      UpdatePhase.verifying =>
+        state.isCode
+            ? context.strings.verifyingPatch
+            : context.strings.verifyingInstaller,
+      UpdatePhase.applying => context.strings.buildingInstaller,
+      UpdatePhase.ready =>
+        state.isCode
+            ? context.strings.patchReady
+            : context.strings.installerReady,
+      UpdatePhase.permission => context.strings.permissionToInstallAppsRequired,
+      UpdatePhase.installing =>
+        context.strings.confirmInstallationInTheSystemDialog,
+      UpdatePhase.restarting => context.strings.restartingToApplyUpdate,
+      UpdatePhase.failed => context.strings.updateCheckFailed,
+      UpdatePhase.unsupported =>
+        context.strings.inAppInstallationUnavailableOnThisPlatform,
     };
     return Scaffold(
       backgroundColor: c.bgGround,
@@ -108,7 +119,7 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
         child: Column(
           children: [
             WorkspaceNavBar(
-              title: '检查更新',
+              title: context.strings.checkForUpdates,
               onBack: () => context.popOrGo(AppRoutes.settings),
               actions: [
                 if (!state.busy &&
@@ -118,7 +129,7 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                     children: [
                       WorkspaceToolbarAction(
                         icon: LucideIcons.rotateCw,
-                        label: '重新检查',
+                        label: context.strings.checkAgainBuild,
                         onTap: () {
                           ref.invalidate(releaseHistoryProvider);
                           controller.check();
@@ -151,7 +162,11 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                                   ),
                                 ),
                                 Text(
-                                  '${state.installed?.label ?? '读取中'}${state.codeStatus.activeVersion == null ? '' : ' P${state.codeStatus.activeVersion}'}',
+                                  '${state.installed == null
+                                      ? context.strings.loading
+                                      : state.installed!.versionName.isEmpty
+                                      ? context.strings.unknownVersion
+                                      : state.installed!.label}${state.codeStatus.activeVersion == null ? '' : ' P${state.codeStatus.activeVersion}'}',
                                   style: AppTextStyles.footnote.copyWith(
                                     color: c.labelSecondary,
                                   ),
@@ -176,7 +191,7 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                       if (release != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          '${release.versionName} (${release.versionCode}) ${state.isDelta ? '差量更新' : '完整安装包'} ${_mb(state.downloadSize)} MB',
+                          '${release.versionName} (${release.versionCode}) ${state.isDelta ? context.strings.deltaUpdate : context.strings.fullInstaller} ${_mb(state.downloadSize)} MB',
                           style: AppTextStyles.body.copyWith(
                             color: c.labelSecondary,
                           ),
@@ -185,7 +200,7 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                       if (codeUpdate != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          '${codeUpdate.label}${codeUpdate.withdrawal ? '' : ' ${_mb(codeUpdate.size)} MB'}',
+                          '${codeUpdate.withdrawal ? context.strings.restoreBaseVersion : context.strings.patchP(codeUpdate.version)}${codeUpdate.withdrawal ? '' : ' ${_mb(codeUpdate.size)} MB'}',
                           style: AppTextStyles.body.copyWith(
                             color: c.labelSecondary,
                           ),
@@ -193,7 +208,10 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                       ],
                       if (notes.isNotEmpty) ...[
                         const SizedBox(height: 10),
-                        Text('本次更新', style: AppTextStyles.subhead),
+                        Text(
+                          context.strings.whatsNew,
+                          style: AppTextStyles.subhead,
+                        ),
                         ReleaseNotes(notes: notes),
                       ],
                       if (state.phase == UpdatePhase.checking ||
@@ -219,9 +237,13 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                           ),
                       ],
                       if (state.fullDownload && release?.patch != null)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(top: 8),
-                          child: Text('差量更新未完成，已切换完整安装包。'),
+                          child: Text(
+                            context
+                                .strings
+                                .deltaUpdateIncompleteSwitchedToTheFull,
+                          ),
                         ),
                       if (state.message case final message?)
                         Padding(
@@ -237,16 +259,20 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                           ),
                         ),
                       if (state.phase == UpdatePhase.permission)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(top: 8),
-                          child: Text('允许此来源后返回安装。'),
+                          child: Text(
+                            context.strings.allowThisSourceThenReturnToInstall,
+                          ),
                         ),
                       const SizedBox(height: 12),
                       if (state.phase == UpdatePhase.available)
                         AppButton(
                           label: state.isCode
-                              ? (codeUpdate!.withdrawal ? '恢复并重启' : '更新并重启')
-                              : '下载更新',
+                              ? (codeUpdate!.withdrawal
+                                    ? context.strings.restoreAndRestart
+                                    : context.strings.updateAndRestart)
+                              : context.strings.downloadUpdate,
                           onPressed: controller.download,
                           expand: true,
                         ),
@@ -256,10 +282,10 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                           state.phase == UpdatePhase.applying)
                         AppButton(
                           label: state.isCode
-                              ? '取消下载'
+                              ? context.strings.cancelDownload
                               : state.phase == UpdatePhase.applying
-                              ? '取消更新'
-                              : '暂停下载',
+                              ? context.strings.cancelUpdate
+                              : context.strings.pauseDownload,
                           onPressed: controller.cancelDownload,
                           type: AppButtonType.secondary,
                           expand: true,
@@ -267,13 +293,15 @@ class _UpdatePageState extends ConsumerState<UpdatePage>
                       if (state.phase == UpdatePhase.ready ||
                           state.phase == UpdatePhase.permission)
                         AppButton(
-                          label: state.isCode ? '立即重启' : '安装并重新打开',
+                          label: state.isCode
+                              ? context.strings.restartNow
+                              : context.strings.installAndReopen,
                           onPressed: controller.install,
                           expand: true,
                         ),
                       if (state.phase == UpdatePhase.installing)
                         AppButton(
-                          label: '重新打开安装',
+                          label: context.strings.reopenInstaller,
                           onPressed: controller.install,
                           type: AppButtonType.secondary,
                           expand: true,

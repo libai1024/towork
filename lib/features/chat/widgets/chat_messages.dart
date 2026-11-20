@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/reply_copy_button.dart';
@@ -17,10 +18,14 @@ String formatDue(DateTime due) {
   final today = DateTime(now.year, now.month, now.day);
   final day = DateTime(due.year, due.month, due.day);
   final time = DateFormat('HH:mm').format(due);
-  if (day == today) return '今天 $time';
-  if (day == today.add(const Duration(days: 1))) return '明天 $time';
-  if (day == today.add(const Duration(days: 2))) return '后天 $time';
-  return '${due.month}月${due.day}日 $time';
+  if (day == today) return strings.todayRelativetimelabel(time);
+  if (day == today.add(const Duration(days: 1))) {
+    return strings.tomorrowFormatdue(time);
+  }
+  if (day == today.add(const Duration(days: 2))) {
+    return strings.dayAfterTomorrow(time);
+  }
+  return strings.formattedValueExportlabel(due.month, due.day, time);
 }
 
 /// 相对时间：09:12 / 昨天 / 周三 / 9月18日。
@@ -29,13 +34,23 @@ String formatRelative(DateTime time) {
   final today = DateTime(now.year, now.month, now.day);
   final day = DateTime(time.year, time.month, time.day);
   if (day == today) return DateFormat('HH:mm').format(time);
-  if (day == today.subtract(const Duration(days: 1))) return '昨天';
+  if (day == today.subtract(const Duration(days: 1))) {
+    return strings.yesterdayGroup;
+  }
   final diff = today.difference(day).inDays;
   if (diff < 7) {
-    const names = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    final names = [
+      strings.monFormatrelative,
+      strings.tueFormatrelative,
+      strings.wedFormatrelative,
+      strings.thuFormatrelative,
+      strings.friFormatrelative,
+      strings.satFormatrelative,
+      strings.sun,
+    ];
     return names[time.weekday - 1];
   }
-  return '${time.month}月${time.day}日';
+  return strings.formattedValue(time.month, time.day);
 }
 
 /// 用户消息气泡：fill1 底 r-xl，右对齐，最大宽 78%。
@@ -108,7 +123,7 @@ class AiTextMessage extends StatelessWidget {
                   ReplyCopyButton(text: message.content),
                   if (message.stoppedByUser)
                     Text(
-                      '已停止',
+                      context.strings.stopped,
                       style: AppTextStyles.caption.copyWith(
                         color: c.labelTertiary,
                       ),
@@ -134,7 +149,7 @@ class _ThinkingIndicator extends StatelessWidget {
         const TypingDots(),
         const SizedBox(width: 8),
         Text(
-          '正在想…',
+          context.strings.thinking,
           style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
         ),
       ],

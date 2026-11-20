@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show QueryRow;
@@ -92,9 +94,15 @@ String productionRangeLabel(ReportDocument report) {
 String productionPeriodLabel(ReportDocument report) {
   final start = _civilAt(report, report.startAt);
   return switch (report.kind) {
-    ReportPeriodKind.weekly =>
-      '${start.month}月第${_weekOfMonth(start)}周（${productionRangeLabel(report)}）',
-    ReportPeriodKind.monthly => '${start.year}年${start.month}月',
+    ReportPeriodKind.weekly => strings.monthWeek(
+      start.month,
+      _weekOfMonth(start),
+      productionRangeLabel(report),
+    ),
+    ReportPeriodKind.monthly => strings.formattedValueProductionperiodlabel(
+      start.year,
+      start.month,
+    ),
     ReportPeriodKind.custom => productionRangeLabel(report),
   };
 }
@@ -103,17 +111,23 @@ String productionPeriodLabel(ReportDocument report) {
 String productionNavTitle(ReportDocument report) {
   final start = _civilAt(report, report.startAt);
   return switch (report.kind) {
-    ReportPeriodKind.weekly => '${start.month}月第${_weekOfMonth(start)}周周报',
-    ReportPeriodKind.monthly => '${start.year}年${start.month}月月报',
-    ReportPeriodKind.custom => '自定义报告',
+    ReportPeriodKind.weekly => strings.weeklyReportMonthWeek(
+      start.month,
+      _weekOfMonth(start),
+    ),
+    ReportPeriodKind.monthly => strings.monthlyReportProductionnavtitle(
+      start.year,
+      start.month,
+    ),
+    ReportPeriodKind.custom => strings.customReport,
   };
 }
 
 /// 状态 chip 文案：待总结 / 已总结 / 失败。
 String productionStatusChip(ReportDocument report) => switch (report.status) {
-  ReportDocumentStatus.snapshotReady => '待总结',
-  ReportDocumentStatus.summaryReady => '已总结',
-  ReportDocumentStatus.failed => '失败',
+  ReportDocumentStatus.snapshotReady => strings.awaitingSummary,
+  ReportDocumentStatus.summaryReady => strings.summarized,
+  ReportDocumentStatus.failed => strings.failed,
 };
 
 /// 完成率整数百分比；分母为 0 时显示「—」。

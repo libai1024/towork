@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -94,7 +96,7 @@ class _MembershipSuccessState extends State<MembershipSuccess>
                       children: [
                         const Spacer(),
                         IconButton(
-                          tooltip: '关闭成功动画',
+                          tooltip: context.strings.dismissSuccessAnimation,
                           onPressed: () => Navigator.of(context).pop(),
                           icon: const Icon(Icons.close, size: 20, color: cream),
                         ),
@@ -138,7 +140,7 @@ class _MembershipSuccessState extends State<MembershipSuccess>
                           ),
                         ),
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('完成'),
+                        child: Text(context.strings.complete),
                       ),
                     ),
                   ),
@@ -187,7 +189,7 @@ class _SuccessDetails extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '${plan.name} 会员',
+                context.strings.membership(plan.name),
                 style: AppTextStyles.subhead.copyWith(color: cream),
               ),
             ],
@@ -203,7 +205,7 @@ class _SuccessDetails extends StatelessWidget {
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  '方案已切换',
+                  context.strings.planChanged,
                   style: AppTextStyles.footnote.copyWith(
                     color: cream.withValues(alpha: .75),
                   ),
@@ -211,7 +213,7 @@ class _SuccessDetails extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '每月 ${plan.credits} 积分',
+                context.strings.creditsPerMonth(plan.credits),
                 style: AppTextStyles.title3.copyWith(color: cream),
               ),
             ],
@@ -286,7 +288,7 @@ class _MembershipSignature extends StatelessWidget {
               progress: progress,
               start: .23,
               child: Semantics(
-                label: '${plan.name} 会员徽标',
+                label: context.strings.membershipBadge(plan.name),
                 image: true,
                 child: Container(
                   key: const ValueKey('membership-tier-logo'),

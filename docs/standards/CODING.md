@@ -1,5 +1,9 @@
 # 编码规范
 
+## 界面文案与语言
+
+中英文文案位于 `lib/l10n/app_zh.arb` 和 `app_en.arb`，使用 Flutter SDK 的 `gen_l10n`。页面从 `context.strings` 读取，带参数的文案使用命名占位符，英文计数使用 ICU 复数。修改后执行 `flutter gen-l10n`，连同生成的 Dart 文件一起提交。存储键、用户输入、历史内容保持原文，系统快捷入口另配原生语言资源。
+
 ## 边界与复用
 
 功能入口在 features，跨功能组合在 shell，共享 UI 在 core，业务过程与依赖装配在 app，契约在 domain，具体实现放 data。通过现有 workspace commands、ViewModel 和 repository 完成操作。跨 feature 的共享代码迁到具备明确职责的公共位置，调用方使用同一实现。[架构约定](../ARCHITECTURE.md)

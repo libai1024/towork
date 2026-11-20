@@ -2,6 +2,8 @@ import '../agent/tools/question_tool.dart';
 
 import 'dart:async';
 
+import '../l10n/strings.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../agent/agent_runner.dart';
@@ -114,7 +116,10 @@ class LocalChatRuntime {
     this.initialConfiguration, {
     this.attachments,
     ModelAccountService? accounts,
-  }) : persistence = ChatPersistence(db),
+  }) : persistence = ChatPersistence(
+         db,
+         replyLanguage: () => strings.localeName,
+       ),
        runs = SqliteAgentRunStore(db),
        accounts =
            accounts ??

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 import 'repository_command.dart';
 
@@ -50,9 +52,9 @@ class _CreateTypeSheetState extends ConsumerState<_CreateTypeSheet> {
   @override
   Widget build(BuildContext context) {
     return SheetComposer(
-      title: '新增类型',
-      hint: '类型名称',
-      action: '创建',
+      title: context.strings.newType,
+      hint: context.strings.typeName,
+      action: context.strings.create,
       controller: _name,
       maxLength: 24,
       maxLines: 1,
@@ -75,7 +77,7 @@ Future<DataTableTypeSelection?> showDataTableTypePicker(
 }) {
   return AppSheet.show<DataTableTypeSelection>(
     context,
-    title: '类型',
+    title: context.strings.type,
     child: _TypePicker(selectedId: selectedId),
   );
 }
@@ -97,11 +99,11 @@ class _TypePicker extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         children: [
           for (final (id, name) in [
-            (null, '未分类'),
+            (null, context.strings.uncategorized),
             ...types.map((type) => (type.id, type.name)),
           ])
             AppPressable(
-              semanticLabel: '选择类型$name',
+              semanticLabel: context.strings.chooseType(name),
               onTap: () =>
                   Navigator.of(context).pop(DataTableTypeSelection(id)),
               borderRadius: AppRadii.brLg,
@@ -127,7 +129,7 @@ class _TypePicker extends ConsumerWidget {
               ),
             ),
           AppPressable(
-            semanticLabel: '新增类型',
+            semanticLabel: context.strings.newType,
             onTap: () async {
               final type = await showCreateDataTableTypeSheet(context);
               if (type != null && context.mounted) {
@@ -141,7 +143,7 @@ class _TypePicker extends ConsumerWidget {
                   Icon(LucideIcons.plus, size: 18, color: c.labelSecondary),
                   const SizedBox(width: 10),
                   Text(
-                    '新增类型',
+                    context.strings.newType,
                     style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                   ),
                 ],
@@ -163,10 +165,11 @@ class DataTableTypeField extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final types = ref.watch(dataTableProvider.select((bundle) => bundle.types));
     final name =
-        types.where((type) => type.id == value).firstOrNull?.name ?? '未分类';
+        types.where((type) => type.id == value).firstOrNull?.name ??
+        context.strings.uncategorized;
     final c = AppColors.of(context);
     return AppPressable(
-      semanticLabel: '类型：$name',
+      semanticLabel: context.strings.typeBuild(name),
       onTap: () async {
         final selected = await showDataTableTypePicker(
           context,
@@ -181,7 +184,7 @@ class DataTableTypeField extends ConsumerWidget {
         child: Row(
           children: [
             Text(
-              '类型',
+              context.strings.type,
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             ),
             const SizedBox(width: 16),

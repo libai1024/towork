@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 
 import 'package:flutter/material.dart' hide DataRow;
@@ -19,6 +21,8 @@ import '../../../theme/app_text_styles.dart';
 import 'confirm_dialog.dart';
 import 'repository_command.dart';
 
+part 'field_management_row.dart';
+
 /// 字段管理面板（07-data-tables.md 表设置入口）：列出字段 + 重命名 / 删除，
 /// 底部展开「添加字段」表单。不提供修改已有字段类型 / 精度 / 必填的能力。
 void showFieldManagementSheet(
@@ -28,7 +32,7 @@ void showFieldManagementSheet(
 ) {
   AppSheet.show<void>(
     context,
-    title: '管理字段',
+    title: context.strings.manageFields,
     child: ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * .75,
@@ -41,23 +45,23 @@ void showFieldManagementSheet(
 /// 类型中文名（text→文本、number→数字、money→金额、date→日期、
 /// datetime→日期时间、enum→单选、bool→布尔）。
 String fieldTypeName(DataColumnDef column) => switch (column.fieldType) {
-  DataFieldType.text => '文本',
-  DataFieldType.number => '数字',
-  DataFieldType.money => '金额',
-  DataFieldType.date => '日期',
-  DataFieldType.datetime => '日期时间',
-  DataFieldType.selection => '单选',
-  DataFieldType.boolean => '布尔',
+  DataFieldType.text => strings.text,
+  DataFieldType.number => strings.number,
+  DataFieldType.money => strings.currency,
+  DataFieldType.date => strings.date,
+  DataFieldType.datetime => strings.dateAndTime,
+  DataFieldType.selection => strings.singleSelect,
+  DataFieldType.boolean => strings.boolean,
 };
 
-const List<(String, String)> _typeChoices = [
-  ('文本', 'text'),
-  ('数字', 'number'),
-  ('金额', 'money'),
-  ('日期', 'date'),
-  ('日期时间', 'datetime'),
-  ('单选', 'enum'),
-  ('布尔', 'bool'),
+List<(String, String)> get _typeChoices => [
+  (strings.text, 'text'),
+  (strings.number, 'number'),
+  (strings.currency, 'money'),
+  (strings.date, 'date'),
+  (strings.dateAndTime, 'datetime'),
+  (strings.singleSelect, 'enum'),
+  (strings.boolean, 'bool'),
 ];
 
 class _FieldManagementSheet extends ConsumerStatefulWidget {
@@ -124,17 +128,19 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
     if (usage + 1 > 500) {
       await showAppConfirmDialog(
         context,
-        title: '暂时无法删除',
-        message: '使用该字段的记录过多，暂不支持在此删除',
-        confirmLabel: '知道了',
+        title: context.strings.deletionUnavailable,
+        message: context.strings.tooManyRecordsUseThisFieldTo,
+        confirmLabel: context.strings.gotIt,
       );
       return;
     }
     final confirmed = await showAppConfirmDialog(
       context,
-      title: '删除字段「${column.name}」？',
-      message: usage == 0 ? '该字段没有已填数据。' : '同时清除 $usage 行记录中的字段值。',
-      confirmLabel: '删除',
+      title: context.strings.deleteField(column.name),
+      message: usage == 0
+          ? context.strings.thisFieldHasNoValues
+          : context.strings.alsoClearsThisFieldInRows(usage),
+      confirmLabel: context.strings.deleteLabel,
       destructive: true,
     );
     if (!confirmed || !mounted) return;
@@ -148,8 +154,8 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
       HapticFeedback.mediumImpact();
       AppToast.show(
         context,
-        message: '已删除字段',
-        actionLabel: '撤销',
+        message: context.strings.fieldDeleted,
+        actionLabel: context.strings.undo,
         onAction: () => runDataCommand(context, change.undo),
       );
     });
@@ -169,10 +175,12 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
     'date' => '2026-09-24',
     'datetime' => '2026-09-24T12:00:00Z',
     'enum' =>
-      _parsedOptions.isEmpty ? '填选项之一' : '填选项之一，如「${_parsedOptions.first}」',
-    'number' => '如 3.5',
-    'money' => '如 1250.00',
-    _ => '为现有记录填入的默认内容',
+      _parsedOptions.isEmpty
+          ? context.strings.enterOneOfTheOptions
+          : context.strings.enterAnOptionEG(_parsedOptions.first),
+    'number' => context.strings.eG,
+    'money' => context.strings.eGBackfillhint,
+    _ => context.strings.defaultForExistingRecords,
   };
 
   Future<void> _submitAdd() async {
@@ -182,13 +190,13 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
     final name = _name.text.trim();
     final options = _parsedOptions;
     final backfill = _backfill.text.trim();
-    final nameError = name.isEmpty ? '字段名不能为空' : null;
+    final nameError = name.isEmpty ? context.strings.fieldNameIsRequired : null;
     final optionsError = _type == 'enum' && options.isEmpty
-        ? '至少提供一个选项（用逗号分隔）'
+        ? context.strings.provideAtLeastOneCommaSeparatedOption
         : null;
     // 必填且现有行数 > 0 时，补默认值本身必填；不满足时界面阻止提交。
     final backfillError = _required && rowCount > 0 && backfill.isEmpty
-        ? '必填字段需要为现有记录补一个值'
+        ? context.strings.provideAValueForExistingRecordsBefore
         : null;
     if (nameError != null || optionsError != null || backfillError != null) {
       HapticFeedback.heavyImpact();
@@ -221,8 +229,8 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
       HapticFeedback.mediumImpact();
       AppToast.show(
         context,
-        message: '已添加字段',
-        actionLabel: '撤销',
+        message: context.strings.fieldAdded,
+        actionLabel: context.strings.undo,
         onAction: () => runDataCommand(context, change.undo),
       );
     });
@@ -262,7 +270,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
     if (table == null) {
       return Center(
         child: Text(
-          '这张表不在了',
+          context.strings.tableUnavailable,
           style: AppTextStyles.body.copyWith(color: c.labelTertiary),
         ),
       );
@@ -284,7 +292,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            '共 ${table.columns.length} 个字段',
+            context.strings.fieldsBuildfieldlist(table.columns.length),
             style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
           ),
         ),
@@ -294,7 +302,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
               ? Center(
                   heightFactor: 2,
                   child: Text(
-                    '还没有字段',
+                    context.strings.noFieldsYet,
                     style: AppTextStyles.body.copyWith(color: c.labelTertiary),
                   ),
                 )
@@ -312,7 +320,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           child: AppButton(
-            label: '添加字段',
+            label: context.strings.addFieldBuildfieldlist,
             icon: LucideIcons.plus,
             type: AppButtonType.secondary,
             expand: true,
@@ -338,7 +346,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
       ),
     );
     if (name != null && mounted) {
-      AppToast.show(context, message: '已重命名为「$name」');
+      AppToast.show(context, message: context.strings.renamedTo(name));
     }
   }
 
@@ -360,7 +368,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               AppFieldLabel(
-                label: '字段名称',
+                label: context.strings.fieldNameBuildaddform,
                 child: TextField(
                   controller: _name,
                   enabled: !_saving,
@@ -374,7 +382,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
                 ),
               ),
               const SizedBox(height: 10),
-              _formLabel(c, '类型'),
+              _formLabel(c, context.strings.type),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -395,7 +403,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
               if (isEnum) ...[
                 const SizedBox(height: 10),
                 AppFieldLabel(
-                  label: '选项',
+                  label: context.strings.options,
                   child: TextField(
                     controller: _options,
                     enabled: !_saving,
@@ -406,7 +414,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
                     },
                     style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                     decoration: InputDecoration(
-                      hintText: '用逗号分隔',
+                      hintText: context.strings.commaSeparated,
                       errorText: _optionsError,
                     ),
                   ),
@@ -414,7 +422,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
                 if (_optionsError == null && _parsedOptions.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
-                    '${_parsedOptions.length} 个选项',
+                    context.strings.optionsBuildaddform(_parsedOptions.length),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelTertiary,
                     ),
@@ -424,18 +432,20 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
               if (isNumber || isMoney) ...[
                 const SizedBox(height: 10),
                 AppFieldLabel(
-                  label: '单位（可选）',
+                  label: context.strings.unitOptional,
                   child: TextField(
                     controller: _unit,
                     enabled: !_saving,
                     style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-                    decoration: const InputDecoration(hintText: '如：股、分钟'),
+                    decoration: InputDecoration(
+                      hintText: context.strings.eGSharesMinutes,
+                    ),
                   ),
                 ),
               ],
               if (isMoney) ...[
                 const SizedBox(height: 10),
-                _formLabel(c, '精度（小数位）'),
+                _formLabel(c, context.strings.decimalPlaces),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -462,7 +472,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
                   children: [
                     Expanded(
                       child: Text(
-                        '必填',
+                        context.strings.required,
                         style: AppTextStyles.body.copyWith(
                           color: c.labelPrimary,
                         ),
@@ -484,7 +494,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
               if (needsBackfill) ...[
                 const SizedBox(height: 10),
                 AppFieldLabel(
-                  label: '为现有记录补默认值',
+                  label: context.strings.setADefaultForExistingRecords,
                   child: TextField(
                     controller: _backfill,
                     enabled: !_saving,
@@ -502,7 +512,7 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '将写入全部 $rowCount 行现有记录',
+                  context.strings.appliesToAllExistingRows(rowCount),
                   style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
                 ),
               ],
@@ -516,14 +526,18 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
           child: Row(
             children: [
               AppButton(
-                label: '取消',
+                label: context.strings.cancel,
                 type: AppButtonType.ghost,
                 onPressed: _saving
                     ? null
                     : () => setState(() => _adding = false),
               ),
               const Spacer(),
-              AppButton(label: '添加', loading: _saving, onPressed: _submitAdd),
+              AppButton(
+                label: context.strings.addBuild,
+                loading: _saving,
+                onPressed: _submitAdd,
+              ),
             ],
           ),
         ),
@@ -535,200 +549,4 @@ class _FieldManagementSheetState extends ConsumerState<_FieldManagementSheet> {
     text,
     style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
   );
-}
-
-class _FieldRow extends StatelessWidget {
-  const _FieldRow({
-    required this.column,
-    required this.onRename,
-    required this.onRemove,
-  });
-
-  final DataColumnDef column;
-  final VoidCallback onRename;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final typeLabel = fieldTypeName(column);
-    final detail = column.unit == null
-        ? typeLabel
-        : '$typeLabel（${column.unit}）';
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: c.bgPrimary,
-        borderRadius: AppRadii.brMd,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          column.name,
-                          style: AppTextStyles.body.copyWith(
-                            color: c.labelPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (column.isRequired)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Text(
-                            '必填',
-                            style: AppTextStyles.caption.copyWith(color: c.red),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    detail,
-                    style: AppTextStyles.caption.copyWith(
-                      color: c.labelTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            AppPressable(
-              onTap: onRename,
-              semanticLabel: '重命名「${column.name}」',
-              borderRadius: AppRadii.brMd,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Icon(
-                  LucideIcons.pencil,
-                  size: 18,
-                  color: c.labelSecondary,
-                ),
-              ),
-            ),
-            AppPressable(
-              onTap: onRemove,
-              semanticLabel: '删除「${column.name}」',
-              borderRadius: AppRadii.brMd,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Icon(
-                  LucideIcons.trash2,
-                  size: 18,
-                  color: c.labelSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 重命名字段对话框：沿用确认弹窗风格，非空校验，保存失败不关闭。
-class _RenameFieldDialog extends StatefulWidget {
-  const _RenameFieldDialog({required this.column, required this.onSave});
-
-  final DataColumnDef column;
-  final Future<bool> Function(String name) onSave;
-
-  @override
-  State<_RenameFieldDialog> createState() => _RenameFieldDialogState();
-}
-
-class _RenameFieldDialogState extends State<_RenameFieldDialog> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.column.name,
-  );
-  String? _error;
-  bool _saving = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (_saving) return;
-    final name = _controller.text.trim();
-    if (name.isEmpty) {
-      HapticFeedback.heavyImpact();
-      setState(() => _error = '字段名不能为空');
-      return;
-    }
-    if (name == widget.column.name) {
-      Navigator.of(context).pop();
-      return;
-    }
-    setState(() => _saving = true);
-    final saved = await widget.onSave(name);
-    if (!mounted) return;
-    if (saved) {
-      Navigator.of(context).pop(name);
-    } else {
-      setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AbsorbPointer(
-      absorbing: _saving,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '重命名字段',
-              style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
-            ),
-            const SizedBox(height: 12),
-            AppFieldLabel(
-              label: '字段名称',
-              child: TextField(
-                controller: _controller,
-                enabled: !_saving,
-                autofocus: true,
-                onChanged: (_) {
-                  if (_error != null) setState(() => _error = null);
-                },
-                onSubmitted: (_) => _save(),
-                style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-                decoration: InputDecoration(errorText: _error),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                AppButton(
-                  label: '取消',
-                  type: AppButtonType.ghost,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                const SizedBox(width: 8),
-                AppButton(label: '保存', loading: _saving, onPressed: _save),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

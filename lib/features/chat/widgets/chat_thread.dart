@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,8 +83,8 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
     HapticFeedback.mediumImpact();
     AppToast.show(
       context,
-      message: '已撤销这条待办',
-      actionLabel: '恢复',
+      message: context.strings.taskUndone,
+      actionLabel: context.strings.restore,
       onAction: () async {
         try {
           final result = await controller.restoreTodoPersisted(undo);
@@ -91,7 +92,10 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
           if (result == ChatTodoRestoreResult.restored) {
             _scrollToBottom();
           } else {
-            AppToast.show(context, message: '内容已变化，无法恢复这条待办');
+            AppToast.show(
+              context,
+              message: context.strings.theTaskChangedAndCannotBeRestored,
+            );
           }
         } catch (error) {
           if (mounted) {
@@ -111,9 +115,11 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
     final completed = todo.status != TodoStatus.done;
     AppToast.show(
       context,
-      message: completed ? '已完成 ${todo.title}' : '已恢复为待办',
+      message: completed
+          ? context.strings.completedToggledone(todo.title)
+          : context.strings.restoredToPending,
       completion: completed,
-      actionLabel: '撤销',
+      actionLabel: context.strings.undo,
       onAction: () => workspaceUi(context, () async {
         await mutation.undo();
         return true;
@@ -128,7 +134,7 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
     }
     AppSheet.show<void>(
       context,
-      title: '修改待办',
+      title: context.strings.editTask,
       child: ChatTodoEditSheet(
         todo: todo,
         onSteps: () {
@@ -143,7 +149,7 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
           });
           if (!mounted || saved != true) return;
           Navigator.of(context).pop();
-          AppToast.show(context, message: '已修改');
+          AppToast.show(context, message: context.strings.updatedEdittodo);
         },
       ),
     );
@@ -286,7 +292,7 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
                           ReplyCopyButton(text: row.replyText!),
                           if (row.stopped)
                             Text(
-                              '已停止',
+                              context.strings.stopped,
                               style: AppTextStyles.caption.copyWith(
                                 color: c.labelSecondary,
                               ),
@@ -442,8 +448,10 @@ class _ChatThreadState extends ConsumerState<ChatThread> {
     final day = DateTime(t.year, t.month, t.day);
     final hm =
         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-    if (day == today) return '今天 $hm';
-    if (day == today.subtract(const Duration(days: 1))) return '昨天 $hm';
-    return '${t.month}月${t.day}日 $hm';
+    if (day == today) return context.strings.todayRelativetimelabel(hm);
+    if (day == today.subtract(const Duration(days: 1))) {
+      return context.strings.yesterdayRelativetimelabel(hm);
+    }
+    return context.strings.formattedValueExportlabel(t.month, t.day, hm);
   }
 }

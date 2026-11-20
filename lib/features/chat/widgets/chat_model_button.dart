@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,14 +41,14 @@ class _ChatModelButtonState extends ConsumerState<ChatModelButton> {
         ? account.descriptor.preset(account.profile.model)?.label ??
               account.profile.model
         : live
-        ? '连接模型'
+        ? context.strings.connectModel
         : model;
     return Tooltip(
-      message: '选择模型',
+      message: context.strings.chooseModel,
       child: AppPressable(
         key: widget.anchorKey ?? _anchor,
         minSize: widget.mobile ? 48 : 44,
-        semanticLabel: '选择模型，$label',
+        semanticLabel: context.strings.chooseModelBuild(label),
         onTap: widget.enabled
             ? () => showChatModels(
                 context,

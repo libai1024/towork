@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -139,9 +141,13 @@ class OfflineAsrModelController extends StateNotifier<OfflineAsrModelState> {
         state = const OfflineAsrModelState();
         return;
       }
-      state = OfflineAsrModelState(error: '模型下载失败，请检查网络后重试。');
+      state = OfflineAsrModelState(
+        error: strings.modelDownloadFailedCheckYourConnectionAnd,
+      );
     } catch (_) {
-      state = OfflineAsrModelState(error: '模型下载失败，请稍后重试。');
+      state = OfflineAsrModelState(
+        error: strings.modelDownloadFailedTryAgainLater,
+      );
     } finally {
       _cancel = null;
     }

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/repository_messages.dart';
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,14 +19,17 @@ void showAiWriteFeedback(
 }) {
   if (!result.hasWrites) return;
   final showFeedback = AppToast.presenter(context);
+  final undoMessage = context.strings.undoneChangesReverted;
   final count = result.appliedChanges.length;
   AppToast.show(
     context,
-    message: result.createsOnly ? 'AI 新增了 $count 行' : 'AI 更新了 $count 处',
+    message: result.createsOnly
+        ? context.strings.aiAddedRows(count)
+        : context.strings.aiMadeChanges(count),
     duration: result.containsDeletion
         ? const Duration(seconds: 5)
         : const Duration(milliseconds: 2500),
-    actionLabel: '撤销',
+    actionLabel: context.strings.undo,
     onAction: () {
       if (!store.mounted) return;
       try {
@@ -32,9 +37,9 @@ void showAiWriteFeedback(
         // The repository outlives its originating route. Only the optional
         // presentation callback belongs to that route's lifetime.
         if (context.mounted) onUndone?.call();
-        showFeedback('已撤销，改动已还原');
+        showFeedback(undoMessage);
       } on RepositoryException catch (error) {
-        showFeedback(error.message);
+        showFeedback(repositoryErrorMessage(error));
       }
     },
   );

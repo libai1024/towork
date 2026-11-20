@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,7 +40,12 @@ final userProfileProvider = Provider<UserProfile>((ref) {
   final profile = ref.watch(localProfileSnapshotProvider);
   return profile == null
       ? const UserProfile(nickname: '登月者0830', tier: 'Allegretto')
-      : UserProfile(nickname: profile.nickname, tier: '免费版');
+      : UserProfile(
+          nickname: profile.nickname,
+          tier: '免费版',
+          hasDefaultNickname:
+              profile.version == 1 && profile.nickname == '本地用户',
+        );
 });
 
 final categoryListProvider =
@@ -206,28 +212,29 @@ final serverConnectionProvider = Provider<ServerConnection>(
 
 /// 读取已安装包的真实版本。
 final appVersionProvider = Provider<String>(
-  (ref) => ref.watch(installedAppProvider).valueOrNull?.label ?? '读取中',
+  (ref) =>
+      ref.watch(installedAppProvider).valueOrNull?.label ?? strings.loading,
 );
 
 /// 当前档位（Allegretto）能力清单（规范 §7.2）。
 final tierCapabilitiesProvider = Provider<List<TierCapability>>(
-  (ref) => const [
-    TierCapability(name: 'K3 旗舰模型', unlocked: true),
-    TierCapability(name: '1M 长上下文', unlocked: true),
-    TierCapability(name: 'HighSpeed 高速', unlocked: true),
-    TierCapability(name: '视频输入', unlocked: false),
+  (ref) => [
+    TierCapability(name: strings.kFlagshipModel, unlocked: true),
+    TierCapability(name: strings.mContextWindow, unlocked: true),
+    TierCapability(name: strings.highspeed, unlocked: true),
+    TierCapability(name: strings.videoInput, unlocked: false),
   ],
 );
 
 /// 可选模型清单（§8 available_models[]；Allegretto 档位全部解锁）。
 final availableModelsProvider = Provider<List<AiModel>>(
-  (ref) => const [
+  (ref) => [
     AiModel(id: 'k3-256k', note: '256K'),
-    AiModel(id: 'k3', note: '1M 额度 ×2'),
+    AiModel(id: 'k3', note: strings.mQuota),
     AiModel(id: 'kimi-for-coding', note: 'K2.8 Preview 1M'),
-    AiModel(id: 'kimi-for-coding-highspeed', note: '高速 额度 ×3'),
-    AiModel(id: 'deepseek-flash', note: 'V4.1 1M 支持视觉'),
-    AiModel(id: 'deepseek-v4-pro', note: '深度推理'),
+    AiModel(id: 'kimi-for-coding-highspeed', note: strings.highSpeedQuota),
+    AiModel(id: 'deepseek-flash', note: strings.vMWithVision),
+    AiModel(id: 'deepseek-v4-pro', note: strings.deepReasoning),
   ],
 );
 

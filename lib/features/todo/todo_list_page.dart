@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'widgets/todo_option_menu_row.dart';
 import '../../core/todo/todo_step_actions.dart';
 import '../../core/todo/recurrence_action_sheet.dart';
@@ -31,6 +33,8 @@ import 'widgets/todo_quick_filter_bar.dart';
 import '../../core/categories/widgets/category_edit_sheet.dart';
 import '../../core/widgets/workspace_scope_rail.dart';
 import '../../core/widgets/workspace_bottom_bar.dart';
+
+part 'todo_board_view.dart';
 
 /// 待办总览（02-todo-list.md）：列表/看板双视图 + 快速过滤 + 分组锚点 +
 /// 滑动操作 + 批量多选。支持 ?categoryId= 初始过滤（路由侧已注册，不改路由）。
@@ -101,7 +105,10 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (ref.read(todoListProvider.notifier).byId(id) == null) {
-        AppToast.show(context, message: '这条提醒对应的待办已不存在');
+        AppToast.show(
+          context,
+          message: context.strings.theTaskForThisReminderNoLonger,
+        );
       } else {
         showTodoDetailSheet(
           context,
@@ -155,9 +162,9 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     if (todo.status != TodoStatus.done && mutation.count > 0) {
       AppToast.show(
         context,
-        message: '已完成 ${todo.title}',
+        message: context.strings.completedToggledone(todo.title),
         completion: true,
-        actionLabel: '撤销',
+        actionLabel: context.strings.undo,
         onAction: () => workspaceUi(context, () async {
           await mutation.undo();
           return true;
@@ -181,8 +188,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     if (mutation.count == 0) return;
     AppToast.show(
       context,
-      message: '已删除',
-      actionLabel: '撤销',
+      message: context.strings.deleted,
+      actionLabel: context.strings.undo,
       duration: const Duration(seconds: 10),
       onAction: () => workspaceUi(context, () async {
         await mutation.undo();
@@ -199,17 +206,23 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     final now = DateTime.now();
     final today = dayOnly(now);
     final options = <(String, DateTime?)>[
-      ('今天 18:00', DateTime(today.year, today.month, today.day, 18)),
-      ('明天 09:00', DateTime(today.year, today.month, today.day + 1, 9)),
       (
-        '下周一 09:00',
+        context.strings.todayAt,
+        DateTime(today.year, today.month, today.day, 18),
+      ),
+      (
+        context.strings.tomorrowAt,
+        DateTime(today.year, today.month, today.day + 1, 9),
+      ),
+      (
+        context.strings.nextMondayAt,
         DateTime(today.year, today.month, today.day + 8 - today.weekday, 9),
       ),
-      ('清除截止', null),
+      (context.strings.clearDueDate, null),
     ];
     AppSheet.show<void>(
       context,
-      title: '改期',
+      title: context.strings.reschedule,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -235,10 +248,15 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 if (due != null) {
                   AppToast.show(
                     context,
-                    message: '已改期到 ${dueSmartLabel(due, now)}',
+                    message: context.strings.rescheduledTo(
+                      dueSmartLabel(due, now),
+                    ),
                   );
                 } else {
-                  AppToast.show(context, message: '已清除截止');
+                  AppToast.show(
+                    context,
+                    message: context.strings.dueDateCleared,
+                  );
                 }
               },
             ),
@@ -278,8 +296,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     if (mutation.count == 0) return;
     AppToast.show(
       context,
-      message: '已完成 ${mutation.count} 条',
-      actionLabel: '撤销',
+      message: context.strings.completedTasks(mutation.count),
+      actionLabel: context.strings.undo,
       onAction: () => workspaceUi(context, () async {
         await mutation.undo();
         return true;
@@ -293,14 +311,18 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     final roots = repo.roots;
     AppSheet.show<void>(
       context,
-      title: '改分类',
+      title: context.strings.changeCategory,
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TodoOptionMenuRow(
-              label: '未分类',
-              onTap: () => _applyBatchCategory(null, '未分类', visible),
+              label: context.strings.uncategorized,
+              onTap: () => _applyBatchCategory(
+                null,
+                context.strings.uncategorized,
+                visible,
+              ),
             ),
             for (final root in roots) ...[
               TodoOptionMenuRow(
@@ -341,24 +363,30 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     );
     if (!mounted || saved == null) return;
     _exitSelection();
-    AppToast.show(context, message: '已移到 $name');
+    AppToast.show(context, message: context.strings.movedTo(name));
   }
 
   void _batchSetDue(List<Todo> visible) {
     final now = DateTime.now();
     final today = dayOnly(now);
     final options = <(String, DateTime?)>[
-      ('今天 18:00', DateTime(today.year, today.month, today.day, 18)),
-      ('明天 09:00', DateTime(today.year, today.month, today.day + 1, 9)),
       (
-        '下周一 09:00',
+        context.strings.todayAt,
+        DateTime(today.year, today.month, today.day, 18),
+      ),
+      (
+        context.strings.tomorrowAt,
+        DateTime(today.year, today.month, today.day + 1, 9),
+      ),
+      (
+        context.strings.nextMondayAt,
         DateTime(today.year, today.month, today.day + 8 - today.weekday, 9),
       ),
-      ('清除截止', null),
+      (context.strings.clearDueDate, null),
     ];
     AppSheet.show<void>(
       context,
-      title: '改截止',
+      title: context.strings.changeDueDate,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -375,7 +403,9 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 _exitSelection();
                 AppToast.show(
                   context,
-                  message: due == null ? '已清除截止' : '已改期 $label',
+                  message: due == null
+                      ? context.strings.dueDateCleared
+                      : context.strings.rescheduled(label),
                 );
               },
             ),
@@ -399,21 +429,21 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '删除 ${targets.length} 条待办？',
+              context.strings.deleteTasks(targets.length),
               style: AppTextStyles.title2.copyWith(
                 color: AppColors.of(context).labelPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '重复待办仅删除选中实例。10 秒内可撤销。',
+              context.strings.onlySelectedRecurringOccurrencesAreDeletedUndo,
               style: AppTextStyles.body.copyWith(
                 color: AppColors.of(context).labelSecondary,
               ),
             ),
             const SizedBox(height: 20),
             AppButton(
-              label: '删除',
+              label: context.strings.deleteLabel,
               type: AppButtonType.destructive,
               expand: true,
               onPressed: () async {
@@ -426,8 +456,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 _exitSelection();
                 AppToast.show(
                   context,
-                  message: '已删除 ${mutation.count} 条',
-                  actionLabel: '撤销',
+                  message: context.strings.deletedTasks(mutation.count),
+                  actionLabel: context.strings.undo,
                   duration: const Duration(seconds: 10),
                   onAction: () => workspaceUi(context, () async {
                     await mutation.undo();
@@ -438,7 +468,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             ),
             const SizedBox(height: 8),
             AppButton(
-              label: '取消',
+              label: context.strings.cancel,
               type: AppButtonType.secondary,
               expand: true,
               onPressed: () => Navigator.of(context).pop(),
@@ -511,7 +541,9 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             else
               _buildAppBar(
                 c,
-                title: category == null ? '待办' : '分类：${category.name}',
+                title: category == null
+                    ? context.strings.task
+                    : context.strings.categoryBuild(category.name),
               ),
             _buildFilterBar(c, overview),
             const RecurrenceWindowStatus(),
@@ -552,7 +584,10 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             if (_selectionMode)
               _buildSelectionBar(c, _categorySelectable(overview))
             else
-              _buildAppBar(c, title: '分类：${category.name}'),
+              _buildAppBar(
+                c,
+                title: context.strings.categoryBuild(category.name),
+              ),
             const RecurrenceWindowStatus(),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
@@ -569,7 +604,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                     items: [
                       WorkspaceScopeItem(
                         id: 'all',
-                        label: '全部',
+                        label: context.strings.allLabel,
                         count: activeCount,
                       ),
                       for (final scope in scopes)
@@ -628,7 +663,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     if (entries.isEmpty) {
       return Center(
         child: Text(
-          '没有符合条件的待办',
+          context.strings.noTasksMatchTheseFilters,
           style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
         ),
       );
@@ -640,7 +675,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         final entry = entries[index];
         if (entry is String) {
           return AppPressable(
-            semanticLabel: '展开已完成待办',
+            semanticLabel: context.strings.expandCompletedTasks,
             onTap: () =>
                 setState(() => _completedExpanded = !_completedExpanded),
             child: Padding(
@@ -656,7 +691,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '已完成 ${completed.length}',
+                    context.strings.completedToggledone(completed.length),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelSecondary,
                     ),
@@ -714,7 +749,9 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             icon: _view == _TodoView.list
                 ? LucideIcons.columns3
                 : LucideIcons.list,
-            label: _view == _TodoView.list ? '切换到看板' : '切换到列表',
+            label: _view == _TodoView.list
+                ? context.strings.switchToBoard
+                : context.strings.switchToList,
             active: _view == _TodoView.board,
             onTap: () => setState(
               () => _view = _view == _TodoView.list
@@ -724,7 +761,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           ),
           WorkspaceToolbarAction(
             icon: LucideIcons.ellipsis,
-            label: '更多',
+            label: context.strings.more,
             onTap: _showMoreSheet,
           ),
         ],
@@ -750,7 +787,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     }
     return WorkspaceNavBar(
       title: title,
-      backLabel: '返回对话首页',
+      backLabel: context.strings.backToChatHome,
       onBack: () =>
           context.canPop() ? context.pop() : context.go(AppRoutes.home),
       actions: actions,
@@ -760,7 +797,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   Widget _buildViewSwitch(AppColors c) => SizedBox(
     width: 120,
     child: WorkspaceSegmentedControl(
-      labels: const ['列表', '看板'],
+      labels: [context.strings.list, context.strings.board],
       selectedIndex: _view.index,
       onChanged: (index) => setState(() => _view = _TodoView.values[index]),
     ),
@@ -772,11 +809,11 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
     bottom: 0,
     child: WorkspaceBottomBar(
       searchController: _searchCtrl,
-      hint: '搜索待办',
+      hint: context.strings.searchTasks,
       onSearchChanged: (_) => setState(() {}),
       onClear: () => setState(_searchCtrl.clear),
       onAdd: _openCreateTodo,
-      addLabel: '新建待办',
+      addLabel: context.strings.newTask,
     ),
   );
 
@@ -786,14 +823,16 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
       child: Row(
         children: [
           AppButton(
-            label: '取消',
+            label: context.strings.cancel,
             type: AppButtonType.ghost,
             onPressed: _exitSelection,
           ),
           Expanded(
             child: Center(
               child: Text(
-                '已选 ${_selectedVisibleIds(visible).length} 项',
+                context.strings.selectedBuildselectionbar(
+                  _selectedVisibleIds(visible).length,
+                ),
                 style: AppTextStyles.subhead.copyWith(color: c.labelPrimary),
               ),
             ),
@@ -802,8 +841,8 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             label:
                 _selectedVisibleIds(visible).length == visible.length &&
                     visible.isNotEmpty
-                ? '取消全选'
-                : '全选',
+                ? context.strings.deselectAll
+                : context.strings.selectAll,
             type: AppButtonType.ghost,
             onPressed: () => _toggleSelectAll(visible),
           ),
@@ -877,7 +916,10 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
             final source = chats.messageById(todo.sourceMessageId);
             final session = chats.sessionById(source?.sessionId);
             if (session == null) {
-              AppToast.show(context, message: '原始对话已不可用');
+              AppToast.show(
+                context,
+                message: context.strings.originalChatUnavailable,
+              );
               return;
             }
             ref.read(currentSessionIdProvider.notifier).state = session.id;
@@ -908,7 +950,10 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
       }),
 
       behavior: HitTestBehavior.opaque,
-      semanticLabel: '${group.title}，${group.todos.length} 条',
+      semanticLabel: context.strings.itemsBuildgroupheader(
+        group.title,
+        group.todos.length,
+      ),
       child: Container(
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -964,160 +1009,58 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   }
 
   // 看板视图（02 §3.5）
-  Widget _buildBoardView(AppColors c, TodoOverview overview) {
-    final now = overview.now;
-    final columns = overview.columns;
-    final statuses = columns.map((column) => column.status).toList();
-
-    Widget buildColumn(int index) {
-      final name = columns[index].title;
-      final cards = columns[index].todos;
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 44,
-              child: Row(
-                children: [
-                  Text(
-                    name,
-                    style: AppTextStyles.subhead.copyWith(
-                      color: c.labelPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${cards.length}',
-                    style: AppTextStyles.caption.copyWith(
-                      color: c.labelTertiary,
-                    ),
-                  ),
-                  const Spacer(),
-                  AppPressable(
-                    onTap: () => _openCreateTodo(statuses[index]),
-                    behavior: HitTestBehavior.translucent,
-                    semanticLabel: '在$name列新建',
-                    child: Icon(
-                      LucideIcons.plus,
-                      size: 20,
-                      color: c.labelSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: cards.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            LucideIcons.inbox,
-                            size: 32,
-                            color: c.labelQuaternary,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '暂无事项',
-                            style: AppTextStyles.footnote.copyWith(
-                              color: c.labelTertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 96),
-                      itemCount: cards.length,
-                      itemBuilder: (context, i) {
-                        final todo = cards[i];
-                        final (label, color) = _categoryDisplay(todo);
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: TodoBoardCard(
-                            key: ValueKey(todo.id),
-                            todo: todo,
-                            now: now,
-                            categoryLabel: label,
-                            categoryColor: color,
-                            onTap: () => _openDetail(todo),
-                            onToggleDone: () => _toggleDone(todo),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth >= 620) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < 3; i++) Expanded(child: buildColumn(i)),
-              ],
-            ),
-          );
-        }
-        return PageView.builder(
-          controller: _boardCtrl,
-          itemCount: 3,
-          itemBuilder: (context, index) => buildColumn(index),
-        );
-      },
-    );
-  }
 
   // 空状态（02 §6.2，按过滤语境分文案）
   Widget _buildEmpty(AppColors c) {
     final allTodos = ref.read(todoListProvider);
     if (_searchCtrl.text.trim().isNotEmpty) {
-      return AppEmptyState(icon: LucideIcons.search, title: '没有找到相关待办');
+      return AppEmptyState(
+        icon: LucideIcons.search,
+        title: context.strings.noMatchingTasks,
+      );
     }
     switch (_filter) {
       case TodoQuickFilter.all:
         if (allTodos.isEmpty) {
           return AppEmptyState(
             icon: LucideIcons.sparkles,
-            title: '暂无待办',
-            actionLabel: '去对话',
+            title: context.strings.noTasks,
+            actionLabel: context.strings.goToChatBuildempty,
             onAction: () => context.go(AppRoutes.home),
           );
         }
         return AppEmptyState(
           icon: LucideIcons.inbox,
-          title: '当前清单为空',
-          actionLabel: '新建待办',
+          title: context.strings.thisListIsEmpty,
+          actionLabel: context.strings.newTask,
           onAction: _openCreateTodo,
         );
       case TodoQuickFilter.today:
         return AppEmptyState(
           icon: LucideIcons.sun,
-          title: '今天没有待办',
-          actionLabel: '新建待办',
+          title: context.strings.noTasksToday,
+          actionLabel: context.strings.newTask,
           onAction: _openCreateTodo,
         );
       case TodoQuickFilter.week:
-        return const AppEmptyState(icon: LucideIcons.calendar, title: '本周暂无安排');
+        return AppEmptyState(
+          icon: LucideIcons.calendar,
+          title: context.strings.nothingScheduledThisWeek,
+        );
       case TodoQuickFilter.overdue:
-        return const AppEmptyState(
+        return AppEmptyState(
           icon: LucideIcons.circleCheck,
-          title: '没有逾期待办',
+          title: context.strings.noOverdueTasks,
         );
       case TodoQuickFilter.noDue:
-        return const AppEmptyState(icon: LucideIcons.wind, title: '没有无截止日期的待办');
+        return AppEmptyState(
+          icon: LucideIcons.wind,
+          title: context.strings.noTasksWithoutADueDate,
+        );
       case TodoQuickFilter.done:
-        return const AppEmptyState(
+        return AppEmptyState(
           icon: LucideIcons.circleCheck,
-          title: '还没有完成记录',
+          title: context.strings.noCompletedTasksYet,
         );
     }
   }
@@ -1134,7 +1077,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
   void _showMoreSheet() {
     AppSheet.show<void>(
       context,
-      title: '列表设置',
+      title: context.strings.listSettings,
       child: StatefulBuilder(
         builder: (context, setSheetState) {
           final c = AppColors.of(context);
@@ -1151,16 +1094,19 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Text(
-                    '分组方式',
+                    context.strings.groupBy,
                     style: AppTextStyles.footnote.copyWith(
                       color: c.labelTertiary,
                     ),
                   ),
                 ),
                 for (final (label, by) in [
-                  ('按分类', TodoGroupBy.category),
-                  ('按截止', TodoGroupBy.due),
-                  ('按优先级', TodoGroupBy.priority),
+                  (
+                    context.strings.byCategoryShowmoresheet,
+                    TodoGroupBy.category,
+                  ),
+                  (context.strings.byDueDate, TodoGroupBy.due),
+                  (context.strings.byPriority, TodoGroupBy.priority),
                 ])
                   TodoOptionMenuRow(
                     label: label,
@@ -1180,7 +1126,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          '显示已完成',
+                          context.strings.showCompleted,
                           style: AppTextStyles.body.copyWith(
                             color: c.labelPrimary,
                           ),
@@ -1199,7 +1145,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
               ),
               TodoOptionMenuRow(
                 icon: LucideIcons.folder,
-                label: '管理分类',
+                label: context.strings.manageCategories,
                 onTap: () {
                   Navigator.of(context).pop();
                   context.push(AppRoutes.categories);
@@ -1208,7 +1154,7 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
               if (_categoryFilterId != null)
                 TodoOptionMenuRow(
                   icon: LucideIcons.list,
-                  label: '全部待办',
+                  label: context.strings.allTasks,
                   onTap: () {
                     Navigator.of(context).pop();
                     this.context.go(AppRoutes.todos);
@@ -1235,7 +1181,10 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
           onTap: onTap,
 
           behavior: HitTestBehavior.opaque,
-          semanticLabel: '$label，已选 ${_selectedVisibleIds(visible).length} 项',
+          semanticLabel: context.strings.selectedAction(
+            label,
+            _selectedVisibleIds(visible).length,
+          ),
           child: SizedBox(
             height: 56,
             child: Column(
@@ -1265,12 +1214,24 @@ class _TodoListPageState extends ConsumerState<TodoListPage> {
         top: false,
         child: Row(
           children: [
-            action(LucideIcons.check, '完成', () => _batchDone(visible)),
-            action(LucideIcons.folder, '改分类', () => _batchSetCategory(visible)),
-            action(LucideIcons.calendar, '改截止', () => _batchSetDue(visible)),
+            action(
+              LucideIcons.check,
+              context.strings.complete,
+              () => _batchDone(visible),
+            ),
+            action(
+              LucideIcons.folder,
+              context.strings.changeCategory,
+              () => _batchSetCategory(visible),
+            ),
+            action(
+              LucideIcons.calendar,
+              context.strings.changeDueDate,
+              () => _batchSetDue(visible),
+            ),
             action(
               LucideIcons.trash2,
-              '删除',
+              context.strings.deleteLabel,
               () => _batchDelete(visible),
               color: c.labelPrimary,
             ),

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -39,40 +40,40 @@ Future<CategoryAction?> showCategoryActions(
         if (isRoot)
           _ActionRow(
             icon: LucideIcons.cornerDownRight,
-            label: '新建子分类',
+            label: context.strings.newSubcategory,
             action: CategoryAction.newChild,
           ),
         _ActionRow(
           icon: LucideIcons.penLine,
-          label: '重命名',
+          label: context.strings.rename,
           action: CategoryAction.rename,
         ),
         if (canSort)
           _ActionRow(
             icon: LucideIcons.arrowUpDown,
-            label: '排序',
+            label: context.strings.reorder,
             action: CategoryAction.sort,
           ),
         _ActionRow(
           icon: LucideIcons.arrowUp,
-          label: '上移',
+          label: context.strings.moveUp,
           action: CategoryAction.moveUp,
           enabled: canMoveUp,
         ),
         _ActionRow(
           icon: LucideIcons.arrowDown,
-          label: '下移',
+          label: context.strings.moveDown,
           action: CategoryAction.moveDown,
           enabled: canMoveDown,
         ),
         _ActionRow(
           icon: LucideIcons.archive,
-          label: '归档',
+          label: context.strings.archive,
           action: CategoryAction.archive,
         ),
         _ActionRow(
           icon: LucideIcons.trash2,
-          label: '删除',
+          label: context.strings.deleteLabel,
           action: CategoryAction.delete,
         ),
       ],
@@ -89,15 +90,15 @@ Future<ArchivedAction?> showArchivedActions(BuildContext context) {
     child: ListView(
       shrinkWrap: true,
       padding: const EdgeInsets.only(bottom: 16),
-      children: const [
+      children: [
         _ActionRow(
           icon: LucideIcons.archiveRestore,
-          label: '恢复分类',
+          label: context.strings.restoreCategory,
           action: ArchivedAction.restore,
         ),
         _ActionRow(
           icon: LucideIcons.trash2,
-          label: '彻底删除',
+          label: context.strings.deletePermanently,
           action: ArchivedAction.delete,
         ),
       ],
@@ -199,9 +200,11 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final parts = <String>[
-      if (widget.todoCount > 0) '${widget.todoCount} 条待办',
-      if (widget.childCount > 0) '${widget.childCount} 个子分类',
-      if (widget.seriesCount > 0) '${widget.seriesCount} 个重复系列',
+      if (widget.todoCount > 0) context.strings.tasks(widget.todoCount),
+      if (widget.childCount > 0)
+        context.strings.subcategories(widget.childCount),
+      if (widget.seriesCount > 0)
+        context.strings.recurringSeries(widget.seriesCount),
     ];
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -212,7 +215,7 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
           const SizedBox(height: 8),
           Center(
             child: Text(
-              '删除「${widget.name}」？',
+              context.strings.deleteLabelBuild(widget.name),
               style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
             ),
           ),
@@ -220,7 +223,7 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                '里面有${parts.join('、')}。',
+                context.strings.contains(parts.join('、')),
                 style: AppTextStyles.body.copyWith(color: c.labelSecondary),
               ),
             ),
@@ -228,21 +231,23 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
             _option(
               c,
               strategy: CategoryDeleteStrategy.todosToInbox,
-              label: '待办移到「未分类」，子分类提升为一级',
+              label: context
+                  .strings
+                  .moveTasksToUncategorizedAndPromoteSubcategories,
             ),
             const SizedBox(height: 4),
             _option(
               c,
               strategy: CategoryDeleteStrategy.deleteAll,
-              label: '待办与子分类一并删除',
+              label: context.strings.deleteTasksAndSubcategories,
             ),
             if (widget.seriesCount > 0) ...[
               const SizedBox(height: 12),
               Text(
                 _strategy == CategoryDeleteStrategy.todosToInbox
-                    ? '本分类的后续重复待办也移到「未分类」；子分类的系列保留原分类。'
-                    : '同时停止这 ${widget.seriesCount} 个系列。'
-                          '${widget.detachedCount > 0 ? '已移到其他分类或未分类的 ${widget.detachedCount} 条待办保留，并取消重复。' : ''}',
+                    ? context.strings.futureTasksInThisCategoryWillMove
+                    : '${context.strings.alsoStopTheseSeries(widget.seriesCount)}'
+                          '${widget.detachedCount > 0 ? context.strings.keepTheTasksMovedElsewhereOrUncategorized(widget.detachedCount) : ''}',
                 style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
               ),
             ],
@@ -252,7 +257,7 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   expand: true,
                   onPressed: () => Navigator.of(context).pop(),
@@ -261,7 +266,7 @@ class _DeleteConfirmSheetState extends State<_DeleteConfirmSheet> {
               const SizedBox(width: 12),
               Expanded(
                 child: AppButton(
-                  label: '删除',
+                  label: context.strings.deleteLabel,
                   type: AppButtonType.destructive,
                   expand: true,
                   onPressed: () => Navigator.of(context).pop(_strategy),

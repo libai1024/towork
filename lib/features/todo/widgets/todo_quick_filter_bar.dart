@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -227,7 +229,11 @@ class _TodoQuickFilterBarState extends State<TodoQuickFilterBar> {
       selected: selected,
       inMutuallyExclusiveGroup: true,
       child: AppPressable(
-        semanticLabel: '按${filter.label}过滤，$count 项${selected ? '，已选中' : ''}',
+        semanticLabel: context.strings.filterByItems(
+          filter.label,
+          count,
+          selected ? context.strings.selectedSegment : '',
+        ),
         borderRadius: BorderRadius.circular(999),
         onTap: () {
           if (!selected) widget.onChanged(filter);

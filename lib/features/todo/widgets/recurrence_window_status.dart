@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,14 +28,22 @@ class RecurrenceWindowStatus extends ConsumerWidget {
         final date = state.through?.toLocal();
         final text = state.problems.isNotEmpty
             ? state.problems.values.contains(RecurrenceWindowProblem.calendar)
-                  ? '部分重复安排超出时区数据范围，请调整结束日期。已有待办仍可使用。'
-                  : '部分重复待办尚未补齐，已有记录已保留。'
+                  ? context.strings.someOccurrencesExceedAvailableTimeZoneData
+                  : context.strings.someRecurringTasksAreStillPendingExisting
             : switch (state.phase) {
                 RecurrenceWindowPhase.ready =>
-                  '重复待办已补齐至 ${date!.year}/${date.month}/${date.day} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}',
-                RecurrenceWindowPhase.waiting => '当前操作结束后，继续补齐重复待办',
-                RecurrenceWindowPhase.paused => '返回应用后，继续补齐重复待办',
-                _ => '正在分批补齐重复待办',
+                  context.strings.recurringTasksGeneratedThrough(
+                    date!.year,
+                    date.month,
+                    date.day,
+                    date.hour.toString().padLeft(2, '0'),
+                    date.minute.toString().padLeft(2, '0'),
+                  ),
+                RecurrenceWindowPhase.waiting =>
+                  context.strings.recurringTasksWillContinueAfterThisAction,
+                RecurrenceWindowPhase.paused =>
+                  context.strings.recurringTasksWillContinueWhenYouReopen,
+                _ => context.strings.generatingRecurringTasksInBatches,
               };
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -52,7 +61,7 @@ class RecurrenceWindowStatus extends ConsumerWidget {
                 const SizedBox(width: 8),
                 AppButton(
                   key: const ValueKey('recurrence-window-retry'),
-                  label: '重试',
+                  label: context.strings.retry,
                   type: AppButtonType.ghost,
                   onPressed: () => worker.refresh(),
                 ),

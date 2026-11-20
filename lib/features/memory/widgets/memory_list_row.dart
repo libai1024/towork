@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -27,20 +28,22 @@ class MemoryListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final meta = [
-      entry.source == MemorySource.manual ? '手动' : '会话',
+      entry.source == MemorySource.manual
+          ? context.strings.manual
+          : context.strings.chatBuild,
       if (entry.isExpired(now))
-        '已过期'
+        context.strings.expired
       else if (entry.isExpiringSoon(now))
-        '${entry.daysUntilExpiry(now)} 天后失效'
+        context.strings.expiresInDays(entry.daysUntilExpiry(now))
       else if (entry.isLowConfidence)
-        '待确认'
+        context.strings.pendingReview
       else
         relativeTimeLabel(entry.updatedAt, now),
     ].join(' ');
     return AppPressable(
       onTap: onTap,
       onLongPress: onLongPress,
-      semanticLabel: '记忆：${entry.content}，$meta',
+      semanticLabel: context.strings.memoryBuild(entry.content, meta),
       child: Container(
         constraints: const BoxConstraints(minHeight: 52),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),

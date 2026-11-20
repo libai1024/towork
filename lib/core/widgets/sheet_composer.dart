@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -60,7 +61,7 @@ class SheetComposer extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  tooltip: '关闭',
+                  tooltip: context.strings.close,
                   onPressed: saving ? null : () => Navigator.pop(context),
                   icon: Icon(LucideIcons.x, size: 18, color: c.labelSecondary),
                   constraints: const BoxConstraints.tightFor(
@@ -85,7 +86,9 @@ class SheetComposer extends StatelessWidget {
                   message: submitLabel,
                   excludeFromSemantics: true,
                   child: AppPressable(
-                    semanticLabel: saving ? '保存中' : submitLabel,
+                    semanticLabel: saving
+                        ? context.strings.saving
+                        : submitLabel,
                     onTap: canCommit ? onCommit : null,
                     borderRadius: BorderRadius.circular(24),
                     child: Center(
@@ -103,7 +106,7 @@ class SheetComposer extends StatelessWidget {
                           child: saving
                               ? Semantics(
                                   liveRegion: true,
-                                  label: '保存中',
+                                  label: context.strings.saving,
                                   child: CupertinoActivityIndicator(
                                     radius: 8,
                                     color: c.onBrand,

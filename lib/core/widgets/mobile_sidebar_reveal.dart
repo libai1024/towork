@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -237,7 +239,7 @@ class MobileSidebarRevealState extends State<MobileSidebarReveal>
                                 ),
                                 if (revealed)
                                   Semantics(
-                                    label: '收起侧栏',
+                                    label: context.strings.collapseSidebar,
                                     button: true,
                                     onTap: close,
                                     child: GestureDetector(

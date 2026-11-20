@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'reminder_wording.dart';
 import '../data/jobs/local_job_store.dart';
 import '../data/local/app_database.dart';
 import '../data/local/app_preferences_store.dart';
@@ -98,14 +99,17 @@ class NotificationCoordinator extends StateNotifier<NotificationState> {
     });
   }
 
-  Future<Map<String, ReminderPlan>> _plans() async => {
-    for (final p in reminderPlans(
+  Future<Map<String, ReminderPlan>> _plans() async {
+    final preferences = await SqliteAppPreferencesStore(jobs.db).loadOrCreate();
+    final plans = reminderPlans(
       await SqliteWorkspaceCommandStore(jobs.db).load(),
-      await SqliteAppPreferencesStore(jobs.db).loadOrCreate(),
+      preferences,
       clock(),
-    ))
-      p.key: p,
-  };
+      reminderWording(preferences.language),
+    );
+    return {for (final plan in plans) plan.key: plan};
+  }
+
   Map<String, Object?> _payload(ReminderPlan plan, NotificationAccess access) =>
       {...plan.payload, 'exact': access.exact && plan.payload['kind'] == 'due'};
   Future<bool> _valid(LocalJob job, NotificationAccess access) async {
@@ -117,6 +121,7 @@ class NotificationCoordinator extends StateNotifier<NotificationState> {
 
   String _notificationPayload(LocalJob job) => jsonEncode({
     'towork': 1,
+    'language': job.payload['language'],
     'job_id': job.id,
     'epoch': job.epoch,
     'todo_id': job.payload['todo_id'],

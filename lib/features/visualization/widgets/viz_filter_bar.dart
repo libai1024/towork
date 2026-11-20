@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_pressable.dart';
@@ -28,8 +29,13 @@ class VizFilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final announcement = selected.isEmpty
-        ? '未筛选，显示全部'
-        : '已筛选：${roots.where((r) => selected.contains(r.id)).map((r) => r.name).join('、')}，图表已更新';
+        ? context.strings.noFiltersShowingAll
+        : context.strings.filteredByChartsUpdated(
+            roots
+                .where((r) => selected.contains(r.id))
+                .map((r) => r.name)
+                .join('、'),
+          );
     return Semantics(
       liveRegion: true,
       label: announcement,
@@ -42,7 +48,7 @@ class VizFilterBar extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 4, 32, 4),
               children: [
                 _FilterChip(
-                  label: '全部',
+                  label: context.strings.allLabel,
                   selected: selected.isEmpty,
                   onTap: onSelectAll,
                 ),
@@ -53,8 +59,12 @@ class VizFilterBar extends StatelessWidget {
                     dotColor: root.color,
                     selected: selected.contains(root.id),
                     onTap: () => onToggle(root.id),
-                    semanticLabel:
-                        '筛选：${root.name}，${selected.contains(root.id) ? '已选中，双击取消' : '未选中'}',
+                    semanticLabel: context.strings.filterBuild(
+                      root.name,
+                      selected.contains(root.id)
+                          ? context.strings.selectedDoubleTapToClear
+                          : context.strings.notSelected,
+                    ),
                   ),
                 ],
               ],

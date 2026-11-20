@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -86,8 +87,8 @@ Future<bool> savePreferences(
         message:
             error is PreferenceFailure &&
                 error.code == PreferenceFailureCode.conflict
-            ? '设置已变化，请重新打开后再试'
-            : '未能保存设置，原设置已保留，请重试',
+            ? context.strings.settingsHaveChangedReopenAndTryAgain
+            : context.strings.couldntSaveSettingsTryAgain,
       );
     }
     return false;

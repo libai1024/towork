@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart' hide DataRow;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,7 +72,7 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
   void _showFilters(List<Category> roots) {
     AppSheet.show<void>(
       context,
-      title: '筛选分类',
+      title: context.strings.filterCategories,
       child: StatefulBuilder(
         builder: (context, updateSheet) => SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -79,7 +80,7 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               _MenuRow(
-                label: '全部',
+                label: context.strings.allLabel,
                 selected: _selectedRoots.isEmpty,
                 onTap: () {
                   setState(_selectedRoots.clear);
@@ -95,7 +96,10 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
                     updateSheet(() {});
                   },
                 ),
-              _MenuRow(label: '完成', onTap: () => Navigator.of(context).pop()),
+              _MenuRow(
+                label: context.strings.complete,
+                onTap: () => Navigator.of(context).pop(),
+              ),
             ],
           ),
         ),
@@ -110,8 +114,16 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
       items: [
         for (final view in _VizView.values)
           (value: view.name, label: view.label, icon: view.icon),
-        (value: 'today', label: '回到今天', icon: LucideIcons.calendarCheck),
-        (value: 'chat', label: '问问 AI', icon: LucideIcons.messageCircle),
+        (
+          value: 'today',
+          label: anchor.strings.backToToday,
+          icon: LucideIcons.calendarCheck,
+        ),
+        (
+          value: 'chat',
+          label: anchor.strings.askAi,
+          icon: LucideIcons.messageCircle,
+        ),
       ],
     );
     if (!mounted || choice == null) return;
@@ -162,7 +174,7 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
         child: Column(
           children: [
             WorkspaceNavBar(
-              title: '日程可视化',
+              title: context.strings.scheduleOverview,
               onBack: () =>
                   context.canPop() ? context.pop() : context.go(AppRoutes.home),
               actions: [
@@ -170,14 +182,14 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
                   children: [
                     WorkspaceToolbarAction(
                       icon: LucideIcons.listFilter,
-                      label: '筛选分类',
+                      label: context.strings.filterCategories,
                       active: activeRoots.isNotEmpty,
                       onTap: () => _showFilters(roots),
                     ),
                     Builder(
                       builder: (anchor) => WorkspaceToolbarAction(
                         icon: _view.icon,
-                        label: '切换日程视图',
+                        label: context.strings.switchScheduleView,
                         active: _view != _VizView.schedule,
                         onTap: () => _showViews(anchor),
                       ),
@@ -218,8 +230,8 @@ class _VisualizationPageState extends ConsumerState<VisualizationPage> {
                   dueAt: DateTime(day.year, day.month, day.day, 18),
                 ),
               ),
-              addLabel: '新建所选日待办',
-              hint: '搜索日程',
+              addLabel: context.strings.createTaskOnSelectedDate,
+              hint: context.strings.searchSchedule,
             ),
           ],
         ),
@@ -257,9 +269,10 @@ enum _VizView {
   distribution('分布', LucideIcons.chartPie),
   trend('趋势', LucideIcons.trendingUp);
 
-  const _VizView(this.label, this.icon);
+  const _VizView(this._label, this.icon);
   final IconData icon;
-  final String label;
+  final String _label;
+  String get label => localizedBuiltin(_label);
 }
 
 class _MenuRow extends StatelessWidget {

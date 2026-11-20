@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,21 +12,21 @@ import 'agent_table_preview.dart';
 
 /// 审批卡里一组提醒规则的读法：「准时、提前 30 分钟、11-15 14:30」。
 String reminderRulesLabel(Object? value) {
-  if (value is! List || value.isEmpty) return '无';
+  if (value is! List || value.isEmpty) return strings.noneLabel;
   return value
       .map((rule) {
-        if (rule is! Map) return '提醒';
+        if (rule is! Map) return strings.reminder;
         final offset = rule['offset_minutes'];
         if (offset is int) {
-          if (offset == 0) return '准时';
-          if (offset % 1440 == 0) return '提前 ${offset ~/ 1440} 天';
-          if (offset % 60 == 0) return '提前 ${offset ~/ 60} 小时';
-          return '提前 $offset 分钟';
+          if (offset == 0) return strings.atTheDueTime;
+          if (offset % 1440 == 0) return strings.daysBefore(offset ~/ 1440);
+          if (offset % 60 == 0) return strings.hoursBefore(offset ~/ 60);
+          return strings.minutesBefore(offset);
         }
         final at = rule['absolute_at'];
         final date = at is String ? DateTime.tryParse(at) : null;
         return date == null
-            ? '提醒'
+            ? strings.reminder
             : DateFormat('MM-dd HH:mm').format(date.toLocal());
       })
       .join('、');
@@ -45,11 +46,11 @@ class AgentChangePreview extends ConsumerWidget {
     final before = ((change['before'] as Map?)?['data'] as Map?) ?? {};
     final after = (change['after'] as Map?) ?? {};
     final operation = switch (change['operation']) {
-      'create' => '新增',
-      'edit' => '编辑',
-      'complete' => '完成',
-      'delete' => '删除',
-      _ => '修改',
+      'create' => context.strings.add,
+      'edit' => context.strings.edit,
+      'complete' => context.strings.complete,
+      'delete' => context.strings.deleteLabel,
+      _ => context.strings.change,
     };
     final table = change['business_table'];
     if (table is JsonObject) {
@@ -57,13 +58,13 @@ class AgentChangePreview extends ConsumerWidget {
       final newValues = (after['values'] as Map?) ?? {};
       String cell(Map<Object?, Object?> values, String id) =>
           !values.containsKey(id)
-          ? '未填写'
+          ? context.strings.notSet
           : values[id] == null
-          ? '已清空'
+          ? context.strings.cleared
           : values[id] == true
-          ? '是'
+          ? context.strings.yes
           : values[id] == false
-          ? '否'
+          ? context.strings.no
           : values[id].toString();
       final rowId = (change['mutation']! as Map)['entity_id'];
       return Padding(
@@ -72,9 +73,15 @@ class AgentChangePreview extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('$operation ${table['name']}', style: AppTextStyles.subhead),
-            Text('记录 $rowId', style: AppTextStyles.caption),
+            Text(
+              context.strings.record(rowId.toString()),
+              style: AppTextStyles.caption,
+            ),
             if ((change['uncertain_field_ids'] as List?)?.isNotEmpty == true)
-              Text('图片识别存在不确定字段，请对照原图核对后确认。', style: AppTextStyles.footnote),
+              Text(
+                context.strings.someFieldsAreUncertainCheckThemAgainst,
+                style: AppTextStyles.footnote,
+              ),
             for (final field in (table['fields']! as List).cast<JsonObject>())
               if (cell(oldValues, field['id']! as String) !=
                   cell(newValues, field['id']! as String))
@@ -86,19 +93,19 @@ class AgentChangePreview extends ConsumerWidget {
         ),
       );
     }
-    const labels = {
-      'title': '标题',
-      'note': '备注',
-      'status': '状态',
-      'priority': '优先级',
-      'due_at': '截止时间',
-      'remind_rules': '提醒',
-      'category_id': '分类',
-      'steps': '步骤',
-      'tags': '标签',
-      'completed_at': '完成时间',
-      'repeat_rule': '重复规则',
-      'repeat_timezone': '重复时区',
+    final labels = {
+      'title': context.strings.title,
+      'note': context.strings.notes,
+      'status': context.strings.status,
+      'priority': context.strings.priority,
+      'due_at': context.strings.due,
+      'remind_rules': context.strings.reminder,
+      'category_id': context.strings.category,
+      'steps': context.strings.steps,
+      'tags': context.strings.tags,
+      'completed_at': context.strings.completedAt,
+      'repeat_rule': context.strings.recurrence,
+      'repeat_timezone': context.strings.recurrenceTimeZone,
     };
     String show(Object? value, String key) {
       if (key == 'steps') {
@@ -112,7 +119,7 @@ class AgentChangePreview extends ConsumerWidget {
       if (key == 'repeat_rule') return repeatLabelOf(value as String?);
       if (key == 'remind_rules') return reminderRulesLabel(value);
       if (key == 'category_id' && value != null) {
-        return categories[value] ?? '已不可用的分类';
+        return categories[value] ?? context.strings.unavailableCategory;
       }
       if ((key == 'due_at' || key == 'completed_at') && value is String) {
         final date = DateTime.tryParse(value);
@@ -120,18 +127,20 @@ class AgentChangePreview extends ConsumerWidget {
           return DateFormat('yyyy-MM-dd HH:mm').format(date.toLocal());
         }
       }
-      if (value == null || value == '') return '无';
-      if (value is List) return value.isEmpty ? '无' : value.join('、');
+      if (value == null || value == '') return context.strings.noneLabel;
+      if (value is List) {
+        return value.isEmpty ? context.strings.noneLabel : value.join('、');
+      }
       return switch (value) {
-        'done' => '已完成',
-        'pending' => '待办',
-        'inProgress' => '进行中',
-        'none' => '无',
-        'high' => '高',
-        'medium' => '中',
-        'low' => '低',
-        'urgent' => '紧急',
-        'cancelled' => '已取消',
+        'done' => context.strings.completed,
+        'pending' => context.strings.task,
+        'inProgress' => context.strings.inProgress,
+        'none' => context.strings.noneLabel,
+        'high' => context.strings.high,
+        'medium' => context.strings.medium,
+        'low' => context.strings.low,
+        'urgent' => context.strings.urgent,
+        'cancelled' => context.strings.canceled,
         _ => '$value',
       };
     }
@@ -142,28 +151,31 @@ class AgentChangePreview extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$operation ${after['title'] ?? before['title'] ?? '待办'}',
+            '$operation ${after['title'] ?? before['title'] ?? context.strings.task}',
             style: AppTextStyles.subhead,
           ),
           if (change['effects'] is List) ...[
             const SizedBox(height: 4),
             Text(
-              '${change['scope'] == 'current' ? '仅本次' : '本次及以后'} '
-              '${(change['effects']! as List).where((e) => (e as Map)['kind'] == 'todo').length} 条待办变更',
+              '${change['scope'] == 'current' ? context.strings.thisOccurrence : context.strings.thisAndFutureOccurrences} '
+              '${context.strings.taskChanges((change['effects']! as List).where((e) => (e as Map)['kind'] == 'todo').length)}',
               style: AppTextStyles.footnote,
             ),
             Text(
               change['scope'] == 'current'
-                  ? '只修改选中实例，其他日期继续沿用已有规则。'
+                  ? context.strings.onlyTheSelectedOccurrenceWillChangeOther
                   : change['operation'] == 'delete' ||
                         after['repeat_rule'] == null
-                  ? '停止该范围的后续重复，保留其他已完成记录；整体接受或拒绝。'
-                  : '系列操作整体接受或拒绝；未来实例按窗口继续生成。',
+                  ? context.strings.stopsFutureOccurrencesInThisRangeAnd
+                  : context.strings.acceptOrRejectTheSeriesChangesTogether,
               style: AppTextStyles.footnote,
             ),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
-              title: Text('查看全部变更', style: AppTextStyles.footnote),
+              title: Text(
+                context.strings.viewAllChanges,
+                style: AppTextStyles.footnote,
+              ),
               children: [
                 for (final effect
                     in (change['effects']! as List).cast<JsonObject>())
@@ -173,11 +185,11 @@ class AgentChangePreview extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        '系列模板 '
-                        '${effect['operation'] == 'create' ? '新建' : '更新'} '
+                        '${context.strings.seriesTemplate}'
+                        '${effect['operation'] == 'create' ? context.strings.newLabel : context.strings.update} '
                         '${repeatLabelOf(((effect['after'] as Map?) ?? (effect['before'] as Map?)?['data'])?['rule'] as String?)} '
-                        '时区 ${(effect['after'] as Map?)?['timezone']} '
-                        '${(effect['after'] as Map?)?['stop_before'] == null ? '继续重复' : '已设定停止边界'}',
+                        '${context.strings.timeZone('${(effect['after'] as Map?)?['timezone']}')}'
+                        '${(effect['after'] as Map?)?['stop_before'] == null ? context.strings.keepRepeating : context.strings.endBoundarySet}',
                         style: AppTextStyles.footnote,
                       ),
                     ),

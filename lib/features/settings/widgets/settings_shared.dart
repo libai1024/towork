@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/app_preferences_provider.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -375,7 +377,8 @@ class SheetOptionRow extends StatelessWidget {
         onTap: locked ? null : onTap,
         onLongPress: locked ? null : onLongPress,
         behavior: HitTestBehavior.opaque,
-        semanticLabel: '$title${selected ? '，当前' : ''}${locked ? '，未解锁' : ''}',
+        semanticLabel:
+            '$title${selected ? context.strings.current : ''}${locked ? context.strings.locked : ''}',
         child: Container(
           constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -438,7 +441,7 @@ void showAiWritePermissionSheet(BuildContext context, WidgetRef ref) {
   final current = ref.read(aiWritePermissionProvider);
   AppSheet.show<void>(
     context,
-    title: 'AI 写入权限',
+    title: context.strings.aiWritePermissions,
     child: StatefulBuilder(
       builder: (sheetContext, setSheetState) => SingleChildScrollView(
         child: Column(
@@ -446,8 +449,8 @@ void showAiWritePermissionSheet(BuildContext context, WidgetRef ref) {
           children: [
             for (final p in AiWritePermission.values)
               SheetOptionRow(
-                title: p.label,
-                subtitle: p.consequence,
+                title: localizedBuiltin(p.label),
+                subtitle: localizedBuiltin(p.consequence),
                 subtitleColor: c.labelSecondary,
                 selected: p == current,
                 onTap: () async {
@@ -461,14 +464,21 @@ void showAiWritePermissionSheet(BuildContext context, WidgetRef ref) {
                   if (!saved) return;
                   Navigator.of(sheetContext).pop();
                   if (context.mounted) {
-                    AppToast.show(context, message: 'AI 写入权限已设为「${p.label}」');
+                    AppToast.show(
+                      context,
+                      message: context.strings.aiWritePermissionsSetTo(
+                        localizedBuiltin(p.label),
+                      ),
+                    );
                   }
                 },
               ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
               child: Text(
-                saving ? '正在保存权限…' : '表格修改可在行历史中回滚。',
+                saving
+                    ? context.strings.savingPermissions
+                    : context.strings.tableEditsCanBeRevertedInRow,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
             ),

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -95,9 +97,13 @@ class _AiTodoPanelState extends ConsumerState<AiTodoPanel> {
       for (var i = 0; i < panel.sections.length; i++)
         [
           if (panel.sections[i].matchedCount > panel.sections[i].todoIds.length)
-            '另有 ${panel.sections[i].matchedCount - panel.sections[i].todoIds.length} 项未展示',
+            context.strings.moreItems(
+              panel.sections[i].matchedCount - panel.sections[i].todoIds.length,
+            ),
           if (panel.sections[i].todoIds.length > groups[i].length)
-            '${panel.sections[i].todoIds.length - groups[i].length} 项已移除',
+            context.strings.itemsRemoved(
+              panel.sections[i].todoIds.length - groups[i].length,
+            ),
         ].join(' '),
     ];
     final largestCount = groups.fold(
@@ -178,13 +184,19 @@ class _AiTodoPanelState extends ConsumerState<AiTodoPanel> {
                             child: Opacity(
                               opacity: 0,
                               child: Text(
-                                '$largestCount/$largestCount 完成',
+                                context.strings.completeBuild(
+                                  largestCount,
+                                  largestCount,
+                                ),
                                 style: AppTextStyles.caption,
                               ),
                             ),
                           ),
                           Text(
-                            '$completed/${todos.length} 完成',
+                            context.strings.completeBuild(
+                              completed,
+                              todos.length,
+                            ),
                             textAlign: TextAlign.right,
                             style: AppTextStyles.caption.copyWith(
                               color: c.labelSecondary,
@@ -205,7 +217,9 @@ class _AiTodoPanelState extends ConsumerState<AiTodoPanel> {
                         selected: _section == i,
                         child: AppPressable(
                           minSize: 48,
-                          semanticLabel: '查看${panel.sections[i].title}',
+                          semanticLabel: context.strings.view(
+                            panel.sections[i].title,
+                          ),
                           onTap: () => setState(() => _section = i),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -239,7 +253,9 @@ class _AiTodoPanelState extends ConsumerState<AiTodoPanel> {
                 child: todos.isEmpty
                     ? Center(
                         child: Text(
-                          removed > 0 ? '这份清单中的待办已移除' : '这个范围暂时没有待办',
+                          removed > 0
+                              ? context.strings.theTasksInThisListHaveBeen
+                              : context.strings.noTasksInThisRange,
                           style: AppTextStyles.footnote.copyWith(
                             color: c.labelSecondary,
                           ),

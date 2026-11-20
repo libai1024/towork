@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -159,7 +160,7 @@ GoRouter createAppRouter({String? initialLocation}) => GoRouter(
               pageBuilder: (context, state) => settingsEditorSheetPage(
                 context,
                 state,
-                barrierLabel: '关闭个人资料',
+                barrierLabel: context.strings.closeProfile,
                 child: const LocalProfilePage(),
               ),
             ),
@@ -231,9 +232,9 @@ class _RouteNotFoundPage extends StatelessWidget {
     body: SafeArea(
       child: AppEmptyState(
         icon: LucideIcons.fileQuestion,
-        title: '页面不存在',
-        message: '这个页面可能已移动或删除',
-        actionLabel: '返回首页',
+        title: context.strings.pageNotFound,
+        message: context.strings.thisPageMayHaveMovedOrBeen,
+        actionLabel: context.strings.backToHome,
         onAction: () => context.go(AppRoutes.home),
       ),
     ),

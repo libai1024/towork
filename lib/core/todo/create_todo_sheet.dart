@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoDatePicker, CupertinoDatePickerMode;
 import 'package:flutter/material.dart';
@@ -96,7 +97,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
     if (result == null) {
       setState(() => _saving = false);
     } else {
-      AppToast.show(context, message: '已创建');
+      AppToast.show(context, message: context.strings.created);
       Navigator.of(context).pop();
     }
   }
@@ -111,9 +112,12 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
     DateTime due(int days, int hour) =>
         DateTime(now.year, now.month, now.day + days, hour);
     final presets = {
-      _Due.today: (label: '今天', date: due(0, 18)),
-      _Due.tomorrow: (label: '明天', date: due(1, 9)),
-      _Due.nextWeek: (label: '下周一', date: due(8 - now.weekday, 9)),
+      _Due.today: (label: context.strings.today, date: due(0, 18)),
+      _Due.tomorrow: (label: context.strings.tomorrow, date: due(1, 9)),
+      _Due.nextWeek: (
+        label: context.strings.nextMonday,
+        date: due(8 - now.weekday, 9),
+      ),
     };
     final current = _dueAt;
     final matching = presets.entries
@@ -123,18 +127,18 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
         ? ''
         : matching?.value.label ??
               (current.year == now.year
-                  ? '${current.month}月${current.day}日'
+                  ? context.strings.formattedValue(current.month, current.day)
                   : '${current.year}/${current.month}/${current.day}');
     final dateLabel = current == null
-        ? '无截止'
+        ? context.strings.noDueDate
         : '$dayLabel ${current.hour.toString().padLeft(2, '0')}:${current.minute.toString().padLeft(2, '0')}';
 
-    const reminders = {
-      -1: '无',
-      0: '截止时',
-      15: '提前 15 分钟',
-      60: '提前 1 小时',
-      1440: '提前 1 天',
+    final reminders = {
+      -1: context.strings.noneLabel,
+      0: context.strings.whenDue,
+      15: context.strings.minutesBeforeBuild,
+      60: context.strings.hourBefore,
+      1440: context.strings.dayBefore,
     };
     Widget property({
       required IconData icon,
@@ -155,11 +159,11 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
       ),
     );
     return SheetComposer(
-      title: '新建待办',
-      hint: '待办标题',
+      title: context.strings.newTask,
+      hint: context.strings.taskTitle,
       controller: _text,
       fieldKey: const ValueKey('todo-create-title'),
-      action: '创建',
+      action: context.strings.create,
       saving: _saving,
       onChanged: (_) => setState(() {}),
       onCommit: _save,
@@ -176,7 +180,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
             keyboardType: TextInputType.multiline,
             style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             decoration: appInlineInput(
-              hintText: '添加备注',
+              hintText: context.strings.addANote,
               hintStyle: AppTextStyles.body.copyWith(color: c.labelSecondary),
               padding: const EdgeInsets.symmetric(vertical: 8),
               constraints: const BoxConstraints(minHeight: 44),
@@ -199,7 +203,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
           Divider(height: 1, thickness: .6, color: c.separator),
           property(
             icon: LucideIcons.calendar,
-            label: '截止日期',
+            label: context.strings.dueDate,
             value: dateLabel,
             onOpen: (anchor) async {
               final choice = await showWorkspaceActionMenu<_Due>(
@@ -208,17 +212,25 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
                     ? _Due.none
                     : matching?.key ?? _Due.calendar,
                 items: [
-                  (value: _Due.none, label: '无截止', icon: LucideIcons.minus),
+                  (
+                    value: _Due.none,
+                    label: context.strings.noDueDate,
+                    icon: LucideIcons.minus,
+                  ),
                   for (final entry in presets.entries)
                     (
                       value: entry.key,
                       label: entry.value.label,
                       icon: LucideIcons.calendarDays,
                     ),
-                  (value: _Due.time, label: '设置时间', icon: LucideIcons.clock),
+                  (
+                    value: _Due.time,
+                    label: context.strings.setTime,
+                    icon: LucideIcons.clock,
+                  ),
                   (
                     value: _Due.calendar,
-                    label: '选择日期',
+                    label: context.strings.chooseDate,
                     icon: LucideIcons.calendar,
                   ),
                 ],
@@ -229,7 +241,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
                 var selection = date;
                 final picked = await AppSheet.show<DateTime>(
                   context,
-                  title: '截止时间',
+                  title: context.strings.due,
                   child: Builder(
                     builder: (sheet) => SingleChildScrollView(
                       child: Column(
@@ -245,7 +257,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
                             ),
                           ),
                           AppButton(
-                            label: '确定',
+                            label: context.strings.ok,
                             onPressed: () => Navigator.pop(sheet, selection),
                           ),
                         ],
@@ -267,7 +279,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
               } else if (choice == _Due.calendar) {
                 final day = await AppSheet.show<DateTime>(
                   context,
-                  title: '截止日期',
+                  title: context.strings.dueDate,
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: AppDayCalendar(
@@ -298,14 +310,18 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
           ),
           property(
             icon: LucideIcons.folder,
-            label: '分类',
-            value: category?.name ?? '未分类',
+            label: context.strings.category,
+            value: category?.name ?? context.strings.uncategorized,
             onOpen: (anchor) async {
               final picked = await showWorkspaceActionMenu<(String?,)>(
                 anchor,
                 selected: (_category,),
                 items: [
-                  (value: (null,), label: '未分类', icon: LucideIcons.folder),
+                  (
+                    value: (null,),
+                    label: context.strings.uncategorized,
+                    icon: LucideIcons.folder,
+                  ),
                   for (final root in categories.roots) ...[
                     (
                       value: (root.id,),
@@ -328,7 +344,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
           ),
           property(
             icon: LucideIcons.flag,
-            label: '优先级',
+            label: context.strings.priority,
             value: _priority.label,
             onOpen: (anchor) async {
               final p = await showWorkspaceActionMenu<TodoPriority>(
@@ -348,7 +364,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
           ),
           property(
             icon: LucideIcons.circleCheck,
-            label: '状态',
+            label: context.strings.status,
             value: _status.label,
             onOpen: (anchor) async {
               final s = await showWorkspaceActionMenu<TodoStatus>(
@@ -369,7 +385,7 @@ class _CreateTodoSheetState extends ConsumerState<CreateTodoSheet> {
           if (current != null)
             property(
               icon: LucideIcons.bell,
-              label: '提醒',
+              label: context.strings.reminder,
               value: reminders[_remindMinutes ?? -1]!,
               onOpen: (anchor) async {
                 final m = await showWorkspaceActionMenu<int>(

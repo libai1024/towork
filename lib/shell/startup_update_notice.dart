@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,10 +53,12 @@ class _StartupUpdateNoticeState extends ConsumerState<StartupUpdateNotice> {
     final patch = state.codeUpdate;
     final message = switch (state.phase) {
       UpdatePhase.available when release != null =>
-        'ToWork ${release.versionName} 可更新',
+        context.strings.toworkAvailable(release.versionName),
       UpdatePhase.available when patch != null =>
-        patch.withdrawal ? '可恢复基础版本' : '补丁 P${patch.version} 可更新',
-      UpdatePhase.ready when state.codeReady => '补丁已就绪',
+        patch.withdrawal
+            ? context.strings.restoreBaseVersionAvailable
+            : context.strings.patchPAvailable(patch.version),
+      UpdatePhase.ready when state.codeReady => context.strings.patchReady,
       _ => null,
     };
     if (message != null) setState(() => notice = message);
@@ -84,7 +87,7 @@ class _StartupUpdateNoticeState extends ConsumerState<StartupUpdateNotice> {
                       children: [
                         Expanded(
                           child: AppPressable(
-                            semanticLabel: '$message，查看更新',
+                            semanticLabel: context.strings.viewUpdate(message),
                             onTap: () {
                               setState(() => notice = null);
                               context.push(AppRoutes.update);
@@ -100,7 +103,7 @@ class _StartupUpdateNoticeState extends ConsumerState<StartupUpdateNotice> {
                                   ),
                                 ),
                                 Text(
-                                  '查看更新',
+                                  context.strings.viewUpdateBuild,
                                   style: AppTextStyles.footnote.copyWith(
                                     color: colors.labelSecondary,
                                   ),
@@ -110,7 +113,7 @@ class _StartupUpdateNoticeState extends ConsumerState<StartupUpdateNotice> {
                           ),
                         ),
                         IconButton(
-                          tooltip: '稍后提醒',
+                          tooltip: context.strings.remindMeLater,
                           onPressed: () => setState(() => notice = null),
                           icon: const Icon(Icons.close, size: 16),
                         ),

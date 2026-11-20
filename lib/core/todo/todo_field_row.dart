@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -44,7 +45,10 @@ class _TodoFieldRowState extends State<TodoFieldRow> {
       children: [
         AppPressable(
           onTap: widget.onTap,
-          semanticLabel: '${widget.label}，${widget.value}，双击修改',
+          semanticLabel: context.strings.doubleTapToEdit(
+            widget.label,
+            widget.value,
+          ),
           child: Container(
             constraints: const BoxConstraints(minHeight: 48),
             padding: EdgeInsets.symmetric(

@@ -81,9 +81,12 @@ private enum AppleDistribution {
       }
       while let next = controller.presentedViewController { controller = next }
       guard pending == nil, !(controller is UIAlertController) else { result(false); return }
+      let language = args["language"] == "en" ? "en" : "zh-Hans"
+      let bundle = Bundle.main.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? .main
+      func copy(_ key: String) -> String { bundle.localizedString(forKey: key, value: nil, table: nil) }
       let alert = UIAlertController(
-        title: "允许发送到" + provider + "？",
-        message: "ToWork 会将对话、选中的附件，以及任务所需的待办、表格、记忆或报告发送到 " + origin + " 进行处理。可在「设置 → 隐私与权限」撤回。",
+        title: String(format: copy("consentTitle"), provider),
+        message: String(format: copy("consentBody"), origin),
         preferredStyle: .alert)
       let prompt = Prompt(alert, result)
       pending = prompt
@@ -92,10 +95,10 @@ private enum AppleDistribution {
       ) { [weak prompt] _ in
         if let prompt = prompt { finish(prompt, dismiss: true) }
       }
-      alert.addAction(UIAlertAction(title: "暂不允许", style: .cancel) { [weak prompt] _ in
+      alert.addAction(UIAlertAction(title: copy("deny"), style: .cancel) { [weak prompt] _ in
         if let prompt = prompt { finish(prompt) }
       })
-      alert.addAction(UIAlertAction(title: "允许", style: .default) { [weak prompt] _ in
+      alert.addAction(UIAlertAction(title: copy("allow"), style: .default) { [weak prompt] _ in
         if let prompt = prompt { finish(prompt, allowedOrigin: origin) }
       })
       controller.present(alert, animated: true)

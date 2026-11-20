@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/routes.dart';
 
 import 'package:flutter/material.dart';
@@ -16,6 +18,8 @@ import '../../../theme/app_radii.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/app_text_styles.dart';
 import '../report_utils.dart';
+
+part 'report_scope_chips.dart';
 
 /// 手动生成报告弹层（06-reports.md §3.2）。
 /// 周期快捷 Chip 单选 + 自定义起止日期 + 分类多选 Chip + 定时默认范围选项。
@@ -46,7 +50,12 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
   late Set<String> _selectedIds;
   bool _saveAsDefault = false;
 
-  static const _quickLabels = ['本周', '上周', '本月', '上月'];
+  static List<String> get _quickLabels => [
+    strings.thisWeek,
+    strings.lastWeek,
+    strings.thisMonth,
+    strings.lastMonth,
+  ];
 
   @override
   void initState() {
@@ -150,8 +159,11 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
       _ => ReportType.custom,
     };
     final periodLabel = switch (type) {
-      ReportType.weekly => '第 ${isoWeekNumber(_start)} 周',
-      ReportType.monthly => '${_start.year} 年 ${_start.month} 月',
+      ReportType.weekly => context.strings.weekSubmit(isoWeekNumber(_start)),
+      ReportType.monthly => context.strings.formattedValueBuild2(
+        _start.year,
+        _start.month,
+      ),
       ReportType.custom => rangeLabel(_start, _end),
     };
     widget.onGenerate(
@@ -188,7 +200,7 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
               children: [
                 // 周期
                 Text(
-                  '周期',
+                  context.strings.period,
                   style: AppTextStyles.subhead.copyWith(
                     color: c.labelSecondary,
                   ),
@@ -211,14 +223,20 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                   children: [
                     Expanded(
                       child: _DateButton(
-                        label: '${_start.month} 月 ${_start.day} 日',
+                        label: context.strings.formattedValueBuild4(
+                          _start.month,
+                          _start.day,
+                        ),
                         onTap: () => _pickDate(true),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: _DateButton(
-                        label: '${_end.month} 月 ${_end.day} 日',
+                        label: context.strings.formattedValueBuild4(
+                          _end.month,
+                          _end.day,
+                        ),
                         onTap: () => _pickDate(false),
                       ),
                     ),
@@ -229,7 +247,7 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                 Row(
                   children: [
                     Text(
-                      '包含分类',
+                      context.strings.includedCategories,
                       style: AppTextStyles.subhead.copyWith(
                         color: c.labelSecondary,
                       ),
@@ -239,9 +257,13 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                       onTap: _toggleSelectAll,
 
                       behavior: HitTestBehavior.translucent,
-                      semanticLabel: allSelected ? '清空' : '全选',
+                      semanticLabel: allSelected
+                          ? context.strings.clearAll
+                          : context.strings.selectAll,
                       child: Text(
-                        allSelected ? '清空' : '全选',
+                        allSelected
+                            ? context.strings.clearAll
+                            : context.strings.selectAll,
                         style: AppTextStyles.caption.copyWith(color: c.brand),
                       ),
                     ),
@@ -267,7 +289,8 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                 AppPressable(
                   onTap: () => setState(() => _saveAsDefault = !_saveAsDefault),
                   behavior: HitTestBehavior.opaque,
-                  semanticLabel: '保存为定时报告默认范围',
+                  semanticLabel:
+                      context.strings.saveAsDefaultForScheduledReports,
                   child: Row(
                     children: [
                       SizedBox(
@@ -288,7 +311,7 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                       ),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        '保存为定时报告默认范围',
+                        context.strings.saveAsDefaultForScheduledReports,
                         style: AppTextStyles.body.copyWith(
                           color: c.labelPrimary,
                         ),
@@ -303,7 +326,7 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                     children: [
                       Flexible(
                         child: Text(
-                          '周报 周一 08:00　月报 每月 1 日 08:00',
+                          context.strings.weeklyOnMondayAtMonthlyOnThe,
                           style: AppTextStyles.caption.copyWith(
                             color: c.labelTertiary,
                           ),
@@ -313,13 +336,16 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
                         onTap: () {
                           Navigator.of(context).pop();
                           context.push(AppRoutes.settings);
-                          AppToast.show(context, message: '在「定时报告」一节调整');
+                          AppToast.show(
+                            context,
+                            message: context.strings.adjustInScheduledReports,
+                          );
                         },
 
                         behavior: HitTestBehavior.translucent,
-                        semanticLabel: '去调整定时报告',
+                        semanticLabel: context.strings.adjustScheduledReports,
                         child: Text(
-                          '去调整 ›',
+                          context.strings.adjust,
                           style: AppTextStyles.caption.copyWith(color: c.brand),
                         ),
                       ),
@@ -341,7 +367,7 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppButton(
-                label: '生成报告',
+                label: context.strings.generateReport,
                 expand: true,
                 enabled: canGenerate,
                 onPressed: canGenerate ? _submit : null,
@@ -350,132 +376,6 @@ class _GenerateReportSheetState extends ConsumerState<GenerateReportSheet> {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// 周期快捷 Chip（单选）：选中 fill2 + labelPrimary，未选 fill1 + labelSecondary。
-class _QuickChip extends StatelessWidget {
-  const _QuickChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AppPressable(
-      onTap: onTap,
-
-      behavior: HitTestBehavior.translucent,
-      semanticLabel: label,
-      child: AnimatedContainer(
-        duration: AppMotion.tabSwitch,
-        curve: Curves.easeOut,
-        height: 28,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: selected ? c.fill2 : c.fill1,
-          borderRadius: AppRadii.brFull,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: AppTextStyles.footnote.copyWith(
-            color: selected ? c.labelPrimary : c.labelSecondary,
-            fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 自定义日期按钮：fill1 底 r-md 高 40，body + chevron-down 16。
-class _DateButton extends StatelessWidget {
-  const _DateButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AppPressable(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      semanticLabel: '选择日期：$label',
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(color: c.fill1, borderRadius: AppRadii.brMd),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.body.copyWith(color: c.labelPrimary),
-              ),
-            ),
-            Icon(LucideIcons.chevronDown, size: 16, color: c.labelSecondary),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 分类多选 Chip：高 32 r-full；选中 = brand 1px 描边 + brand 字 + check 12。
-class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AppPressable(
-      onTap: onTap,
-
-      behavior: HitTestBehavior.translucent,
-      semanticLabel: label,
-      child: AnimatedContainer(
-        duration: AppMotion.tabSwitch,
-        curve: Curves.easeOut,
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: selected ? Colors.transparent : c.fill1,
-          borderRadius: AppRadii.brFull,
-          border: selected ? Border.all(color: c.brand, width: 1) : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (selected) ...[
-              Icon(LucideIcons.check, size: 12, color: c.brand),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: AppTextStyles.footnote.copyWith(
-                color: selected ? c.brand : c.labelSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

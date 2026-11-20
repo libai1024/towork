@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -22,37 +23,42 @@ import '../../app/chat/chat_view_model.dart';
 
 String chatFailureMessage(Object? error) => switch (error) {
   SettingsFailure(code: SettingsFailureCode.missingKey) =>
-    '请先在模型连接中保存 Kimi API Key，再发送。',
+    strings.saveAKimiApiKeyInModel,
   SettingsFailure(code: SettingsFailureCode.conflict) =>
-    '模型配置已改变，请发送新请求；已完成的操作会保留。',
+    strings.modelSettingsChangedSendANewRequest,
   ModelFailure(code: ModelFailureCode.contextBudget) =>
-    '这次内容过长，请缩短输入或拆分请求；原有历史已保留。',
-  ModelFailure(code: ModelFailureCode.cancelled) => '已停止本次请求。',
-  AgentFailure(code: AgentFailureCode.budget) => '本次上下文或执行轮数已达上限，请新建会话。',
+    strings.inputIsTooLongShortenItOr,
+  ModelFailure(code: ModelFailureCode.cancelled) => strings.requestStopped,
+  AgentFailure(code: AgentFailureCode.budget) =>
+    strings.theContextOrActionLimitHasBeen,
   AgentFailure(code: AgentFailureCode.conflict) =>
-    '会话或记录已变化，请先处理未完成的请求或重新打开会话。',
+    strings.theChatOrRecordHasChangedFinish,
   WorkspaceFailure(code: WorkspaceFailureCode.versionConflict) =>
-    '记录或表结构已有后续修改，不能覆盖。',
+    strings.theRecordOrTableStructureHasSince,
   // 未知错误一律走稳定本地文案：原始异常可能携带 API Key、
   // 绝对路径或上游 JSON，不允许进入 UI（诊断仍走日志链路）。
-  _ => '暂时无法完成操作，原有数据已保留，请重试。',
+  _ => strings.couldntCompleteTheActionYourDataIs,
 };
 String runFailureMessage(String? code) => switch (code) {
-  'model_authentication' || 'model_forbidden' => '模型凭据或访问权限不可用，请检查模型连接。',
-  'model_rateLimited' => '模型请求受限，请稍后重试。',
-  'model_quota' => '这个账户的额度已用尽，可以换一个模型后重试。',
-  'attachment_missing' => '来源图片已不可用，请返回截图导入重新选择图片。',
-  'attachment_storage' => '暂时无法读取来源图片，请稍后重试。',
-  'model_configuration' => '模型配置在处理过程中发生了变化，可以用当前模型重试。',
-  'model_contextBudget' => '本次内容或工具结果过长，请拆分请求；已完成操作仍保留。',
-  'model_budget' || 'agent_budget' => '本次执行已达上限，请发送新请求或新建会话。',
-  'workspace_versionConflict' || 'workspace_notFound' => '目标已经变化，可重新规划。',
-  'model_network' || 'model_timeout' => '网络中断或模型响应超时，可以重试。',
+  'model_authentication' ||
+  'model_forbidden' => strings.checkYourModelCredentialsAndAccessIn,
+  'model_rateLimited' => strings.modelRateLimitReachedTryAgainLater,
+  'model_quota' => strings.thisAccountIsOutOfQuotaSelect,
+  'attachment_missing' => strings.theSourceImageIsUnavailableSelectIt,
+  'attachment_storage' => strings.couldntReadTheSourceImageTryAgain,
+  'model_configuration' => strings.modelSettingsChangedDuringTheRequestRetry,
+  'model_contextBudget' => strings.inputOrToolResultsAreTooLong,
+  'model_budget' ||
+  'agent_budget' => strings.actionLimitReachedSendAnotherRequestOr,
+  'workspace_versionConflict' ||
+  'workspace_notFound' => strings.theTargetHasChangedYouCanReplan,
+  'model_network' ||
+  'model_timeout' => strings.connectionInterruptedOrModelTimedOutTry,
   'model_protocol' ||
   'model_truncated' ||
-  'agent_invalid' => '模型返回未通过校验，未执行该批修改。',
+  'agent_invalid' => strings.theModelResponseFailedValidationThisBatch,
   // 同上：未知失败码不透传，避免内部码/上游报文片段上屏。
-  _ => '请求未完成，可以重试；已完成的操作会保留。',
+  _ => strings.requestIncompleteYouCanRetryCompletedActions,
 };
 
 class AgentRunCard extends ConsumerStatefulWidget {
@@ -120,17 +126,21 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
       _selected = changes.map((c) => c['tool_call_id']! as String).toSet();
     }
     final label = turn.undoneAt != null
-        ? '已撤销本次修改'
+        ? context.strings.changesUndone
         : switch (run.status) {
-            AgentRunStatus.awaitingConfirmation => '待确认 ${changes.length} 项',
+            AgentRunStatus.awaitingConfirmation =>
+              context.strings.awaitingConfirmation(changes.length),
             AgentRunStatus.ready ||
             AgentRunStatus.queued ||
-            AgentRunStatus.interrupted => '请求已保存，等待继续',
-            AgentRunStatus.generating => '正在处理',
+            AgentRunStatus.interrupted =>
+              context.strings.requestSavedReadyToContinue,
+            AgentRunStatus.generating => context.strings.working,
             AgentRunStatus.succeeded =>
-              run.receipts.isEmpty ? '回复已保存' : '已提交 ${run.receipts.length} 批操作',
+              run.receipts.isEmpty
+                  ? context.strings.replySaved
+                  : context.strings.actionBatchesSubmitted(run.receipts.length),
             AgentRunStatus.failed => runFailureMessage(run.failureCode),
-            AgentRunStatus.cancelled => '已停止本次请求',
+            AgentRunStatus.cancelled => context.strings.requestStoppedBuild,
           };
     if (widget.replyText != null && active) {
       return const SizedBox.shrink();
@@ -164,9 +174,13 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
             ? LucideIcons.square
             : LucideIcons.check,
         note: run.status == AgentRunStatus.cancelled && run.receipts.isNotEmpty
-            ? '已完成的 ${run.receipts.length} 批操作仍保留。'
+            ? context.strings.completedActionBatchesRetained(
+                run.receipts.length,
+              )
             : run.contextOmittedTurns > 0
-            ? '本次未带入较早的 ${run.contextOmittedTurns} 轮对话，完整历史仍可查看。'
+            ? context.strings.earlierTurnsOutsideThisRequestFullHistory(
+                run.contextOmittedTurns,
+              )
             : null,
         onUndo:
             turn.undoneAt == null && run.isTerminal && run.receipts.isNotEmpty
@@ -190,7 +204,10 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                '本次未带入较早的 ${run.contextOmittedTurns} 轮对话，完整历史仍可查看。涉及旧内容时请补充说明。',
+                context.strings
+                    .earlierTurnsOutsideThisRequestFullHistoryIsAvailable(
+                      run.contextOmittedTurns,
+                    ),
                 style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
               ),
             ),
@@ -199,7 +216,9 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                '已完成的 ${run.receipts.length} 批操作仍保留。',
+                context.strings.completedActionBatchesRetained(
+                  run.receipts.length,
+                ),
                 style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
               ),
             ),
@@ -220,8 +239,9 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                               key: ValueKey(
                                 'agent-select-${change['tool_call_id']}',
                               ),
-                              semanticLabel:
-                                  '选择${(change['business_table'] as Map?)?['name'] ?? (change['after'] as Map?)?['name'] ?? (change['after'] as Map?)?['title'] ?? (change['before'] as Map?)?['data']?['title'] ?? '操作'}',
+                              semanticLabel: context.strings.selectLabel(
+                                '${(change['business_table'] as Map?)?['name'] ?? (change['after'] as Map?)?['name'] ?? (change['after'] as Map?)?['title'] ?? (change['before'] as Map?)?['data']?['title'] ?? context.strings.actions}',
+                              ),
                               value: _selected.contains(change['tool_call_id']),
                               onChanged: blocked
                                   ? null
@@ -280,8 +300,8 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                             ),
                       child: Text(
                         _selected.length == changes.length
-                            ? '全部接受'
-                            : '接受选中（${_selected.length}）',
+                            ? context.strings.acceptAll
+                            : context.strings.acceptSelected(_selected.length),
                       ),
                     ),
                   if (waiting)
@@ -305,7 +325,9 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                                 ),
                               ),
                             ),
-                      child: Text('拒绝选中（${_selected.length}）'),
+                      child: Text(
+                        context.strings.rejectSelected(_selected.length),
+                      ),
                     ),
                   if ((waiting ||
                           failed &&
@@ -331,7 +353,7 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                           ? null
                           : () =>
                                 _perform((vm) => vm.refreshRunProposal(run.id)),
-                      child: const Text('刷新差异'),
+                      child: Text(context.strings.refreshChanges),
                     ),
                   if (resumable)
                     FilledButton(
@@ -346,7 +368,7 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                       onPressed: blocked
                           ? null
                           : () => _perform((vm) => vm.resumeRun(run.id)),
-                      child: const Text('继续处理'),
+                      child: Text(context.strings.continueLabel),
                     ),
                   if (waiting || resumable)
                     TextButton(
@@ -358,7 +380,7 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                       onPressed: blocked
                           ? null
                           : () => _perform((vm) => vm.cancelRun(run.id)),
-                      child: const Text('取消本次'),
+                      child: Text(context.strings.cancelRequest),
                     ),
                   if (failed &&
                       turn.undoneAt == null &&
@@ -378,7 +400,7 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                           : () => _perform(
                               (vm) => vm.resumeRun(run.id, retry: true),
                             ),
-                      child: const Text('重试'),
+                      child: Text(context.strings.retry),
                     ),
                   if (run.receipts.isNotEmpty &&
                       run.isTerminal &&
@@ -393,7 +415,9 @@ class _AgentRunCardState extends ConsumerState<AgentRunCard> {
                           ? null
                           : () => _perform((vm) => vm.undoRun(run.id)),
                       child: Text(
-                        run.receipts.length == 1 ? '撤销本批修改' : '撤销本次全部修改',
+                        run.receipts.length == 1
+                            ? context.strings.undoThisBatch
+                            : context.strings.undoAllChangesInThisRequest,
                       ),
                     ),
                 ],

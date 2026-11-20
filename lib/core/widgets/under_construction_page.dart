@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -25,7 +26,7 @@ class UnderConstructionPage extends StatelessWidget {
       ),
       body: AppEmptyState(
         icon: LucideIcons.hammer,
-        title: '开发中',
+        title: context.strings.inDevelopment,
         message: subtitle,
       ),
     );

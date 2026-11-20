@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/update/app_update.dart';
@@ -255,12 +256,12 @@ class UpdateController extends StateNotifier<UpdateState> {
         case InstallStatus.cancelled:
           state = state.copyWith(
             phase: UpdatePhase.ready,
-            message: '安装已取消，可以重试',
+            message: strings.installationCanceledYouCanRetry,
           );
         case InstallStatus.failed:
           state = state.copyWith(
             phase: UpdatePhase.ready,
-            message: '系统安装未完成，请重试',
+            message: strings.installationDidNotFinishTryAgain,
           );
       }
     } catch (error) {
@@ -359,21 +360,23 @@ class UpdateController extends StateNotifier<UpdateState> {
 String _message(Object error) {
   final code = error is UpdateFailure ? error.code : 'unknown';
   return switch (code) {
-    'code_cancelled' => '补丁下载已取消，可重新下载',
-    'code_signature' => '补丁验证失败，请重新检查更新',
-    'restart_busy' => '请先完成正在进行的对话或输入，再点击重启',
-    'restart' || 'background' => '补丁已就绪，请回到此页点击重启',
-    'cancelled' => '下载已暂停，再次下载会继续传输',
-    'network' => '网络连接中断，请重试',
-    'manifest' => '更新信息暂时不可用，请稍后重试',
-    'abi' => '当前更新包不支持此设备架构',
-    'signature' => '更新包签名与当前应用不一致',
-    'checksum' || 'size' || 'file_invalid' => '更新包校验失败，请重新下载',
-    'space' || 'storage' => '存储空间不足或无法写入，请清理空间后重试',
-    'range' => '服务器暂时无法继续下载，请稍后重试',
-    'permission' => '请先允许 ToWork 安装应用，再点击安装并重新打开',
-    'version' || 'wrong_package' => '安装包版本或包名不匹配，请重新检查更新',
-    'busy' => '更新正在处理，请稍后重试',
-    _ => '更新未完成，请重试',
+    'code_cancelled' => strings.patchDownloadCanceledYouCanDownloadIt,
+    'code_signature' => strings.patchVerificationFailedCheckForUpdatesAgain,
+    'restart_busy' => strings.finishTheCurrentConversationOrInputBefore,
+    'restart' || 'background' => strings.patchReadyReturnHereToRestart,
+    'cancelled' => strings.downloadPausedResumeToContinue,
+    'network' => strings.connectionInterruptedTryAgain,
+    'manifest' => strings.updateInformationIsUnavailableTryAgainLater,
+    'abi' => strings.thisUpdateDoesNotSupportYourDevice,
+    'signature' => strings.theUpdateSignatureDoesNotMatchThe,
+    'checksum' ||
+    'size' ||
+    'file_invalid' => strings.verificationFailedDownloadTheUpdateAgain,
+    'space' || 'storage' => strings.storageIsFullOrUnavailableFreeUp,
+    'range' => strings.theDownloadServerIsUnavailableTryAgain,
+    'permission' => strings.allowToworkToInstallAppsThenTap,
+    'version' || 'wrong_package' => strings.thePackageOrVersionDoesNotMatch,
+    'busy' => strings.anUpdateIsInProgressTryAgain,
+    _ => strings.updateIncompleteTryAgain,
   };
 }

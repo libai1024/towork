@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ Future<bool> sendChatMessage(
       text,
       model:
           '${ref.read(chatModelProvider)}'
-          '${ref.read(chatAdvancedProvider) ? ' 进阶' : ''}',
+          '${ref.read(chatAdvancedProvider) ? strings.advanced : ''}',
       agentEnabled: ref.read(chatAgentEnabledProvider),
       inputId: inputId,
       attachmentId: attachmentId,
@@ -39,7 +40,7 @@ void listenChatFeedback(WidgetRef ref, BuildContext context) {
       AppToast.show(
         context,
         message: ref.read(localChatRuntimeProvider) == null
-            ? '暂时无法回复，请重试'
+            ? context.strings.couldntReplyTryAgain
             : chatFailureMessage(next.error),
       );
     }

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,7 +40,10 @@ Future<bool> saveTodoEdit(
         false;
   }
   if (before.seriesId == null && before.dueAt == null) {
-    AppToast.show(context, message: '请先设置本次截止日期，再开启重复');
+    AppToast.show(
+      context,
+      message: context.strings.setADueDateBeforeEnablingRecurrence,
+    );
     return false;
   }
   final release = service.session.holdAutomaticWork();
@@ -97,13 +101,15 @@ Future<bool> _showProposal(
   if (context.mounted) {
     AppToast.show(
       context,
-      message: proposal.deleting ? '已删除所选范围' : '重复待办已更新',
-      actionLabel: '撤销',
+      message: proposal.deleting
+          ? context.strings.selectedOccurrencesDeleted
+          : context.strings.recurringTaskUpdated,
+      actionLabel: context.strings.undo,
       duration: const Duration(seconds: 10),
       onAction: () async {
         try {
           await change.undo();
-          report('已撤销');
+          report(strings.undone);
         } catch (error) {
           report(workspaceErrorMessage(error));
         }
@@ -151,7 +157,7 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
               error is WorkspaceFailure &&
               error.code == WorkspaceFailureCode.versionConflict;
           _error = error is RecurrenceCoverageException
-              ? '日期超出当前时区数据范围，请缩短结束时间'
+              ? context.strings.dateIsOutsideAvailableTimeZoneData
               : workspaceErrorMessage(error);
         });
       }
@@ -194,8 +200,10 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
               ],
               Text(
                 choice.future
-                    ? '将更新所选范围的重复安排，保留此前记录和其他已完成任务。'
-                    : '只处理这一次，其他日期和重复安排保持不变。',
+                    ? context
+                          .strings
+                          .updatesRecurrenceForTheSelectedRangeEarlier
+                    : context.strings.changesOnlyThisOccurrenceOtherDatesAnd,
                 style: AppTextStyles.callout.copyWith(color: c.labelSecondary),
               ),
               const SizedBox(height: 12),
@@ -210,7 +218,11 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
                   ),
                 ),
               Text(
-                '本次变更：新增 ${choice.count(WorkspaceMutationKind.create)} 修改 ${choice.count(WorkspaceMutationKind.update)} 删除 ${choice.count(WorkspaceMutationKind.delete)}',
+                context.strings.changesAddedEditedDeleted(
+                  choice.count(WorkspaceMutationKind.create),
+                  choice.count(WorkspaceMutationKind.update),
+                  choice.count(WorkspaceMutationKind.delete),
+                ),
                 style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
               ),
               const SizedBox(height: 8),
@@ -221,8 +233,8 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
               if (choice.changes.length > 3)
                 AppButton(
                   label: _showAll
-                      ? '收起记录'
-                      : '查看全部 ${choice.changes.length} 条记录',
+                      ? context.strings.collapseRecords
+                      : context.strings.viewAllRecords(choice.changes.length),
                   type: AppButtonType.ghost,
                   onPressed: () => setState(() => _showAll = !_showAll),
                 ),
@@ -240,7 +252,9 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
               ],
               const SizedBox(height: 16),
               AppButton(
-                label: proposal.deleting ? '确认删除' : '确认修改',
+                label: proposal.deleting
+                    ? context.strings.confirmDeletion
+                    : context.strings.confirmChanges,
                 expand: true,
                 type: proposal.deleting
                     ? AppButtonType.destructive
@@ -251,7 +265,7 @@ class _RecurrenceActionSheetState extends State<RecurrenceActionSheet> {
               ),
               const SizedBox(height: 8),
               AppButton(
-                label: '取消',
+                label: context.strings.cancel,
                 type: AppButtonType.secondary,
                 expand: true,
                 enabled: !_saving,
@@ -274,16 +288,17 @@ class _ChangeRow extends StatelessWidget {
     bool before = false,
   }) {
     final value = data?[field];
-    if (value == null) return '无';
+    if (value == null) return strings.noneLabel;
     return switch (field) {
       'category_id' =>
-        (before ? change.beforeCategory : change.afterCategory) ?? '未分类',
+        (before ? change.beforeCategory : change.afterCategory) ??
+            strings.uncategorized,
       'priority' => TodoPriority.values.byName(value as String).label,
       'repeat_rule' => repeatLabelOf(value as String),
-      'tags' => (value as List).isEmpty ? '无' : value.join('、'),
+      'tags' => (value as List).isEmpty ? strings.noneLabel : value.join('、'),
       'remind_rules' =>
         (value as List).isEmpty
-            ? '关闭'
+            ? strings.close
             : value
                   .map((r) {
                     final row = r as Map;
@@ -308,7 +323,7 @@ class _ChangeRow extends StatelessWidget {
     final due = data['due_at'] as String?;
     final date = due == null ? null : DateTime.parse(due).toLocal();
     final when = date == null
-        ? '无截止'
+        ? strings.noDueDate
         : '${date.year}/${date.month}/${date.day} '
               '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     return '${data['title']} $when';
@@ -318,9 +333,9 @@ class _ChangeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final label = switch (change.kind) {
-      WorkspaceMutationKind.create => '新增',
-      WorkspaceMutationKind.update => '修改',
-      WorkspaceMutationKind.delete => '删除',
+      WorkspaceMutationKind.create => context.strings.add,
+      WorkspaceMutationKind.update => context.strings.change,
+      WorkspaceMutationKind.delete => context.strings.deleteLabel,
     };
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -334,18 +349,18 @@ class _ChangeRow extends StatelessWidget {
           if (change.kind == WorkspaceMutationKind.update &&
               _summary(change.before) != _summary(change.after))
             Text(
-              '原：${_summary(change.before)}',
+              context.strings.previously(_summary(change.before)),
               style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
             ),
           if (change.after != null)
-            for (final field in const {
-              'note': '备注',
-              'priority': '优先级',
-              'category_id': '分类',
-              'tags': '标签',
-              'remind_rules': '提醒',
-              'repeat_rule': '重复',
-              'repeat_timezone': '时区',
+            for (final field in {
+              'note': context.strings.notes,
+              'priority': context.strings.priority,
+              'category_id': context.strings.category,
+              'tags': context.strings.tags,
+              'remind_rules': context.strings.reminder,
+              'repeat_rule': context.strings.repeat,
+              'repeat_timezone': context.strings.timeZoneBuild,
             }.entries)
               if (canonicalWorkspaceJson(change.before?[field.key]) !=
                       canonicalWorkspaceJson(change.after?[field.key]) &&

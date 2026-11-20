@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -72,14 +73,17 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
     final title = _text.text.trim();
     if (_adding && title.isEmpty) return true;
     if (title.isEmpty) {
-      AppToast.show(context, message: '请输入步骤名称');
+      AppToast.show(context, message: context.strings.enterAStepName);
       return false;
     }
     final target = _target!;
     if (!_adding &&
         widget.steps.where((s) => s.id == target).firstOrNull?.title !=
             _original) {
-      AppToast.show(context, message: '步骤已变化，请核对后再保存');
+      AppToast.show(
+        context,
+        message: context.strings.stepsHaveChangedReviewThemBeforeSaving,
+      );
       setState(() {
         _original = widget.steps
             .where((s) => s.id == target)
@@ -159,7 +163,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
             ),
             maxLength: TodoStep.maxTitle,
             decoration: appInlineInput(
-              hintText: '步骤名称',
+              hintText: context.strings.stepName,
               hintStyle: TextStyle(color: c.labelTertiary),
             ).copyWith(counterText: ''),
             textInputAction: TextInputAction.done,
@@ -167,14 +171,18 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
           ),
         ),
         _action(
-          '放弃编辑',
+          context.strings.discardEdits,
           LucideIcons.x,
           () => setState(() {
             _target = null;
             _text.clear();
           }),
         ),
-        _action('保存步骤', LucideIcons.check, () => flush(another: _adding)),
+        _action(
+          context.strings.saveStep,
+          LucideIcons.check,
+          () => flush(another: _adding),
+        ),
       ],
     );
   }
@@ -194,7 +202,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
           Row(
             children: [
               Text(
-                '步骤',
+                context.strings.steps,
                 style: AppTextStyles.footnote.copyWith(
                   color: c.labelPrimary,
                   fontWeight: FontWeight.w600,
@@ -209,7 +217,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
               ),
               if (editing) ...[
                 _action(
-                  '添加步骤',
+                  context.strings.addStep,
                   LucideIcons.plus,
                   steps.length < TodoStep.maxCount
                       ? () => _afterDraft(_open)
@@ -222,7 +230,12 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
                       _organizing = !_organizing;
                     }),
                   ),
-                  child: Text(_organizing ? '完成整理' : '整理', style: secondary),
+                  child: Text(
+                    _organizing
+                        ? context.strings.doneOrganizing
+                        : context.strings.organize,
+                    style: secondary,
+                  ),
                 ),
               ],
             ],
@@ -233,7 +246,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
             child: TextButton.icon(
               onPressed: _open,
               icon: const Icon(LucideIcons.plus, size: 16),
-              label: Text('添加步骤', style: secondary),
+              label: Text(context.strings.addStep, style: secondary),
             ),
           ),
         for (final (index, s) in steps.indexed)
@@ -297,7 +310,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
             ),
             if (organize) ...[
               _action(
-                '上移第${index + 1}步',
+                context.strings.moveStepUp(index + 1),
                 LucideIcons.chevronUp,
                 index > 0
                     ? () => _afterDraft(
@@ -306,7 +319,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
                     : null,
               ),
               _action(
-                '下移第${index + 1}步',
+                context.strings.moveStepDown(index + 1),
                 LucideIcons.chevronDown,
                 index < widget.steps.length - 1
                     ? () => _afterDraft(
@@ -315,7 +328,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
                     : null,
               ),
               _action(
-                '删除第${index + 1}步',
+                context.strings.deleteStep(index + 1),
                 LucideIcons.x,
                 () => _afterDraft(() => _submit(TodoStepEdit.remove(step.id))),
               ),
@@ -325,7 +338,7 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
               Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: Text(
-                  '下一步',
+                  context.strings.nextStep,
                   style: AppTextStyles.caption.copyWith(
                     color: c.labelSecondary,
                   ),
@@ -372,7 +385,11 @@ class TodoStepsEditorState extends State<TodoStepsEditor> {
     return Semantics(
       key: ValueKey(step.id),
       container: true,
-      label: '第${index + 1}步，${step.title}${current ? '，下一步' : ''}',
+      label: context.strings.step(
+        index + 1,
+        step.title,
+        current ? context.strings.nextStepRow : '',
+      ),
       checked: step.done,
       enabled: editable,
       onTap: toggle,

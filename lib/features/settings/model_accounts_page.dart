@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -26,6 +28,8 @@ import '../../core/ai/quota_widgets.dart';
 import 'widgets/settings_shared.dart';
 import 'widgets/billing_mark.dart';
 
+part 'model_account_card.dart';
+
 class ModelAccountsPage extends ConsumerStatefulWidget {
   const ModelAccountsPage({super.key});
 
@@ -42,7 +46,12 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
     try {
       return await ref.read(modelAccountServiceProvider.future);
     } catch (_) {
-      if (mounted) AppToast.show(context, message: '本地配置暂时无法读取，请重试');
+      if (mounted) {
+        AppToast.show(
+          context,
+          message: context.strings.couldntReadLocalSettingsTryAgain,
+        );
+      }
       return null;
     }
   }
@@ -66,7 +75,9 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
     setState(() => _refreshing.add(account.id));
     try {
       await service.refreshQuota(account.id);
-      if (mounted && !silent) AppToast.show(context, message: '额度已更新');
+      if (mounted && !silent) {
+        AppToast.show(context, message: context.strings.quotaUpdated);
+      }
     } catch (error) {
       if (mounted && !silent) {
         AppToast.show(
@@ -74,8 +85,10 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
           message:
               error is ModelFailure &&
                   error.code == ModelFailureCode.configuration
-              ? '这个服务商没有额度查询接口'
-              : '额度查询失败：${describeModelSettingsError(error)}',
+              ? context.strings.thisProviderDoesntOfferAQuotaApi
+              : context.strings.couldntCheckQuota(
+                  describeModelSettingsError(error),
+                ),
         );
       }
     } finally {
@@ -116,7 +129,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
     final c = AppColors.of(context);
     final confirmed = await AppSheet.show<bool>(
       context,
-      title: '删除这个账户？',
+      title: context.strings.deleteThisAccount,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
         child: Column(
@@ -124,15 +137,15 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '${account.descriptor.shortLabel} 的配置和保存在这台设备上的 Key 会一并删除，'
-              '无法恢复。历史对话不受影响。',
+              '${context.strings.theSettingsForAndTheKeySaved(account.descriptor.shortLabel)}'
+              '${context.strings.permanentlyChatHistoryIsRetained}',
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             ),
             const SizedBox(height: 16),
             Builder(
               builder: (sheet) => AppButton(
                 key: const ValueKey('account-remove-confirm'),
-                label: '删除账户',
+                label: context.strings.deleteAccount,
                 type: AppButtonType.destructive,
                 expand: true,
                 onPressed: () => Navigator.of(sheet).pop(true),
@@ -143,7 +156,10 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    await _run((service) => service.remove(account.id), done: '账户已删除');
+    await _run(
+      (service) => service.remove(account.id),
+      done: context.strings.accountDeleted,
+    );
   }
 
   void _openMenu(ModelAccountsSnapshot snapshot, int index) {
@@ -167,7 +183,10 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '优先级 ${index + 1}${account.autoRoute ? '' : '  仅手动'}',
+                        context.strings.priorityOpenmenu(
+                          index + 1,
+                          account.autoRoute ? '' : context.strings.manualOnly,
+                        ),
                         style: AppTextStyles.caption,
                       ),
                       if (account.hasCredential && account.quota != null)
@@ -181,18 +200,20 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                 if (!active && account.hasCredential)
                   SheetOptionRow(
                     icon: LucideIcons.circleCheck,
-                    title: '设为当前使用',
+                    title: context.strings.useThisAccount,
                     onTap: () {
                       close();
                       _run(
                         (service) => service.activate(account.id),
-                        done: '已切换为 ${account.descriptor.shortLabel}',
+                        done: context.strings.switchedToOpenmenu(
+                          account.descriptor.shortLabel,
+                        ),
                       );
                     },
                   ),
                 SheetOptionRow(
                   icon: LucideIcons.pencilLine,
-                  title: '编辑模型与 Key',
+                  title: context.strings.editModelAndKey,
                   onTap: () {
                     close();
                     context.push(AppRoutes.modelAccount(account.id));
@@ -202,7 +223,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                     account.hasCredential)
                   SheetOptionRow(
                     icon: LucideIcons.refreshCw,
-                    title: '刷新额度',
+                    title: context.strings.refreshQuota,
                     onTap: () {
                       close();
                       _refresh(account);
@@ -211,13 +232,13 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                 if (account.coolingAt(DateTime.now().toUtc()))
                   SheetOptionRow(
                     icon: LucideIcons.timerReset,
-                    title: '解除暂停',
-                    subtitle: '恢复参与自动换用',
+                    title: context.strings.resumeAccount,
+                    subtitle: context.strings.rejoinAutomaticFallback,
                     onTap: () {
                       close();
                       _run(
                         (service) => service.clearCooldown(account.id),
-                        done: '已解除暂停',
+                        done: context.strings.accountResumed,
                       );
                     },
                   ),
@@ -225,7 +246,9 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                   icon: account.autoRoute
                       ? LucideIcons.routeOff
                       : LucideIcons.route,
-                  title: account.autoRoute ? '不参与自动换用' : '参与自动换用',
+                  title: account.autoRoute
+                      ? context.strings.excludeFromFallback
+                      : context.strings.includeInFallback,
                   onTap: () {
                     close();
                     _run(
@@ -237,7 +260,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                 if (index > 0)
                   SheetOptionRow(
                     icon: LucideIcons.arrowUp,
-                    title: '提高优先级',
+                    title: context.strings.increasePriority,
                     onTap: () {
                       close();
                       _move(snapshot, index, -1);
@@ -246,7 +269,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                 if (index < snapshot.accounts.length - 1)
                   SheetOptionRow(
                     icon: LucideIcons.arrowDown,
-                    title: '降低优先级',
+                    title: context.strings.decreasePriority,
                     onTap: () {
                       close();
                       _move(snapshot, index, 1);
@@ -254,7 +277,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                   ),
                 SheetOptionRow(
                   icon: LucideIcons.trash2,
-                  title: '删除账户',
+                  title: context.strings.deleteAccount,
                   onTap: () {
                     close();
                     _confirmRemove(account);
@@ -291,15 +314,17 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
         child: Column(
           children: [
             SettingsNavBar(
-              title: '模型与额度',
+              title: context.strings.modelsAndUsageBuild,
               actions: [
                 if (snapshot != null)
                   WorkspaceToolbarGroup(
                     children: [
                       WorkspaceToolbarAction(
                         key: const ValueKey('account-add'),
-                        label: '添加模型账户',
-                        text: snapshot.accounts.isEmpty ? '添加' : null,
+                        label: context.strings.addModelAccount,
+                        text: snapshot.accounts.isEmpty
+                            ? context.strings.addBuild
+                            : null,
                         icon: LucideIcons.plus,
                         onTap: () => context.push(AppRoutes.modelAccountNew),
                       ),
@@ -351,7 +376,9 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                         SettingsGroupCard(
                           dividerIndent: 16,
                           footer: Text(
-                            '额度用尽、限流或 Key 失效时，按优先级切换账户。',
+                            context
+                                .strings
+                                .switchAccountsByPriorityWhenQuotaRuns,
                             style: AppTextStyles.caption.copyWith(
                               color: c.labelSecondary,
                             ),
@@ -359,7 +386,9 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                           children: [
                             SettingsSwitchRow(
                               key: const ValueKey('auto-route-switch'),
-                              title: '额度用尽时自动换用',
+                              title: context
+                                  .strings
+                                  .switchAutomaticallyWhenQuotaRunsOut,
                               value: autoRoute,
                               onChanged: _toggleAutoRoute,
                             ),
@@ -372,7 +401,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '本地配置暂时无法读取',
+                            context.strings.couldntReadLocalSettings,
                             style: AppTextStyles.body.copyWith(
                               color: c.labelSecondary,
                             ),
@@ -382,7 +411,7 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
                               ref.invalidate(modelAccountServiceProvider);
                               ref.invalidate(modelAccountsProvider);
                             },
-                            child: const Text('重试'),
+                            child: Text(context.strings.retry),
                           ),
                         ],
                       ),
@@ -395,215 +424,6 @@ class _ModelAccountsPageState extends ConsumerState<ModelAccountsPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyAccounts extends StatelessWidget {
-  const _EmptyAccounts();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-      child: Text(
-        '还没有模型账户',
-        style: AppTextStyles.body.copyWith(color: c.labelSecondary),
-      ),
-    );
-  }
-}
-
-class _AccountCard extends StatelessWidget {
-  const _AccountCard({
-    super.key,
-    required this.account,
-    required this.active,
-    required this.priority,
-    required this.now,
-    required this.refreshing,
-    required this.onTap,
-    required this.onMenu,
-    required this.onRefresh,
-  });
-
-  final ModelAccount account;
-  final bool active;
-  final int priority;
-  final DateTime now;
-  final bool refreshing;
-  final VoidCallback onTap;
-  final VoidCallback onMenu;
-  final VoidCallback onRefresh;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final cooling = account.coolingAt(now);
-    final hasQuotaApi = account.descriptor.quota != QuotaSource.none;
-    final windows = account.quota?.windows ?? const [];
-    final unavailable = !account.hasCredential || cooling;
-    final quota = account.quota;
-    final text = unavailable
-        ? accountStatusLabel(account, now)
-        : quota?.balance != null
-        ? '余额 ${balanceLabel(quota!.balance!, quota.currency)}'
-        : hasQuotaApi
-        ? '尚未查询额度'
-        : '服务商控制台查询';
-    final model = shortModelLabel(account.profile.model);
-    return AppPressable(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      semanticLabel:
-          '${account.descriptor.shortLabel}，${shortModelLabel(account.profile.model)}'
-          '${active ? '，当前使用' : ''}，优先级 $priority，${accountStatusLabel(account, now)}',
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 0, 3, 7),
-        decoration: BoxDecoration(
-          color: c.bgPrimary,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: active ? c.accent : c.separator, width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                ProviderLogo(account.profile.product, size: 18),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          account.descriptor.shortLabel,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.footnote.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: c.labelPrimary,
-                          ),
-                        ),
-                      ),
-                      BillingMark(descriptor: account.descriptor),
-                      Flexible(
-                        child: Text(
-                          model,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: c.labelSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (active)
-                  Tooltip(
-                    message: '当前使用',
-                    child: Icon(
-                      LucideIcons.check,
-                      size: 14,
-                      color: c.accentText,
-                    ),
-                  ),
-                if (hasQuotaApi && account.hasCredential)
-                  _IconAction(
-                    icon: LucideIcons.refreshCw,
-                    label: '刷新额度',
-                    spinning: refreshing,
-                    onTap: refreshing ? null : onRefresh,
-                  ),
-                _IconAction(
-                  icon: LucideIcons.ellipsis,
-                  label: '更多操作',
-                  onTap: onMenu,
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 7),
-              child: SizedBox(
-                height:
-                    (MediaQuery.textScalerOf(context).scale(12) * 16 / 12)
-                        .ceilToDouble() +
-                    8,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: !unavailable && windows.isNotEmpty
-                      ? Row(
-                          children: [
-                            Text(
-                              '剩余',
-                              style: AppTextStyles.caption.copyWith(
-                                color: c.labelSecondary,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: CompactQuotaWindows(windows: windows),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          text,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: unavailable || (quota?.balance ?? 1) <= 0
-                                ? c.red
-                                : c.labelSecondary,
-                          ),
-                        ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _IconAction extends StatelessWidget {
-  const _IconAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.spinning = false,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-  final bool spinning;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Tooltip(
-      message: label,
-      child: AppPressable(
-        onTap: onTap,
-        semanticLabel: label,
-        borderRadius: BorderRadius.circular(999),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Center(
-            child: spinning
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Icon(icon, size: 18, color: c.labelSecondary),
-          ),
         ),
       ),
     );

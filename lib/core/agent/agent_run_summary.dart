@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -65,10 +66,10 @@ class AgentRunSummary extends StatelessWidget {
             if (onUndo != null)
               if (compactActions)
                 Tooltip(
-                  message: '撤销本次全部修改',
+                  message: context.strings.undoAllChangesInThisRequest,
                   excludeFromSemantics: true,
                   child: AppPressable(
-                    semanticLabel: '撤销本次全部修改',
+                    semanticLabel: context.strings.undoAllChangesInThisRequest,
                     minSize: 48,
                     onTap: undoEnabled ? onUndo : null,
                     child: SizedBox(
@@ -90,7 +91,7 @@ class AgentRunSummary extends StatelessWidget {
                     foregroundColor: c.labelSecondary,
                     textStyle: AppTextStyles.footnote,
                   ),
-                  child: const Text('撤销'),
+                  child: Text(context.strings.undo),
                 ),
           ],
         ),

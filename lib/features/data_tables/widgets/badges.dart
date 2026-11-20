@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -16,7 +17,9 @@ class AiBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     return Semantics(
-      label: count == null ? 'AI 写入' : '有 $count 处 AI 待确认变更',
+      label: count == null
+          ? context.strings.aiEdits
+          : context.strings.aiChangesAwaitingReviewBuild(count.toString()),
       child: Container(
         height: 20,
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -52,7 +55,7 @@ class PendingBadge extends StatelessWidget {
         Icon(LucideIcons.hourglass, size: 12, color: c.labelSecondary),
         const SizedBox(width: 4),
         Text(
-          '待确认 $count',
+          context.strings.review(count),
           style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
         ),
       ],

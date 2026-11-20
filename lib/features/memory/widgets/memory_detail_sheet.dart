@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -16,7 +17,8 @@ Future<MemoryDetailAction?> showMemoryDetailSheet(
 }) {
   final c = AppColors.of(context);
   final now = DateTime.now();
-  String date(DateTime d) => '${d.year}年${d.month}月${d.day}日';
+  String date(DateTime d) =>
+      context.strings.formattedValueDate(d.year, d.month, d.day);
   Widget detail(String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 5),
     child: Row(
@@ -40,7 +42,7 @@ Future<MemoryDetailAction?> showMemoryDetailSheet(
   );
   return AppSheet.show<MemoryDetailAction>(
     context,
-    title: '记忆详情',
+    title: context.strings.memoryDetails,
     child: Builder(
       builder: (sheetContext) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -52,27 +54,31 @@ Future<MemoryDetailAction?> showMemoryDetailSheet(
               style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             ),
             const SizedBox(height: 10),
-            detail('类型', typeLabel),
+            detail(context.strings.type, typeLabel),
             detail(
-              '来源',
-              entry.source == MemorySource.manual ? '手动添加' : 'AI 提取',
+              context.strings.source,
+              entry.source == MemorySource.manual
+                  ? context.strings.addedManually
+                  : context.strings.extractedByAi,
             ),
             detail(
-              '置信度',
-              '${entry.confidenceLabel} ${(entry.confidence * 100).round()}%',
+              context.strings.confidenceShowmemorydetailsheet,
+              '${localizedBuiltin(entry.confidenceLabel)} ${(entry.confidence * 100).round()}%',
             ),
             detail(
-              '时效',
+              context.strings.retention,
               entry.expiresAt == null
-                  ? '长期有效'
-                  : '${date(entry.expiresAt!)}${entry.isExpired(now) ? ' 已过期' : '失效'}',
+                  ? context.strings.noExpiration
+                  : '${date(entry.expiresAt!)}${entry.isExpired(now) ? context.strings.expiredShowmemorydetailsheet : context.strings.expires}',
             ),
-            detail('创建', date(entry.createdAt)),
-            detail('更新', date(entry.updatedAt)),
+            detail(context.strings.create, date(entry.createdAt)),
+            detail(context.strings.update, date(entry.updatedAt)),
             if (entry.sourceSessionId != null ||
                 entry.sourceSessionTitle != null)
               AppPressable(
-                semanticLabel: '跳转到来源会话 ${entry.sourceSessionTitle ?? ''}',
+                semanticLabel: context.strings.openSourceChat(
+                  entry.sourceSessionTitle ?? '',
+                ),
                 onTap: () =>
                     Navigator.pop(sheetContext, MemoryDetailAction.source),
                 child: Row(
@@ -85,7 +91,10 @@ Future<MemoryDetailAction?> showMemoryDetailSheet(
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '来自会话「${entry.sourceSessionTitle ?? '查看原会话'}」',
+                        context.strings.fromChatShowmemorydetailsheet(
+                          entry.sourceSessionTitle ??
+                              context.strings.viewOriginalChat,
+                        ),
                         style: AppTextStyles.footnote.copyWith(
                           color: c.labelPrimary,
                         ),
@@ -103,9 +112,21 @@ Future<MemoryDetailAction?> showMemoryDetailSheet(
             Row(
               children: [
                 for (final (action, label, icon) in [
-                  (MemoryDetailAction.edit, '编辑', LucideIcons.pencil),
-                  (MemoryDetailAction.copy, '复制', LucideIcons.copy),
-                  (MemoryDetailAction.delete, '删除', LucideIcons.trash2),
+                  (
+                    MemoryDetailAction.edit,
+                    context.strings.edit,
+                    LucideIcons.pencil,
+                  ),
+                  (
+                    MemoryDetailAction.copy,
+                    context.strings.copyShowmemorydetailsheet,
+                    LucideIcons.copy,
+                  ),
+                  (
+                    MemoryDetailAction.delete,
+                    context.strings.deleteLabel,
+                    LucideIcons.trash2,
+                  ),
                 ])
                   Expanded(
                     child: AppPressable(

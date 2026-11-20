@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/business_ui_commands.dart';
 import '../../app/exports.dart';
 
@@ -62,7 +64,10 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
       initialTypeId: ref.read(dataTableLibraryProvider).newTableTypeId,
     );
     if (table == null || !mounted) return;
-    AppToast.show(context, message: '已创建「${table.name}」');
+    AppToast.show(
+      context,
+      message: context.strings.createdCreatetable(table.name),
+    );
     context.push(AppRoutes.dataTable(table.id));
   }
 
@@ -82,7 +87,7 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
   Future<void> _showTemplates() async {
     final template = await AppSheet.show<DataTableTemplate>(
       context,
-      title: '从模板新建',
+      title: context.strings.createFromTemplate,
       child: Consumer(
         builder: (sheetContext, sheetRef, _) => ListView(
           shrinkWrap: true,
@@ -90,7 +95,9 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
           children: [
             for (final template in sheetRef.watch(dataTableTemplatesProvider))
               AppPressable(
-                semanticLabel: '从模板新建：${template.name}',
+                semanticLabel: context.strings.createFromTemplateShowtemplates(
+                  template.name,
+                ),
                 borderRadius: AppRadii.brLg,
                 onTap: () => Navigator.of(sheetContext).pop(template),
                 child: Padding(
@@ -104,7 +111,7 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
                       const SizedBox(width: 12),
                       Expanded(child: Text(template.name)),
                       Text(
-                        '${template.columns.length} 字段',
+                        context.strings.fields(template.columns.length),
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.of(sheetContext).labelSecondary,
                         ),
@@ -132,13 +139,13 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
         child: Column(
           children: [
             WorkspaceNavBar(
-              title: '核心数据',
+              title: context.strings.dataTables,
               onBack: () =>
                   context.canPop() ? context.pop() : context.go(AppRoutes.home),
               actions: [
                 GlassIconButton(
                   icon: LucideIcons.copy,
-                  label: '从模板新建',
+                  label: context.strings.createFromTemplate,
                   onTap: _showTemplates,
                 ),
               ],
@@ -166,14 +173,14 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
                           child: Row(
                             children: [
                               Text(
-                                '${library.tables.length} 张表',
+                                context.strings.tables(library.tables.length),
                                 style: AppTextStyles.caption.copyWith(
                                   color: c.labelSecondary,
                                 ),
                               ),
                               const Spacer(),
                               Text(
-                                '最近更新',
+                                context.strings.recentlyUpdated,
                                 style: AppTextStyles.caption.copyWith(
                                   color: c.labelSecondary,
                                 ),
@@ -189,10 +196,10 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
                                   ? LucideIcons.search
                                   : LucideIcons.table,
                               title: filter.query.isNotEmpty
-                                  ? '没有匹配的数据表'
-                                  : '还没有数据表',
+                                  ? context.strings.noMatchingTables
+                                  : context.strings.noTablesYet,
                               actionLabel: filter.query.isNotEmpty
-                                  ? '清除搜索'
+                                  ? context.strings.clearSearch
                                   : null,
                               onAction: filter.query.isNotEmpty
                                   ? _clearSearch
@@ -220,8 +227,8 @@ class _DataTablesPageState extends ConsumerState<DataTablesPage> {
                       onSearchChanged: controller.search,
                       onClear: _clearSearch,
                       onAdd: () => _createTable(),
-                      addLabel: '新建表',
-                      hint: '搜索数据表',
+                      addLabel: context.strings.newTable,
+                      hint: context.strings.searchTables,
                     ),
                   ),
                 ],
@@ -245,16 +252,28 @@ class _TableListTile extends ConsumerWidget {
     final c = AppColors.of(context);
     final pending = summary.pendingCount;
     final lastUpdate = summary.updatedAt;
-    final sub =
-        '${table.columns.length} 字段 ${summary.rowCount} 行 ${relativeTime(lastUpdate)}';
+    final sub = context.strings.fieldsRows(
+      table.columns.length,
+      summary.rowCount,
+      relativeTime(lastUpdate),
+    );
 
     return AppPressable(
       onTap: () => context.push(AppRoutes.dataTable(table.id)),
       onLongPress: () => _showContextSheet(context, ref),
       borderRadius: AppRadii.brLg,
       semanticLabel: pending > 0
-          ? '${table.name}，${table.columns.length} 字段 ${summary.rowCount} 行，有 $pending 处 AI 待确认变更'
-          : '${table.name}，${table.columns.length} 字段 ${summary.rowCount} 行',
+          ? context.strings.fieldsRowsAiChangesToReview(
+              table.name,
+              table.columns.length,
+              summary.rowCount,
+              pending,
+            )
+          : context.strings.fieldsRowsBuild(
+              table.name,
+              table.columns.length,
+              summary.rowCount,
+            ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 50),
         child: Padding(
@@ -320,11 +339,13 @@ class _TableListTile extends ConsumerWidget {
       if (context.mounted) {
         AppToast.show(
           context,
-          message: '已导出 CSV ${file.uri.pathSegments.last}',
+          message: context.strings.csvExported(file.uri.pathSegments.last),
         );
       }
     } catch (_) {
-      if (context.mounted) AppToast.show(context, message: '导出失败，请重试');
+      if (context.mounted) {
+        AppToast.show(context, message: context.strings.exportFailedTryAgain);
+      }
     }
   }
 
@@ -338,7 +359,7 @@ class _TableListTile extends ConsumerWidget {
         children: [
           _SheetAction(
             icon: LucideIcons.pencil,
-            label: '重命名',
+            label: context.strings.rename,
             onTap: () async {
               Navigator.of(context).pop();
               await _rename(context, ref);
@@ -346,7 +367,7 @@ class _TableListTile extends ConsumerWidget {
           ),
           _SheetAction(
             icon: LucideIcons.folder,
-            label: '修改类型',
+            label: context.strings.changeType,
             onTap: () async {
               Navigator.of(context).pop();
               final selected = await showDataTableTypePicker(
@@ -364,13 +385,13 @@ class _TableListTile extends ConsumerWidget {
           ),
           _SheetAction(
             icon: LucideIcons.copy,
-            label: '复制表结构',
+            label: context.strings.copyTableStructure,
             onTap: () {
               runDataCommand(context, () async {
                 final copy = await ref
                     .read(businessUiCommandsProvider)
                     .createTable(
-                      name: '${table.name} 副本',
+                      name: context.strings.copy(table.name),
                       iconKey: table.iconKey,
                       description: table.description,
                       columns: table.columns,
@@ -378,13 +399,16 @@ class _TableListTile extends ConsumerWidget {
                     );
                 if (!context.mounted) return;
                 Navigator.of(context).pop();
-                AppToast.show(context, message: '已复制出「${copy.name}」');
+                AppToast.show(
+                  context,
+                  message: context.strings.createdCopy(copy.name),
+                );
               });
             },
           ),
           _SheetAction(
             icon: LucideIcons.upload,
-            label: '导出 CSV',
+            label: context.strings.exportCsv,
             onTap: () {
               Navigator.of(context).pop();
               _exportTable(table, ref, context);
@@ -392,22 +416,25 @@ class _TableListTile extends ConsumerWidget {
           ),
           _SheetAction(
             icon: LucideIcons.archive,
-            label: '归档',
+            label: context.strings.archive,
             color: c.labelPrimary,
             onTap: () async {
               Navigator.of(context).pop();
               final confirmed = await showAppConfirmDialog(
                 context,
-                title: '归档这张表？',
-                message: '归档后不在列表显示，数据仍保留。删除需先进归档。',
-                confirmLabel: '归档',
+                title: context.strings.archiveThisTable,
+                message: context.strings.archivedTablesAreHiddenArchiveATable,
+                confirmLabel: context.strings.archive,
                 destructive: true,
               );
               if (!confirmed || !context.mounted) return;
               await runDataCommand(context, () async {
                 await ref.read(businessUiCommandsProvider).archiveTable(table);
                 if (!context.mounted) return;
-                AppToast.show(context, message: '已归档「${table.name}」');
+                AppToast.show(
+                  context,
+                  message: context.strings.archivedShowcontextsheet(table.name),
+                );
               });
             },
           ),
@@ -420,13 +447,13 @@ class _TableListTile extends ConsumerWidget {
   Future<void> _rename(BuildContext context, WidgetRef ref) async {
     final name = await showFieldEditor(
       context,
-      column: DataColumnDef(name: '重命名', type: 'text'),
+      column: DataColumnDef(name: context.strings.rename, type: 'text'),
       current: table.name,
       onSave: (value) =>
           ref.read(businessUiCommandsProvider).renameTable(table, value),
     );
     if (name != null && name != table.name && context.mounted) {
-      AppToast.show(context, message: '已重命名为「$name」');
+      AppToast.show(context, message: context.strings.renamedTo(name));
     }
   }
 }

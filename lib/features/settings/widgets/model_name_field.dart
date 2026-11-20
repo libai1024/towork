@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_sheet.dart';
@@ -49,7 +50,7 @@ class _ModelNameFieldState extends State<ModelNameField> {
     final revision = widget.credentialsRevision;
     final choice = await AppSheet.show<String>(
       context,
-      title: '可用模型',
+      title: context.strings.availableModels,
       child: ModelDirectorySheet(
         product: widget.descriptor.kind,
         load: load,
@@ -74,7 +75,7 @@ class _ModelNameFieldState extends State<ModelNameField> {
   Future<void> _choose() async {
     final choice = await AppSheet.show<String>(
       context,
-      title: '选择模型',
+      title: context.strings.chooseModel,
       child: Builder(
         builder: (sheet) => SingleChildScrollView(
           child: Column(
@@ -88,7 +89,7 @@ class _ModelNameFieldState extends State<ModelNameField> {
                   onTap: () => Navigator.of(sheet).pop(preset.id),
                 ),
               SheetOptionRow(
-                title: '自定义模型',
+                title: context.strings.customModel,
                 selected: _custom,
                 onTap: () => Navigator.of(sheet).pop(''),
               ),
@@ -118,12 +119,12 @@ class _ModelNameFieldState extends State<ModelNameField> {
             if (widget.descriptor.models.isNotEmpty)
               SettingsRow(
                 key: const ValueKey('choose-account-model'),
-                title: '模型',
+                title: context.strings.model,
                 valueLeading: _custom
                     ? null
                     : ProviderLogo(widget.descriptor.kind, size: 14),
                 value: _custom
-                    ? '自定义模型'
+                    ? context.strings.customModel
                     : widget.descriptor.preset(widget.controller.text)?.label,
                 showChevron: true,
                 enabled: widget.enabled,
@@ -133,8 +134,8 @@ class _ModelNameFieldState extends State<ModelNameField> {
               SettingsInputField(
                 fieldKey: const ValueKey('model-name-input'),
                 prefix: ProviderLogo(widget.descriptor.kind, size: 14),
-                label: '模型 ID',
-                hint: '输入模型 ID',
+                label: context.strings.modelId,
+                hint: context.strings.enterModelId,
                 controller: widget.controller,
                 enabled: widget.enabled,
                 maxLength: 120,
@@ -145,7 +146,9 @@ class _ModelNameFieldState extends State<ModelNameField> {
       ),
       ModelActionButton(
         key: const ValueKey('model-fetch'),
-        label: _cached == null ? '获取模型列表' : '选择已获取的模型',
+        label: _cached == null
+            ? context.strings.fetchModelList
+            : context.strings.selectAFetchedModel,
         icon: _cached == null ? LucideIcons.download : LucideIcons.listChecks,
         onPressed: widget.load == null ? null : _browse,
       ),

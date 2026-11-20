@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -56,7 +57,7 @@ class ReportStatsGrid extends StatelessWidget {
       deltaRow = _deltaRow(
         context,
         LucideIcons.minus,
-        '无上期对比',
+        context.strings.noPreviousComparison,
         c.labelTertiary,
       );
     } else if (delta >= 0) {
@@ -78,7 +79,7 @@ class ReportStatsGrid extends StatelessWidget {
       context,
       value: rate == null ? null : _fmt(rate),
       unit: '%',
-      label: '完成率',
+      label: context.strings.completionRateBuildpie,
       delta: deltaRow,
     );
   }
@@ -89,13 +90,13 @@ class ReportStatsGrid extends StatelessWidget {
     return _card(
       context,
       value: stats.doneCount?.toString(),
-      label: '完成',
+      label: context.strings.complete,
       delta: created == null
           ? _deltaRow(context, LucideIcons.minus, '–', c.labelTertiary)
           : _deltaRow(
               context,
               LucideIcons.trendingUp,
-              '新增 $created 项',
+              context.strings.addedDonecard(created),
               c.labelTertiary,
             ),
     );
@@ -107,17 +108,22 @@ class ReportStatsGrid extends StatelessWidget {
     return _card(
       context,
       value: overdue?.toString(),
-      label: '逾期',
+      label: context.strings.overdueBuild,
       delta: overdue == null
           ? _deltaRow(context, LucideIcons.minus, '–', c.labelTertiary)
           : overdue > 0
           ? _deltaRow(
               context,
               LucideIcons.trendingDown,
-              '需关注',
+              context.strings.needsAttention,
               c.overdueForeground,
             )
-          : _deltaRow(context, LucideIcons.minus, '无逾期', c.labelTertiary),
+          : _deltaRow(
+              context,
+              LucideIcons.minus,
+              context.strings.noneOverdue,
+              c.labelTertiary,
+            ),
     );
   }
 
@@ -128,7 +134,7 @@ class ReportStatsGrid extends StatelessWidget {
       context,
       value: stats.dataRowCount?.toString(),
       unit: stats.dataRowUnit,
-      label: '新增数据',
+      label: context.strings.newData,
       delta: _deltaRow(
         context,
         LucideIcons.minus,

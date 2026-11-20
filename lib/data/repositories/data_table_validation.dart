@@ -14,13 +14,13 @@ void validateDataTableColumns(List<DataColumnDef> columns) {
     if (column.fieldType == DataFieldType.selection) {
       final options = <String>{};
       if (column.enumOptions.isEmpty) {
-        _invalid('「${column.name}」至少需要一个选项');
+        _invalid('「{0}」至少需要一个选项', [column.name]);
       }
       for (final option in column.enumOptions) {
         if (option.trim().isEmpty || option != option.trim()) {
-          _invalid('「${column.name}」的选项不能为空或包含首尾空白');
+          _invalid('「{0}」的选项不能为空或包含首尾空白', [column.name]);
         }
-        if (!options.add(option)) _invalid('「${column.name}」的选项不能重复');
+        if (!options.add(option)) _invalid('「{0}」的选项不能重复', [column.name]);
       }
     }
   }
@@ -40,13 +40,13 @@ void validateDataRowValues(
 }) {
   final columns = {for (final column in table.columns) column.name: column};
   for (final field in values.keys) {
-    if (!columns.containsKey(field)) _invalid('数据包含未定义的字段「$field」');
+    if (!columns.containsKey(field)) _invalid('数据包含未定义的字段「{0}」', [field]);
   }
   for (final column in table.columns) {
     if (partial && !values.containsKey(column.name)) continue;
     final value = values[column.name] ?? '';
     if (column.isRequired && value.trim().isEmpty) {
-      _invalid('「${column.name}」不能为空');
+      _invalid('「{0}」不能为空', [column.name]);
     }
     if (value.isEmpty) continue;
     final valid = switch (column.fieldType) {
@@ -67,7 +67,7 @@ void validateDataRowValues(
         DataFieldType.selection => '已有选项',
         DataFieldType.boolean => 'true 或 false',
       };
-      _invalid('「${column.name}」必须是$requirement');
+      _invalid('「{0}」必须是{1}', [column.name, requirement]);
     }
   }
 }
@@ -113,5 +113,9 @@ bool _validDateTime(String value) {
   return true;
 }
 
-Never _invalid(String message) =>
-    throw RepositoryException(RepositoryErrorCode.invalidInput, message);
+Never _invalid(String message, [List<String> arguments = const []]) =>
+    throw RepositoryException(
+      RepositoryErrorCode.invalidInput,
+      message,
+      arguments,
+    );

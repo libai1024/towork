@@ -20,6 +20,7 @@ import 'package:towork/shell/router.dart';
 import 'package:towork/app/routes.dart';
 import 'package:towork/core/widgets/app_pressable.dart';
 import 'package:towork/data/local/app_database.dart';
+import 'package:towork/data/local/app_preferences_store.dart';
 import 'package:towork/core/todo/create_todo_sheet.dart';
 import 'package:towork/core/todo/todo_checkbox.dart';
 import 'package:towork/main.dart';
@@ -43,6 +44,12 @@ void main() {
     Future<void> open({bool quickAsk = false}) async {
       final current = AppDatabase.background(file);
       db = current;
+      // This scenario asserts the Chinese labels on both device locales.
+      final store = SqliteAppPreferencesStore(current);
+      final prefs = await store.loadOrCreate();
+      if (prefs.language != 'zh') {
+        await store.update({'language': 'zh'}, expectedVersion: prefs.version);
+      }
       final settings = ModelSettingsService(current, vault, model);
       if (quickAsk) {
         await settings.save(

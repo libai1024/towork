@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide DataRow;
 import 'package:flutter/services.dart';
@@ -14,6 +15,8 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_radii.dart';
 import '../../../theme/app_text_styles.dart';
 import 'formatters.dart';
+
+part 'row_filter_date_picker.dart';
 
 /// 行级筛选条件（本地库 SQL 查询模式）。[fieldId] 是工作区字段 ID；
 /// [value] 已按类型规范化——text/enum/date/datetime 为 String、bool 为 bool、
@@ -39,13 +42,13 @@ class RowFilterCondition {
 }
 
 /// 操作的中文名（面板展示用）。
-const rowFilterOpLabels = <String, String>{
-  'eq': '等于',
-  'contains': '包含',
-  'gt': '大于',
-  'ge': '大于等于',
-  'lt': '小于',
-  'le': '小于等于',
+Map<String, String> get rowFilterOpLabels => <String, String>{
+  'eq': strings.equals,
+  'contains': strings.containsRowFilterSheet,
+  'gt': strings.greaterThan,
+  'ge': strings.atLeast,
+  'lt': strings.lessThan,
+  'le': strings.atMost,
 };
 
 /// 与 sqlite_row_query 的校验保持一致：text/enum → eq|contains，
@@ -67,11 +70,13 @@ String? validateRowFilterNumber(DataColumnDef column, String op, String text) {
       canonicalBusinessDecimal(text, scale: money ? column.scale : null);
       return null;
     } on WorkspaceFailure {
-      return money ? '金额需为数字，且不超过 ${column.scale} 位小数' : '请输入数字';
+      return money
+          ? strings.enterANumberWithUpToDecimal(column.scale)
+          : strings.enterANumber;
     }
   }
   final parsed = double.tryParse(text);
-  return parsed != null && parsed.isFinite ? null : '请输入数字';
+  return parsed != null && parsed.isFinite ? null : strings.enterANumber;
 }
 
 /// 打开行筛选面板（风格同字段管理面板）。应用时回调完整条件；
@@ -84,7 +89,7 @@ Future<void> showRowFilterSheet(
 }) {
   return AppSheet.show<void>(
     context,
-    title: '筛选',
+    title: context.strings.filter,
     child: ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * .75,
@@ -219,8 +224,8 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
                 padding: const EdgeInsets.only(top: 4, bottom: 8),
                 child: Text(
                   _conditions.isEmpty
-                      ? '按字段添加条件，最多 4 个'
-                      : '共 ${_conditions.length} 个条件',
+                      ? context.strings.addUpToFourFieldConditions
+                      : context.strings.conditions(_conditions.length),
                   style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
                 ),
               ),
@@ -236,7 +241,7 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    '这张表还没有可筛选的字段',
+                    context.strings.noFilterableFieldsInThisTable,
                     style: AppTextStyles.body.copyWith(color: c.labelTertiary),
                   ),
                 )
@@ -244,7 +249,7 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: AppButton(
-                    label: '添加条件',
+                    label: context.strings.addCondition,
                     icon: LucideIcons.plus,
                     type: AppButtonType.secondary,
                     expand: true,
@@ -255,7 +260,7 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: Text(
-                    '最多 $maxConditions 个条件',
+                    context.strings.upToConditions(maxConditions),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelQuaternary,
                     ),
@@ -270,7 +275,7 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
           child: Row(
             children: [
               AppButton(
-                label: '清除筛选',
+                label: context.strings.clearFilters,
                 type: AppButtonType.ghost,
                 onPressed: () {
                   widget.onApply(const []);
@@ -278,7 +283,7 @@ class _RowFilterSheetState extends State<_RowFilterSheet> {
                 },
               ),
               const Spacer(),
-              AppButton(label: '应用筛选', onPressed: _apply),
+              AppButton(label: context.strings.applyFilters, onPressed: _apply),
             ],
           ),
         ),
@@ -436,7 +441,7 @@ class _ConditionCardState extends State<_ConditionCard> {
                 ),
                 AppPressable(
                   onTap: widget.onRemove,
-                  semanticLabel: '移除此条件',
+                  semanticLabel: context.strings.removeCondition,
                   borderRadius: AppRadii.brMd,
                   child: SizedBox(
                     width: 40,
@@ -489,7 +494,7 @@ class _ConditionCardState extends State<_ConditionCard> {
             children: [
               Expanded(
                 child: Text(
-                  '取值',
+                  context.strings.value,
                   style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                 ),
               ),
@@ -522,7 +527,7 @@ class _ConditionCardState extends State<_ConditionCard> {
             : null;
         final parsed = raw == null ? null : DateTime.tryParse(raw);
         final display = raw == null
-            ? '选择日期'
+            ? context.strings.chooseDate
             : (parsed == null
                   ? raw
                   : type == DataFieldType.datetime
@@ -534,7 +539,7 @@ class _ConditionCardState extends State<_ConditionCard> {
               child: AppPressable(
                 onTap: () =>
                     _pickDate(withTime: type == DataFieldType.datetime),
-                semanticLabel: '选择日期',
+                semanticLabel: context.strings.chooseDate,
                 borderRadius: AppRadii.brSm,
                 child: Container(
                   height: 44,
@@ -571,7 +576,7 @@ class _ConditionCardState extends State<_ConditionCard> {
             if (raw != null)
               AppPressable(
                 onTap: () => widget.onChanged(widget.condition.withValue(null)),
-                semanticLabel: '清除日期',
+                semanticLabel: context.strings.clearDate,
                 borderRadius: BorderRadius.circular(24),
                 child: SizedBox(
                   width: 44,
@@ -598,8 +603,12 @@ class _ConditionCardState extends State<_ConditionCard> {
           cursorColor: c.brand,
           decoration: InputDecoration(
             hintText: money
-                ? '如 1250.00'
-                : (column.unit == null ? '如 3.5' : '如 3.5（${column.unit}）'),
+                ? context.strings.eGBackfillhint
+                : (column.unit == null
+                      ? context.strings.eG
+                      : context.strings.eGBuildvalueeditor(
+                          column.unit.toString(),
+                        )),
             errorText: _error,
           ),
         );
@@ -609,119 +618,8 @@ class _ConditionCardState extends State<_ConditionCard> {
           onChanged: _reportText,
           style: AppTextStyles.body.copyWith(color: c.labelPrimary),
           cursorColor: c.brand,
-          decoration: const InputDecoration(hintText: '输入内容'),
+          decoration: InputDecoration(hintText: context.strings.enterText),
         );
     }
-  }
-}
-
-/// 日期值选择（沿用 field_editors 的快捷 chip + 滚轮模式）。
-Future<String?> _showDatePickerSheet(
-  BuildContext context, {
-  required bool withTime,
-  String? current,
-}) {
-  return AppSheet.show<String>(
-    context,
-    title: withTime ? '选择日期时间' : '选择日期',
-    child: _DatePickerValueSheet(withTime: withTime, current: current),
-  );
-}
-
-class _DatePickerValueSheet extends StatefulWidget {
-  const _DatePickerValueSheet({required this.withTime, this.current});
-
-  final bool withTime;
-  final String? current;
-
-  @override
-  State<_DatePickerValueSheet> createState() => _DatePickerValueSheetState();
-}
-
-class _DatePickerValueSheetState extends State<_DatePickerValueSheet> {
-  late DateTime _selected = _parse(widget.current) ?? DateTime.now();
-
-  static DateTime? _parse(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    return DateTime.tryParse(raw.replaceAll(' ', 'T'))?.toLocal();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    var toMonday = (DateTime.monday + 7 - today.weekday) % 7;
-    if (toMonday == 0) toMonday = 7;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final (label, day) in [
-                  ('今天', today),
-                  ('明天', today.add(const Duration(days: 1))),
-                  ('下周一', today.add(Duration(days: toMonday))),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: AppChip(
-                      label: label,
-                      onTap: () => setState(
-                        () => _selected = DateTime(
-                          day.year,
-                          day.month,
-                          day.day,
-                          _selected.hour,
-                          _selected.minute,
-                        ),
-                      ),
-                    ),
-                  ),
-                AppChip(
-                  label: '清除',
-                  onTap: () => Navigator.of(context).pop(''),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 180,
-            child: CupertinoDatePicker(
-              mode: widget.withTime
-                  ? CupertinoDatePickerMode.dateAndTime
-                  : CupertinoDatePickerMode.date,
-              initialDateTime: _selected,
-              use24hFormat: true,
-              onDateTimeChanged: (v) => _selected = v,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              AppButton(
-                label: '取消',
-                type: AppButtonType.ghost,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              const Spacer(),
-              AppButton(
-                label: '保存',
-                onPressed: () => Navigator.of(context).pop(
-                  widget.current != null && _parse(widget.current) == _selected
-                      ? widget.current!
-                      : widget.withTime
-                      ? _selected.toUtc().toIso8601String()
-                      : formatDate(_selected),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

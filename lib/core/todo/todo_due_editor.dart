@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -53,9 +54,15 @@ class _DueEditorState extends State<TodoDueEditor> {
     final hasTime = due != null && (due.hour != 0 || due.minute != 0);
 
     final quick = <(String, DateTime)>[
-      ('今天', _withCurrentTime(today)),
-      ('明天', _withCurrentTime(today.add(const Duration(days: 1)))),
-      ('下周一', _withCurrentTime(today.add(Duration(days: 8 - today.weekday)))),
+      (context.strings.today, _withCurrentTime(today)),
+      (
+        context.strings.tomorrow,
+        _withCurrentTime(today.add(const Duration(days: 1))),
+      ),
+      (
+        context.strings.nextMonday,
+        _withCurrentTime(today.add(Duration(days: 8 - today.weekday))),
+      ),
     ];
 
     return TodoEditorBox(
@@ -71,7 +78,7 @@ class _DueEditorState extends State<TodoDueEditor> {
                 onTap: () => widget.onChanged(target),
               ),
             AppChip(
-              label: '选日期…',
+              label: context.strings.chooseDateBuild2,
               icon: LucideIcons.calendar,
               selected: _showCalendar,
               onTap: () => setState(() => _showCalendar = !_showCalendar),
@@ -94,7 +101,7 @@ class _DueEditorState extends State<TodoDueEditor> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
-              '时间',
+              context.strings.time,
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             ),
             if (hasTime)
@@ -104,18 +111,18 @@ class _DueEditorState extends State<TodoDueEditor> {
               )
             else
               Text(
-                '全天截止',
+                context.strings.allDay,
                 style: AppTextStyles.body.copyWith(color: c.labelTertiary),
               ),
             if (hasTime)
               AppButton(
-                label: '清除时间',
+                label: context.strings.clearTime,
                 type: AppButtonType.ghost,
                 onPressed: () => widget.onChanged(dayOnly(due)),
               )
             else
               AppButton(
-                label: '添加时间',
+                label: context.strings.addTime,
                 type: AppButtonType.ghost,
                 onPressed: _pickTime,
               ),
@@ -127,14 +134,14 @@ class _DueEditorState extends State<TodoDueEditor> {
           const SizedBox(height: 4),
           Center(
             child: AppButton(
-              label: '清除截止',
+              label: context.strings.clearDueDate,
               type: AppButtonType.ghost,
               onPressed: () => widget.onChanged(null),
             ),
           ),
           Center(
             child: Text(
-              '清除后不再出现在今天/本周/逾期过滤中',
+              context.strings.removesTheTaskFromTodayThisWeek,
               style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
             ),
           ),

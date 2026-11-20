@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/app_preferences_provider.dart';
 import '../../app/assist_provider.dart';
 import '../../app/backup_export.dart';
@@ -34,6 +36,9 @@ import 'widgets/settings_shared.dart';
 import 'widgets/apple_privacy_rows.dart';
 import 'widgets/speech_diagnostics_sheet.dart';
 import '../../core/notifications/notification_diagnostics_sheet.dart';
+
+part 'settings_morning_time.dart';
+part 'settings_appearance_group.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -84,14 +89,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         'last_export_at': DateTime.now().millisecondsSinceEpoch,
       });
       if (!mounted) return;
-      AppToast.show(context, message: '已导出 $name');
+      AppToast.show(context, message: context.strings.exported(name));
     } catch (_) {
       if (temporary != null) {
         try {
           if (temporary.existsSync()) temporary.deleteSync();
         } catch (_) {}
       }
-      if (mounted) AppToast.show(context, message: '导出失败，请重试');
+      if (mounted) {
+        AppToast.show(context, message: context.strings.exportFailedTryAgain);
+      }
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
@@ -107,107 +114,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     dataRows: ref.read(dataTableProvider).rows.length,
   );
 
-  /// 每日晨报时间滚轮（仅时:分），确认即生效 + Toast。
-  void _pickMorningTime() {
-    final c = AppColors.of(context);
-    var (hour, minute) = ref.read(notifyMorningTimeProvider);
-    var saving = false;
-    AppSheet.show<void>(
-      context,
-      title: '每日晨报时间',
-      child: StatefulBuilder(
-        builder: (context, setSheetState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AbsorbPointer(
-                absorbing: saving,
-                child: SizedBox(
-                  height: 160,
-                  child: DefaultTextStyle(
-                    style: AppTextStyles.title3.copyWith(color: c.labelPrimary),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CupertinoPicker(
-                            scrollController: FixedExtentScrollController(
-                              initialItem: hour,
-                            ),
-                            itemExtent: 36,
-                            backgroundColor: c.bgPrimary,
-                            onSelectedItemChanged: (i) => hour = i,
-                            children: [
-                              for (var h = 0; h < 24; h++)
-                                Center(
-                                  child: Text(h.toString().padLeft(2, '0')),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          ':',
-                          style: AppTextStyles.title3.copyWith(
-                            color: c.labelTertiary,
-                          ),
-                        ),
-                        Expanded(
-                          child: CupertinoPicker(
-                            scrollController: FixedExtentScrollController(
-                              initialItem: minute,
-                            ),
-                            itemExtent: 36,
-                            backgroundColor: c.bgPrimary,
-                            onSelectedItemChanged: (i) => minute = i,
-                            children: [
-                              for (var m = 0; m < 60; m++)
-                                Center(
-                                  child: Text(m.toString().padLeft(2, '0')),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: AppButton(
-                  label: '确定',
-                  expand: true,
-                  loading: saving,
-                  onPressed: () async {
-                    if (saving) return;
-                    setSheetState(() => saving = true);
-                    final saved = await savePreferences(context, ref, {
-                      'morning_hour': hour,
-                      'morning_minute': minute,
-                    });
-                    if (!context.mounted) return;
-                    setSheetState(() => saving = false);
-                    if (!saved) return;
-                    Navigator.of(context).pop();
-                    AppToast.show(
-                      context,
-                      message:
-                          '晨报改到 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}',
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
   Future<void> _toggleMemoryFreeze(bool value) async {
     final saved = await savePreferences(context, ref, {'memory_paused': value});
     if (!mounted || !saved) return;
     if (value) {
-      AppToast.show(context, message: '好的，这段时间我不会记东西');
+      AppToast.show(context, message: context.strings.memoryPaused);
     }
   }
 
@@ -219,7 +130,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final user = ref.watch(userProfileProvider);
-    final themeMode = ref.watch(themeModeProvider);
     final writePermission = ref.watch(aiWritePermissionProvider);
     final memoryPaused = ref.watch(memoryPausedProvider);
     final notifyDue = ref.watch(notifyDueEnabledProvider);
@@ -229,36 +139,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final lastExportAt = ref.watch(
       appPreferencesSnapshotProvider.select((p) => p.lastExportAt),
     );
-    final fontScale = ref.watch(fontScaleProvider);
     final version = ref.watch(appVersionProvider);
     final assistEntries = ref.watch(assistEntryStatusProvider).valueOrNull;
     final activeAccount = ref.watch(liveModelAccountsProvider)?.active;
     final modelSummary = activeAccount == null
-        ? '添加 Key'
+        ? context.strings.addKey
         : '${activeAccount.descriptor.shortLabel} '
               '${accountStatusLabel(activeAccount, DateTime.now().toUtc())}';
 
-    final themeLabel = switch (themeMode) {
-      ThemeMode.light => '浅色',
-      ThemeMode.dark => '深色',
-      ThemeMode.system => '跟随系统',
-    };
     final morningTime =
         '${morningH.toString().padLeft(2, '0')}:${morningM.toString().padLeft(2, '0')}';
 
     final sections = <Widget>[
-      const SettingsSectionTitle(label: '账号', topGap: 8),
+      SettingsSectionTitle(label: context.strings.accountBuild, topGap: 8),
       SettingsGroupCard(
         flat: true,
         dividerIndent: 68,
         children: [
           SettingsRow(
             compact: true,
-            leading: AppAvatar(nickname: user.nickname, size: 30),
-            title: user.nickname,
+            leading: AppAvatar(
+              nickname: user.displayName(context.strings.defaultNickname),
+              size: 30,
+            ),
+            title: user.displayName(context.strings.defaultNickname),
             titleWeight: FontWeight.w500,
             showChevron: true,
-            semanticLabel: '账号详情',
+            semanticLabel: context.strings.accountDetails,
             onTap: () => context.push(AppRoutes.localProfile),
             trailing: Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -277,7 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.sparkles,
-            title: '模型与额度',
+            title: context.strings.modelsAndUsageBuild,
             value: modelSummary,
             showChevron: true,
             onTap: () => context.push(AppRoutes.modelAccounts),
@@ -285,7 +192,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.slidersHorizontal,
-            title: '助手偏好',
+            title: context.strings.assistantPreferences,
             value: assistantPreferencesSummary(
               ref.watch(appPreferencesSnapshotProvider),
             ),
@@ -294,7 +201,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ],
       ),
-      const SettingsSectionTitle(label: '隐私与权限'),
+      SettingsSectionTitle(label: context.strings.privacyAndPermissions),
       SettingsGroupCard(
         flat: true,
         children: [
@@ -302,7 +209,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.penLine,
-            title: 'AI 写入权限',
+            title: context.strings.aiWritePermissions,
             value: writePermission.label,
             valueColor: c.labelSecondary,
             showChevron: true,
@@ -311,13 +218,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsSwitchRow(
             compact: true,
             icon: LucideIcons.shieldOff,
-            title: '免记忆模式',
+            title: context.strings.pauseMemoryBuild,
             value: memoryPaused,
             onChanged: _toggleMemoryFreeze,
           ),
         ],
       ),
-      const SettingsSectionTitle(label: '输入与唤醒'),
+      SettingsSectionTitle(label: context.strings.inputAndQuickLaunch),
       SettingsGroupCard(
         flat: true,
         children: [
@@ -325,7 +232,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             SettingsRow(
               compact: true,
               icon: LucideIcons.zap,
-              title: '快捷唤醒',
+              title: context.strings.quickLaunch,
               value: quickAssistSummary(assistEntries),
               showChevron: true,
               onTap: () => context.push(AppRoutes.quickAssist),
@@ -333,28 +240,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.audioLines,
-            title: '语音识别检测',
+            title: context.strings.speechDiagnostics,
             showChevron: true,
             onTap: () => AppSheet.show<void>(
               context,
-              title: '语音识别检测',
+              title: context.strings.speechDiagnostics,
               child: const SpeechDiagnosticsSheet(),
             ),
           ),
           SettingsRow(
             compact: true,
             icon: LucideIcons.mic,
-            title: '默认输入方式',
+            title: context.strings.defaultInputMethod,
             value: ref.watch(defaultInputModeProvider) == ChatInputMode.voice
-                ? '语音'
-                : '键盘',
+                ? context.strings.voice
+                : context.strings.keyboard,
             showChevron: true,
             onTap: () {
               // 与「AI 写入权限」同一套 Sheet 选项行语法（09 §3）。
               final current = ref.read(defaultInputModeProvider);
               AppSheet.show<void>(
                 context,
-                title: '默认输入方式',
+                title: context.strings.defaultInputMethod,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -363,7 +270,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         icon: mode == ChatInputMode.voice
                             ? LucideIcons.mic
                             : LucideIcons.keyboard,
-                        title: mode == ChatInputMode.voice ? '语音' : '键盘',
+                        title: mode == ChatInputMode.voice
+                            ? context.strings.voice
+                            : context.strings.keyboard,
                         selected: mode == current,
                         onTap: () async {
                           Navigator.of(context).pop();
@@ -373,7 +282,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 .select(mode);
                           } catch (_) {
                             if (context.mounted) {
-                              AppToast.show(context, message: '未能保存，请重试');
+                              AppToast.show(
+                                context,
+                                message:
+                                    context.strings.couldntSaveTryAgainBuild,
+                              );
                             }
                           }
                         },
@@ -386,14 +299,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ],
       ),
-      const SettingsSectionTitle(label: '通知'),
+      SettingsSectionTitle(label: context.strings.notifications),
       SettingsGroupCard(
         flat: true,
         children: [
           SettingsSwitchRow(
             compact: true,
             icon: LucideIcons.alarmClock,
-            title: '截止提醒',
+            title: context.strings.dueReminders,
             value: notifyDue,
             onChanged: (v) => savePreferences(context, ref, {'notify_due': v}),
           ),
@@ -402,8 +315,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.sunrise,
-            title: '每日晨报',
-            value: notifyMorning ? morningTime : '已关闭',
+            title: context.strings.morningDigest,
+            value: notifyMorning ? morningTime : context.strings.off,
             showChevron: notifyMorning,
             onTap: notifyMorning
                 ? _pickMorningTime
@@ -412,13 +325,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               value: notifyMorning,
               onChanged: (v) =>
                   savePreferences(context, ref, {'notify_morning': v}),
-              semanticLabel: '每日晨报开关',
+              semanticLabel: context.strings.morningDigestSwitch,
             ),
           ),
           SettingsSwitchRow(
             compact: true,
             icon: LucideIcons.fileText,
-            title: '报告就绪提醒',
+            title: context.strings.reportReadyNotifications,
             value: notifyReport,
             onChanged: (v) =>
                 savePreferences(context, ref, {'notify_report': v}),
@@ -426,47 +339,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.circleHelp,
-            title: '通知与提醒设置',
+            title: context.strings.notificationSettings,
             showChevron: true,
             onTap: () => showNotificationDiagnostics(context),
           ),
         ],
       ),
-      const SettingsSectionTitle(label: '外观'),
-      SettingsGroupCard(
-        flat: true,
-        dividerIndent: 16,
-        children: [
-          SettingsRow(
-            compact: true,
-            leading: Icon(
-              themeMode == ThemeMode.dark ? LucideIcons.moon : LucideIcons.sun,
-              size: 20,
-              color: c.labelSecondary,
-            ),
-            title: '主题',
-            value: themeLabel,
-            showChevron: true,
-            onTap: () => context.push(AppRoutes.appearance),
-          ),
-          SettingsRow(
-            compact: true,
-            icon: LucideIcons.type,
-            title: '字号',
-            value: fontScale <= 0.9 ? '小' : (fontScale >= 1.15 ? '大' : '标准'),
-            showChevron: true,
-            onTap: () => context.push(AppRoutes.appearance),
-          ),
-        ],
-      ),
-      const SettingsSectionTitle(label: '数据备份'),
+      SettingsSectionTitle(label: context.strings.appearance),
+      _appearanceSettingsGroup(context, ref),
+      SettingsSectionTitle(label: context.strings.dataBackup),
       SettingsGroupCard(
         flat: true,
         children: [
           SettingsRow(
             compact: true,
             icon: LucideIcons.download,
-            title: '一键导出',
+            title: context.strings.exportData,
             showChevron: !_exporting,
             onTap: _exporting ? null : _export,
             trailing: _exporting
@@ -486,12 +374,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.history,
-            title: '上次导出',
+            title: context.strings.lastExport,
             value: _exportLabel(lastExportAt),
           ),
         ],
       ),
-      const SettingsSectionTitle(label: '关于'),
+      SettingsSectionTitle(label: context.strings.about),
       SettingsGroupCard(
         flat: true,
         children: [
@@ -500,8 +388,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             icon: LucideIcons.info,
             title:
                 ref.watch(installedAppProvider).valueOrNull?.canUpdate == true
-                ? '检查更新'
-                : '版本',
+                ? context.strings.checkForUpdates
+                : context.strings.version,
             value: version,
             showChevron:
                 ref.watch(installedAppProvider).valueOrNull?.canUpdate == true,
@@ -513,7 +401,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           SettingsRow(
             compact: true,
             icon: LucideIcons.scale,
-            title: '开源许可',
+            title: context.strings.openSourceLicenses,
             showChevron: true,
             onTap: () => showLicensePage(
               context: context,
@@ -531,7 +419,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       body: SafeArea(
         child: Column(
           children: [
-            WorkspaceNavBar(title: '设置', onBack: _back),
+            WorkspaceNavBar(title: context.strings.settings, onBack: _back),
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 640),
@@ -539,9 +427,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   fit: StackFit.expand,
                   children: [
                     if (visible.isEmpty)
-                      const AppEmptyState(
+                      AppEmptyState(
                         icon: LucideIcons.search,
-                        title: '没有找到相关设置',
+                        title: context.strings.noMatchingSettings,
                       )
                     else
                       ListView(
@@ -553,7 +441,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       alignment: Alignment.bottomCenter,
                       child: WorkspaceBottomBar(
                         searchController: _searchController,
-                        hint: '搜索设置',
+                        hint: context.strings.searchSettings,
                         onSearchChanged: (_) => setState(() {}),
                         onClear: () => setState(_searchController.clear),
                       ),
@@ -601,15 +489,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   String _exportLabel(int millis) {
-    if (millis <= 0) return '尚未导出';
+    if (millis <= 0) return context.strings.neverExported;
     final t = DateTime.fromMillisecondsSinceEpoch(millis);
     final hm =
         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
     final now = DateTime.now();
     final day = DateTime(t.year, t.month, t.day);
     final today = DateTime(now.year, now.month, now.day);
-    if (day == today) return '今天 $hm';
-    if (day == today.subtract(const Duration(days: 1))) return '昨天 $hm';
-    return '${t.month}月${t.day}日 $hm';
+    if (day == today) return context.strings.todayRelativetimelabel(hm);
+    if (day == today.subtract(const Duration(days: 1))) {
+      return context.strings.yesterdayRelativetimelabel(hm);
+    }
+    return context.strings.formattedValueExportlabel(t.month, t.day, hm);
   }
 }

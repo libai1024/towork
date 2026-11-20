@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../domain/models/models.dart';
 
 /// 日程可视化派生统计（05-visualization.md §8）。
@@ -20,10 +22,12 @@ enum HeatMetric {
   created('新增 Todo 数', '件', ['0', '1', '2–3', '4–6', '7+']),
   dataRows('新增数据条数', '条', ['0', '1–2', '3–5', '6–9', '10+']);
 
-  const HeatMetric(this.label, this.unit, this.thresholdLabels);
+  const HeatMetric(this._label, this._unit, this.thresholdLabels);
 
-  final String label;
-  final String unit;
+  final String _label;
+  String get label => localizedBuiltin(_label);
+  final String _unit;
+  String get unit => localizedBuiltin(_unit);
 
   /// 5 档色阶对应的数值区间文字（图例与无障碍朗读用）。
   final List<String> thresholdLabels;
@@ -248,6 +252,14 @@ int dataSpanDays(List<Todo> todos) {
   return dayOnly(DateTime.now()).difference(dayOnly(earliest)).inDays;
 }
 
-const weekdayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+List<String> get weekdayLabels => [
+  strings.mon,
+  strings.tue,
+  strings.wed,
+  strings.thu,
+  strings.fri,
+  strings.sat,
+  strings.weekdaySunday,
+];
 
 String weekdayLabel(DateTime day) => weekdayLabels[day.weekday - 1];

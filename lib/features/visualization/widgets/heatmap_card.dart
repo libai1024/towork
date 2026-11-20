@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide DataRow;
@@ -16,6 +18,8 @@ import '../../../theme/app_text_styles.dart';
 import '../viz_stats.dart';
 import 'viz_card.dart';
 import 'viz_day_sheet.dart';
+
+part 'heatmap_painter.dart';
 
 /// D1 坚持强度热力图（05 文档 §3.2）：52 列 × 7 行 GitHub 风格，
 /// 格子 10pt 间距 2，5 档 brand 透明度色阶，横滑看全年，点按出详情。
@@ -105,7 +109,11 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
   }
 
   void _openDetail(DateTime date) {
-    final title = '${date.month} 月 ${date.day} 日 周${weekdayLabel(date)}';
+    final title = context.strings.formattedValueOpenday(
+      date.month,
+      date.day,
+      weekdayLabel(date),
+    );
     if (_metric == HeatMetric.dataRows) {
       AppSheet.show<void>(
         context,
@@ -135,7 +143,7 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '统计口径',
+              context.strings.metric,
               style: AppTextStyles.subhead.copyWith(
                 color: c.labelPrimary,
                 fontWeight: FontWeight.w600,
@@ -154,7 +162,7 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
                     Navigator.of(context).pop();
                   },
                   behavior: HitTestBehavior.opaque,
-                  semanticLabel: '口径：${m.label}',
+                  semanticLabel: context.strings.method(m.label),
                   child: Row(
                     children: [
                       Expanded(
@@ -169,7 +177,9 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
                               ),
                             ),
                             Text(
-                              '色阶：${m.thresholdLabels.join(' / ')}',
+                              context.strings.scale(
+                                m.thresholdLabels.join(' / '),
+                              ),
                               style: AppTextStyles.caption.copyWith(
                                 color: c.labelTertiary,
                               ),
@@ -198,18 +208,24 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
     final activeDays = _activeDays(counts);
 
     return VizCard(
-      title: '坚持强度',
-      hint: activeDays < 7 ? '已记录 $activeDays 天' : null,
+      title: context.strings.activity,
+      hint: activeDays < 7 ? context.strings.daysRecorded(activeDays) : null,
       trailing: AppPressable(
         onTap: _openMetricSheet,
 
         behavior: HitTestBehavior.translucent,
-        semanticLabel: '切换统计口径，当前：${_metric.label}',
+        semanticLabel: context.strings.changeMetricCurrently(_metric.label),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '口径：${_metric == HeatMetric.dataRows ? '数据' : (_metric == HeatMetric.completed ? '完成' : '新增')}',
+              context.strings.method(
+                _metric == HeatMetric.dataRows
+                    ? context.strings.data
+                    : (_metric == HeatMetric.completed
+                          ? context.strings.complete
+                          : context.strings.add),
+              ),
               style: AppTextStyles.footnote.copyWith(color: c.brand),
             ),
             Icon(LucideIcons.chevronDown, size: 16, color: c.brand),
@@ -219,8 +235,11 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
       child: Column(
         children: [
           Semantics(
-            label:
-                '坚持强度热力图，统计口径：${_metric.label}。过去一年共 $total ${_metric.unit}。',
+            label: context.strings.activityHeatmapForPastYear(
+              _metric.label,
+              total,
+              _metric.unit,
+            ),
             child: SizedBox(
               height: _HeatmapPainter.canvasSize.height,
               child: LayoutBuilder(
@@ -262,12 +281,12 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
           Row(
             children: [
               Text(
-                '少',
+                context.strings.less,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
               const SizedBox(width: 6),
               Semantics(
-                label: '色阶：${_metric.thresholdLabels.join('，')}',
+                label: context.strings.scale(_metric.thresholdLabels.join('，')),
                 child: Row(
                   children: [
                     for (var level = 0; level < 5; level++)
@@ -285,12 +304,12 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
               ),
               const SizedBox(width: 3),
               Text(
-                '多',
+                context.strings.moreBuild,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
               const Spacer(),
               Text(
-                '全年 $total ${_metric.unit}',
+                context.strings.yearBuild(total, _metric.unit),
                 style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
               ),
             ],
@@ -299,165 +318,6 @@ class _HeatmapCardState extends ConsumerState<HeatmapCard>
       ),
     );
   }
-}
-
-Color _levelColor(AppColors c, int level) => switch (level) {
-  0 => c.fill1,
-  1 => c.brand.withValues(alpha: 0.2),
-  2 => c.brand.withValues(alpha: 0.4),
-  3 => c.brand.withValues(alpha: 0.65),
-  _ => c.brand,
-};
-
-class _HeatmapPainter extends CustomPainter {
-  _HeatmapPainter({
-    required this.colors,
-    required this.counts,
-    required this.metric,
-    required this.start,
-    required this.today,
-    required this.labelStyle,
-    required this.viewportLeft,
-    required this.viewportWidth,
-    this.selected,
-    this.pulse = 0,
-  });
-
-  final AppColors colors;
-  final Map<DateTime, int> counts;
-  final HeatMetric metric;
-  final DateTime start;
-  final DateTime today;
-  final TextStyle labelStyle;
-  final double viewportLeft;
-  final double viewportWidth;
-  final (int, int)? selected;
-
-  /// 选中格回弹插值 0→1。
-  final double pulse;
-
-  static const double cell = 10;
-  static const double gap = 2;
-  static const double pitch = cell + gap;
-  static const double padLeft = 20;
-  static const double padTop = 16;
-  static const int columns = 52;
-  static const int rows = 7;
-
-  static Size get canvasSize =>
-      Size(padLeft + columns * pitch - gap, padTop + rows * pitch - gap);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // 横滑时将首个可见月份的标签留在视口内，避免显示半个「月」。
-    final visibleRight = viewportLeft + viewportWidth;
-    for (var col = 0; col < columns; col++) {
-      final monday = start.add(Duration(days: col * 7));
-      final prev = col == 0 ? null : start.add(Duration(days: (col - 1) * 7));
-      if (prev == null || monday.month != prev.month) {
-        var endColumn = col + 1;
-        while (endColumn < columns &&
-            start.add(Duration(days: endColumn * 7)).month == monday.month) {
-          endColumn++;
-        }
-        final monthLeft = padLeft + col * pitch;
-        final monthRight = padLeft + endColumn * pitch;
-        if (monthRight <= viewportLeft || monthLeft >= visibleRight) continue;
-        final label = TextPainter(
-          text: TextSpan(text: '${monday.month}月', style: labelStyle),
-          textDirection: TextDirection.ltr,
-        )..layout();
-        final left = math.max(monthLeft, viewportLeft);
-        if (left + label.width <= math.min(monthRight, visibleRight)) {
-          label.paint(canvas, Offset(left, 0));
-        }
-      }
-    }
-    // 行标签：一 / 三 / 五 / 日
-    const rowLabels = {0: '一', 2: '三', 4: '五', 6: '日'};
-    for (final e in rowLabels.entries) {
-      _text(canvas, e.value, Offset(0, padTop + e.key * pitch - 1));
-    }
-
-    // 格子
-    final fillPaint = Paint();
-    (int, int)? selectedToDraw;
-    for (var col = 0; col < columns; col++) {
-      for (var row = 0; row < rows; row++) {
-        final date = start.add(Duration(days: col * 7 + row));
-        final rect = Rect.fromLTWH(
-          padLeft + col * pitch,
-          padTop + row * pitch,
-          cell,
-          cell,
-        );
-        final future = date.isAfter(today);
-        final count = future ? 0 : (counts[date] ?? 0);
-        fillPaint.color = future
-            ? colors.fill1.withValues(alpha: 0.5)
-            : _levelColor(colors, heatLevel(count, metric));
-        if (selected == (col, row)) {
-          selectedToDraw = (col, row);
-          continue;
-        }
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(AppRadii.xs)),
-          fillPaint,
-        );
-      }
-    }
-    // 选中格最后绘制：1.15 倍回弹 + 0.5px labelPrimary 描边
-    if (selectedToDraw != null) {
-      final (col, row) = selectedToDraw;
-      final date = start.add(Duration(days: col * 7 + row));
-      final count = counts[date] ?? 0;
-      final base = Rect.fromLTWH(
-        padLeft + col * pitch,
-        padTop + row * pitch,
-        cell,
-        cell,
-      );
-      final scale = 1 + 0.15 * pulse;
-      final rect = Rect.fromCenter(
-        center: base.center,
-        width: cell * scale,
-        height: cell * scale,
-      );
-      final rrect = RRect.fromRectAndRadius(
-        rect,
-        const Radius.circular(AppRadii.xs),
-      );
-      canvas.drawRRect(
-        rrect,
-        Paint()..color = _levelColor(colors, heatLevel(count, metric)),
-      );
-      canvas.drawRRect(
-        rrect,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1
-          ..color = colors.labelPrimary,
-      );
-    }
-  }
-
-  void _text(Canvas canvas, String text, Offset offset) {
-    final tp = TextPainter(
-      text: TextSpan(text: text, style: labelStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, offset);
-  }
-
-  @override
-  bool shouldRepaint(_HeatmapPainter old) =>
-      old.counts != counts ||
-      old.metric != metric ||
-      old.selected != selected ||
-      old.pulse != pulse ||
-      old.viewportLeft != viewportLeft ||
-      old.viewportWidth != viewportWidth ||
-      old.colors != colors;
 }
 
 /// 口径 = 新增数据条数时的当日明细（数据表行）。
@@ -477,7 +337,7 @@ class _DataRowsSheet extends ConsumerWidget {
       for (final t in bundle.tables) {
         if (t.id == id) return t.name;
       }
-      return '数据表';
+      return context.strings.tablesTablename;
     }
 
     return ConstrainedBox(
@@ -491,7 +351,7 @@ class _DataRowsSheet extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '$title 新增数据 ${rows.length} 条',
+              context.strings.rowsAdded(title, rows.length),
               style: AppTextStyles.subhead.copyWith(
                 color: c.labelPrimary,
                 fontWeight: FontWeight.w600,
@@ -504,7 +364,7 @@ class _DataRowsSheet extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 32),
                       child: Center(
                         child: Text(
-                          '这一天很安静，什么也没有发生。',
+                          context.strings.noActivityThisDay,
                           style: AppTextStyles.body.copyWith(
                             color: c.labelTertiary,
                           ),

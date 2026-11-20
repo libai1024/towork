@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 
 import 'package:flutter/material.dart';
@@ -26,7 +28,7 @@ Future<DataTableDef?> showNewTableSheet(
 }) {
   return AppSheet.show<DataTableDef>(
     context,
-    title: '新建表',
+    title: context.strings.newTable,
     child: ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * .80,
@@ -53,8 +55,12 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
   late final List<DataColumnDef> _columns = List.of(
     widget.template?.columns ??
         [
-          DataColumnDef(name: '名称', type: 'text', isRequired: true),
-          DataColumnDef(name: '备注', type: 'text'),
+          DataColumnDef(
+            name: strings.nameNewTableSheet,
+            type: 'text',
+            isRequired: true,
+          ),
+          DataColumnDef(name: strings.notes, type: 'text'),
         ],
   );
   bool _nameError = false;
@@ -94,7 +100,7 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
   Future<void> _addField() async {
     final column = await AppSheet.show<DataColumnDef>(
       context,
-      title: '添加字段',
+      title: context.strings.addFieldBuildfieldlist,
       child: const SingleChildScrollView(child: _AddFieldSheet()),
     );
     if (column == null || !mounted) return;
@@ -123,8 +129,10 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
                     if (_nameError) setState(() => _nameError = false);
                   },
                   decoration: InputDecoration(
-                    hintText: '表名',
-                    errorText: _nameError ? '请输入表名' : null,
+                    hintText: context.strings.tableName,
+                    errorText: _nameError
+                        ? context.strings.enterATableName
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -134,7 +142,7 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '字段（${_columns.length}）',
+                  context.strings.fieldsBuild(_columns.length),
                   style: AppTextStyles.caption.copyWith(
                     color: c.labelTertiary,
                     fontWeight: FontWeight.w600,
@@ -171,7 +179,7 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
                       AppPressable(
                         onTap: _addField,
                         borderRadius: AppRadii.brLg,
-                        semanticLabel: '添加字段',
+                        semanticLabel: context.strings.addFieldBuildfieldlist,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -182,7 +190,7 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
                               Icon(LucideIcons.plus, size: 16, color: c.brand),
                               const SizedBox(width: 8),
                               Text(
-                                '添加字段',
+                                context.strings.addFieldBuildfieldlist,
                                 style: AppTextStyles.body.copyWith(
                                   color: c.brand,
                                 ),
@@ -200,7 +208,7 @@ class _NewTableSheetState extends ConsumerState<_NewTableSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: AppButton(
-              label: '创建',
+              label: context.strings.create,
               expand: true,
               loading: _saving,
               onPressed: _create,
@@ -233,7 +241,7 @@ class _FieldPreviewRow extends StatelessWidget {
           ),
           if (column.isRequired)
             Text(
-              '必填',
+              context.strings.required,
               style: AppTextStyles.caption.copyWith(color: c.labelPrimary),
             ),
           const SizedBox(width: 8),
@@ -246,7 +254,7 @@ class _FieldPreviewRow extends StatelessWidget {
             onTap: onDelete,
 
             behavior: HitTestBehavior.translucent,
-            semanticLabel: '删除字段${column.name}',
+            semanticLabel: context.strings.deleteFieldBuild(column.name),
             child: Icon(LucideIcons.x, size: 16, color: c.labelQuaternary),
           ),
         ],
@@ -265,7 +273,9 @@ class _AddFieldSheet extends StatefulWidget {
 
 class _AddFieldSheetState extends State<_AddFieldSheet> {
   final _nameController = TextEditingController();
-  final _optionsController = TextEditingController(text: '选项一\n选项二');
+  final _optionsController = TextEditingController(
+    text: strings.optionOneOptionTwo,
+  );
   String? _optionsError;
   String _type = 'text';
   bool _required = false;
@@ -301,7 +311,9 @@ class _AddFieldSheetState extends State<_AddFieldSheet> {
         (options.isEmpty ||
             options.length > 100 ||
             options.toSet().length != options.length)) {
-      setState(() => _optionsError = '请填写不重复的选项，每行一个');
+      setState(
+        () => _optionsError = context.strings.enterUniqueOptionsOnePerLine,
+      );
       return;
     }
     Navigator.of(context).pop(
@@ -328,7 +340,7 @@ class _AddFieldSheetState extends State<_AddFieldSheet> {
             autofocus: true,
             style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             cursorColor: c.brand,
-            decoration: const InputDecoration(hintText: '字段名'),
+            decoration: InputDecoration(hintText: context.strings.fieldName),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -346,13 +358,13 @@ class _AddFieldSheetState extends State<_AddFieldSheet> {
           const SizedBox(height: 12),
           if (_type == 'enum') ...[
             AppFieldLabel(
-              label: '选项',
+              label: context.strings.options,
               child: TextField(
                 controller: _optionsController,
                 minLines: 2,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: '每行一个选项',
+                  hintText: context.strings.oneOptionPerLine,
                   errorText: _optionsError,
                 ),
                 onChanged: (_) => setState(() => _optionsError = null),
@@ -363,7 +375,7 @@ class _AddFieldSheetState extends State<_AddFieldSheet> {
           Row(
             children: [
               Text(
-                '必填',
+                context.strings.required,
                 style: AppTextStyles.body.copyWith(color: c.labelPrimary),
               ),
               const Spacer(),
@@ -375,7 +387,11 @@ class _AddFieldSheetState extends State<_AddFieldSheet> {
             ],
           ),
           const SizedBox(height: 8),
-          AppButton(label: '添加', expand: true, onPressed: _save),
+          AppButton(
+            label: context.strings.addBuild,
+            expand: true,
+            onPressed: _save,
+          ),
         ],
       ),
     );

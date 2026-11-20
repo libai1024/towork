@@ -2,7 +2,7 @@ name: towork
 description: "ToWork: a conversation-driven work management application."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.12+17
+version: 1.2.0+18
 
 environment:
   sdk: ^3.13.4
@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod: ^2.6.1
   go_router: ^14.6.2
   lucide_icons_flutter: ^3.1.20
@@ -52,6 +54,7 @@ dev_dependencies:
 
 flutter:
 
+  generate: true
   uses-material-design: true
   assets:
     - website/changelog.json

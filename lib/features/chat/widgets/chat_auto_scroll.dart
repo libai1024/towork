@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -95,7 +96,7 @@ class _ChatAutoScrollState extends State<ChatAutoScroll> {
                 key: const ValueKey('chat-jump-latest'),
                 icon: LucideIcons.arrowDown,
                 iconSize: 18,
-                label: '滚动到最新内容',
+                label: context.strings.scrollToLatest,
                 onTap: () {
                   setState(() => _following = true);
                   _schedule();
