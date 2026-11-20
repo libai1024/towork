@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
@@ -54,7 +55,7 @@ class AppAvatar extends StatelessWidget {
     return AppPressable(
       onTap: onTap,
       behavior: HitTestBehavior.translucent,
-      semanticLabel: semanticLabel ?? '头像',
+      semanticLabel: semanticLabel ?? context.strings.avatar,
       child: Center(child: avatar),
     );
   }

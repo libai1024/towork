@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/models/models.dart';
@@ -103,12 +104,12 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
       return TodoEditorBox(
         children: [
           Text(
-            '自定义规则（暂不支持编辑）',
+            context.strings.customRuleReadOnly,
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 8),
           AppButton(
-            label: '重置规则',
+            label: context.strings.resetRule,
             type: AppButtonType.ghost,
             onPressed: () => setState(() {
               _unmappable = false;
@@ -128,25 +129,25 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
     }
 
     final unit = switch (_spec.freq) {
-      RepeatFreq.daily => '天',
-      RepeatFreq.weekly => '周',
-      RepeatFreq.monthly => '月',
-      RepeatFreq.yearly => '年',
+      RepeatFreq.daily => context.strings.days,
+      RepeatFreq.weekly => context.strings.week,
+      RepeatFreq.monthly => context.strings.month,
+      RepeatFreq.yearly => context.strings.year,
     };
 
     return AbsorbPointer(
       absorbing: _saving,
       child: TodoEditorBox(
         children: [
-          _editorLabel(c, '频率'),
+          _editorLabel(c, context.strings.frequency),
           Wrap(
             spacing: 8,
             children: [
               for (final (label, f) in [
-                ('每天', RepeatFreq.daily),
-                ('每周', RepeatFreq.weekly),
-                ('每月', RepeatFreq.monthly),
-                ('每年', RepeatFreq.yearly),
+                (context.strings.dailyBuild, RepeatFreq.daily),
+                (context.strings.weeklyBuild, RepeatFreq.weekly),
+                (context.strings.monthlyBuild, RepeatFreq.monthly),
+                (context.strings.yearly, RepeatFreq.yearly),
               ])
                 AppChip(
                   label: label,
@@ -163,13 +164,13 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
             runSpacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              _editorLabel(c, '间隔'),
+              _editorLabel(c, context.strings.interval),
               Text(
-                '每',
+                context.strings.every,
                 style: AppTextStyles.body.copyWith(color: c.labelSecondary),
               ),
               TodoEditorStepper(
-                label: '重复间隔',
+                label: context.strings.repeatInterval,
                 value: _spec.interval,
                 min: 1,
                 max: 99,
@@ -185,7 +186,7 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
           ),
           if (_spec.freq == RepeatFreq.weekly) ...[
             const SizedBox(height: 12),
-            _editorLabel(c, '重复于'),
+            _editorLabel(c, context.strings.repeatOn),
             Wrap(
               spacing: 8,
               children: [
@@ -211,9 +212,9 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
               runSpacing: 4,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                _editorLabel(c, '每月'),
+                _editorLabel(c, context.strings.monthlyBuild),
                 TodoEditorStepper(
-                  label: '每月日期',
+                  label: context.strings.dayOfMonth,
                   value: _spec.monthDay,
                   min: 1,
                   max: 31,
@@ -222,21 +223,21 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
                   }),
                 ),
                 Text(
-                  '日',
+                  context.strings.weekdaySunday,
                   style: AppTextStyles.body.copyWith(color: c.labelSecondary),
                 ),
               ],
             ),
           ],
           const SizedBox(height: 12),
-          _editorLabel(c, '结束'),
+          _editorLabel(c, context.strings.ends),
           Wrap(
             spacing: 8,
             children: [
               for (final (label, e) in [
-                ('永不', RepeatEnd.never),
-                ('于日期', RepeatEnd.until),
-                ('N 次后', RepeatEnd.count),
+                (context.strings.never, RepeatEnd.never),
+                (context.strings.onDate, RepeatEnd.until),
+                (context.strings.afterNOccurrences, RepeatEnd.count),
               ])
                 AppChip(
                   label: label,
@@ -266,7 +267,7 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 TodoEditorStepper(
-                  label: '重复次数',
+                  label: context.strings.numberOfOccurrences,
                   value: _spec.count,
                   min: 1,
                   max: 99,
@@ -275,7 +276,7 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
                   }),
                 ),
                 Text(
-                  '次',
+                  context.strings.times,
                   style: AppTextStyles.body.copyWith(color: c.labelSecondary),
                 ),
               ],
@@ -284,7 +285,7 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
           const SizedBox(height: 12),
           Divider(height: 0.5, color: c.separator),
           const SizedBox(height: 8),
-          _editorLabel(c, '固定时区'),
+          _editorLabel(c, context.strings.fixedTimeZone),
           DropdownButton<String>(
             key: const ValueKey('repeat-timezone'),
             value: _timezone,
@@ -311,17 +312,17 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
           ),
           const SizedBox(height: 8),
           Text(
-            '月末不足所选日期时取最后一天；夏令时缺失时刻顺延至首个有效时刻，重复时刻只取一次。',
+            context.strings.shortMonthsUseTheLastDayDuring,
             style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
           ),
           const SizedBox(height: 8),
           Text(
-            '摘要：${_spec.summary()}',
+            context.strings.summary(_spec.summary()),
             style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 12),
           AppButton(
-            label: '保存重复设置',
+            label: context.strings.saveRecurrence,
             expand: true,
             enabled: !_saving,
             onPressed: () => _apply(),
@@ -329,7 +330,9 @@ class _RepeatEditorState extends State<TodoRepeatEditor> {
           const SizedBox(height: 4),
           Center(
             child: AppButton(
-              label: _confirmClear ? '确认清除？' : '清除重复',
+              label: _confirmClear
+                  ? context.strings.clearRecurrence
+                  : context.strings.clearRecurrenceBuild,
               type: AppButtonType.ghost,
               onPressed: () {
                 if (_confirmClear) {

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -17,7 +19,7 @@ Page<void> modelAccountSheetPage(
   return settingsEditorSheetPage(
     context,
     state,
-    barrierLabel: '关闭模型账户',
+    barrierLabel: context.strings.closeModelAccount,
     child: ModelConnectionPage(
       key: ValueKey((accountId, create)),
       accountId: accountId,

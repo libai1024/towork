@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -90,7 +91,7 @@ class _LocalProfilePageState extends ConsumerState<LocalProfilePage> {
       if (projection.mounted) projection.state = profile;
       if (!mounted) return;
       _accept(profile);
-      setState(() => _feedback = '用户名已保存到此设备');
+      setState(() => _feedback = context.strings.nameSavedOnThisDevice);
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -105,9 +106,10 @@ class _LocalProfilePageState extends ConsumerState<LocalProfilePage> {
 
   String _message(Object error) => switch (error) {
     ProfileFailure(code: ProfileFailureCode.invalidName) =>
-      '用户名需要 1–40 个字符，不能包含换行或控制字符',
-    ProfileFailure(code: ProfileFailureCode.conflict) => '资料已变化，请重新载入后再保存',
-    _ => '本地资料暂时无法读取或保存，请重试',
+      context.strings.useCharactersWithoutLineBreaksOrControl,
+    ProfileFailure(code: ProfileFailureCode.conflict) =>
+      context.strings.profileChangedReloadBeforeSaving,
+    _ => context.strings.couldntReadOrSaveYourLocalProfile,
   };
 
   @override
@@ -123,10 +125,10 @@ class _LocalProfilePageState extends ConsumerState<LocalProfilePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SettingsEditorHeader(
-              title: '个人资料',
+              title: context.strings.profileBuild,
               onClose: () => context.popOrGo(AppRoutes.settings),
               saveKey: const ValueKey('save-local-profile'),
-              saveLabel: '保存用户名',
+              saveLabel: context.strings.saveName,
               saving: _saving,
               onSave:
                   _profile != null &&
@@ -148,8 +150,8 @@ class _LocalProfilePageState extends ConsumerState<LocalProfilePage> {
                     else if (_profile != null)
                       SettingsInputField(
                         fieldKey: const ValueKey('local-nickname-input'),
-                        label: '用户名',
-                        hint: '输入用户名',
+                        label: context.strings.nameBuild,
+                        hint: context.strings.enterAName,
                         controller: _name,
                         enabled: !_saving,
                         maxLength: 40,
@@ -176,8 +178,8 @@ class _LocalProfilePageState extends ConsumerState<LocalProfilePage> {
                         alignment: Alignment.centerLeft,
                         child: WorkspaceToolbarAction(
                           icon: LucideIcons.rotateCw,
-                          label: '重新载入',
-                          text: '重新载入',
+                          label: context.strings.reloadBuild,
+                          text: context.strings.reloadBuild,
                           onTap: _saving ? null : _load,
                         ),
                       ),

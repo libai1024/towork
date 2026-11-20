@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,8 +25,8 @@ class ReportPoster extends ConsumerWidget {
     String two(int n) => n.toString().padLeft(2, '0');
     final last = end.subtract(const Duration(days: 1));
     return report.kind == ReportPeriodKind.monthly
-        ? '${start.year}年${start.month}月'
-        : '周报 ${two(start.month)}/${two(start.day)}–'
+        ? strings.formattedValueProductionperiodlabel(start.year, start.month)
+        : '${strings.weeklyReportPeriodlabel(two(start.month), two(start.day))}'
               '${two(last.month)}/${two(last.day)}';
   }
 
@@ -55,37 +56,46 @@ class ReportPoster extends ConsumerWidget {
                 ),
               ),
               Text(
-                report.kind == ReportPeriodKind.monthly ? '月报' : '周报',
+                report.kind == ReportPeriodKind.monthly
+                    ? context.strings.monthlyReport
+                    : context.strings.weeklyReport,
                 style: AppTextStyles.caption.copyWith(color: c.brand),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
-            '${metrics.nickname} 的 ToWork 报告',
+            context.strings.sToworkReport(metrics.nickname),
             style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _big(c, '完成', '${metrics.completed}'),
+              _big(c, context.strings.complete, '${metrics.completed}'),
               _big(
                 c,
-                '完成率',
+                context.strings.completionRateBuildpie,
                 rate == null ? '—' : '${rate.toStringAsFixed(0)}%',
               ),
-              _big(c, '新增', '${metrics.created}'),
-              _big(c, '逾期', '${metrics.overdueAtEnd}'),
+              _big(c, context.strings.add, '${metrics.created}'),
+              _big(c, context.strings.overdueBuild, '${metrics.overdueAtEnd}'),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            '口径：${metrics.completion.label}（本次 ${metrics.completion.numerator}/${metrics.completion.denominator}）',
+            context.strings.methodThisPeriod(
+              metrics.completion.label,
+              metrics.completion.numerator,
+              metrics.completion.denominator,
+            ),
             style: AppTextStyles.caption.copyWith(color: c.labelQuaternary),
           ),
           const SizedBox(height: 14),
           if (metrics.byCategory.isNotEmpty) ...[
-            Text('分类完成', style: AppTextStyles.subhead),
+            Text(
+              context.strings.completedByCategory,
+              style: AppTextStyles.subhead,
+            ),
             const SizedBox(height: 8),
             for (final category in metrics.byCategory.take(5))
               Padding(
@@ -110,7 +120,10 @@ class ReportPoster extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '${category.completed} 完成 ${category.created} 新增',
+                      context.strings.completedAdded(
+                        category.completed,
+                        category.created,
+                      ),
                       style: AppTextStyles.footnote.copyWith(
                         color: c.labelTertiary,
                       ),
@@ -120,10 +133,10 @@ class ReportPoster extends ConsumerWidget {
               ),
             const SizedBox(height: 8),
           ],
-          Text('总结', style: AppTextStyles.subhead),
+          Text(context.strings.summaryBuild, style: AppTextStyles.subhead),
           const SizedBox(height: 6),
           Text(
-            report.summary ?? '总结尚未生成，可在报告中查看或生成。',
+            report.summary ?? context.strings.noSummaryYetOpenTheReportTo,
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 16),

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -112,6 +114,12 @@ class _FreeWorkspaceBootstrapState
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       debugShowCheckedModeBanner: false,
+      locale: preferredLocale(
+        ref.watch(appPreferencesSnapshotProvider.select((p) => p.language)),
+      ),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: appLocalizationDelegates,
+      localeListResolutionCallback: resolveAppLocale,
       home: Scaffold(
         body: SafeArea(
           child: Center(
@@ -122,9 +130,14 @@ class _FreeWorkspaceBootstrapState
                   : Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('暂时无法打开本地工作区。原有数据已保留，请重试。'),
+                        Text(
+                          context.strings.couldntOpenTheLocalWorkspaceYourData,
+                        ),
                         const SizedBox(height: 20),
-                        AppButton(label: '重新打开', onPressed: _load),
+                        AppButton(
+                          label: context.strings.reopen,
+                          onPressed: _load,
+                        ),
                       ],
                     ),
             ),

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -18,6 +19,8 @@ import 'widgets/settings_shared.dart';
 import 'widgets/model_provider_fields.dart';
 import 'widgets/model_action_button.dart';
 import 'widgets/settings_editor_header.dart';
+
+part 'model_connection_pickers.dart';
 
 /// 模型账户编辑页：服务商、区域、模型、Key，以及保存前后的通断测试。
 ///
@@ -235,7 +238,7 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
       if (!mounted || inputRevision != _inputRevision) return;
       final tokens = result.usage?['total_tokens'];
       _showTestResult(
-        '${isDraft ? '连接成功（未保存）' : '连接成功'} ${clock.elapsedMilliseconds} ms'
+        '${isDraft ? context.strings.connectedUnsaved : context.strings.connected} ${clock.elapsedMilliseconds} ms'
         '${tokens is num ? ' $tokens tokens' : ''}',
       );
     } catch (error) {
@@ -272,58 +275,6 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
     });
   }
 
-  Future<void> _pickRegion() async {
-    final region = await AppSheet.show<ProviderRegion>(
-      context,
-      title: '服务区域',
-      child: Builder(
-        builder: (sheet) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final option in ProviderRegion.values)
-              SheetOptionRow(
-                title: option == ProviderRegion.china ? '中国' : '国际',
-                selected: _region == option,
-                onTap: () => Navigator.of(sheet).pop(option),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (!mounted || !_fieldsEnabled || region == null || region == _region) {
-      return;
-    }
-    _region = region;
-    _key.clear();
-    _edited(credentials: true);
-  }
-
-  void _pickProduct() {
-    AppSheet.show<void>(
-      context,
-      title: '选择服务商',
-      child: Builder(
-        builder: (sheet) => SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final descriptor in ProviderCatalog.all)
-                ModelProviderOption(
-                  key: ValueKey('provider-${descriptor.kind.wireId}'),
-                  descriptor: descriptor,
-                  selected: descriptor.kind == _product,
-                  onTap: () {
-                    Navigator.of(sheet).pop();
-                    _selectProduct(descriptor.kind);
-                  },
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -341,10 +292,10 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
             SettingsEditorHeader(
               handleKey: const ValueKey('model-sheet-header'),
               saveKey: const ValueKey('model-save'),
-              saveLabel: '保存',
+              saveLabel: context.strings.save,
               title: _account != null || widget.accountId != null
-                  ? '编辑模型账户'
-                  : '添加模型账户',
+                  ? context.strings.editModelAccount
+                  : context.strings.addModelAccount,
               onClose: () => context.popOrGo(AppRoutes.modelAccounts),
               saving: _busy && _cancellation == null,
               onSave: _loaded && _dirty && !_busy && _canTest ? _save : null,
@@ -379,10 +330,10 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
                                     ),
                                     if (descriptor.regional)
                                       SettingsRow(
-                                        title: '服务区域',
+                                        title: context.strings.serviceRegion,
                                         value: _region == ProviderRegion.china
-                                            ? '中国'
-                                            : '国际',
+                                            ? context.strings.china
+                                            : context.strings.international,
                                         showChevron: true,
                                         enabled: _fieldsEnabled,
                                         onTap: _pickRegion,
@@ -396,7 +347,7 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
                                   fieldKey: const ValueKey(
                                     'custom-base-url-input',
                                   ),
-                                  label: '接口地址',
+                                  label: context.strings.apiEndpoint,
                                   hint: 'https://example.com/v1',
                                   controller: _baseUrl,
                                   enabled: _fieldsEnabled,
@@ -420,8 +371,10 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
                                       hint:
                                           _account?.hasCredential == true &&
                                               _endpointUnchanged
-                                          ? '已保存，留空保留'
-                                          : '输入密钥',
+                                          ? context
+                                                .strings
+                                                .savedLeaveBlankToKeep
+                                          : context.strings.enterKey,
                                       controller: _key,
                                       secret: true,
                                       enabled: _fieldsEnabled,
@@ -432,8 +385,8 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
                                   ModelActionButton(
                                     key: const ValueKey('model-test'),
                                     label: _cancellation != null
-                                        ? '取消测试'
-                                        : '测试连接',
+                                        ? context.strings.cancelTest
+                                        : context.strings.testConnection,
                                     icon: _cancellation != null
                                         ? LucideIcons.square
                                         : LucideIcons.plug,
@@ -481,7 +434,7 @@ class _ModelConnectionPageState extends ConsumerState<ModelConnectionPage> {
                               Center(
                                 child: TextButton(
                                   onPressed: _busy ? null : _load,
-                                  child: const Text('重新载入'),
+                                  child: Text(context.strings.reloadBuild),
                                 ),
                               ),
                           ],

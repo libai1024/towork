@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/business_row_search_provider.dart';
 import '../../app/business_ui_commands.dart';
 import '../../app/exports.dart';
@@ -39,6 +41,8 @@ import 'widgets/row_filter_sheet.dart';
 import 'widgets/screenshot_flow_page.dart';
 import 'widgets/data_table_type_sheet.dart';
 import 'data_table_export.dart';
+
+part 'data_table_record_card.dart';
 
 /// 表格视图页（07-data-tables.md §3.2，移动端 = 卡片式记录流）。
 class DataTableDetailPage extends ConsumerStatefulWidget {
@@ -156,7 +160,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
         },
         onDiscard: () {
           repo.discardPendingBatch(batch.id);
-          AppToast.show(context, message: '已丢弃本次分析结果');
+          AppToast.show(context, message: context.strings.analysisDiscarded);
         },
       ),
     );
@@ -187,8 +191,8 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (icon, label) in [
-            (LucideIcons.camera, '拍照'),
-            (LucideIcons.images, '从相册选择'),
+            (LucideIcons.camera, context.strings.takePhoto),
+            (LucideIcons.images, context.strings.chooseFromPhotos),
           ])
             AppPressable(
               onTap: () {
@@ -236,7 +240,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
     final row = await showAddRowSheet(context, table);
     if (row == null || !mounted) return;
     _highlight([row.id]);
-    AppToast.show(context, message: '已添加一行');
+    AppToast.show(context, message: context.strings.rowAdded);
   }
 
   /// 导出 CSV：表头 + 全部行（按更新时间升序）；带 BOM 便于 Excel 直接打开。
@@ -254,10 +258,15 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
       if (!mounted) return;
       AppToast.show(
         context,
-        message: '已导出 ${rows.length} 行 ${file.uri.pathSegments.last}',
+        message: context.strings.exportedRowsTo(
+          rows.length,
+          file.uri.pathSegments.last,
+        ),
       );
     } catch (_) {
-      if (mounted) AppToast.show(context, message: '导出失败，请重试');
+      if (mounted) {
+        AppToast.show(context, message: context.strings.exportFailedTryAgain);
+      }
     }
   }
 
@@ -269,44 +278,59 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _settingsAction(c, LucideIcons.pencil, '重命名', () async {
-            Navigator.of(context).pop();
-            await _renameTable(table);
-          }),
-          _settingsAction(c, LucideIcons.folder, '修改类型', () async {
-            Navigator.of(context).pop();
-            final selected = await showDataTableTypePicker(
-              context,
-              selectedId: table.typeId,
-            );
-            if (selected == null || !mounted) return;
-            await runDataCommand(
-              context,
-              () => ref
-                  .read(businessUiCommandsProvider)
-                  .assignType(table, selected.id),
-            );
-          }),
-          _settingsAction(c, LucideIcons.listTree, '管理字段', () {
-            Navigator.of(context).pop();
-            showFieldManagementSheet(context, ref, table);
-          }),
-          _settingsAction(c, LucideIcons.upload, '导出 CSV', () {
+          _settingsAction(
+            c,
+            LucideIcons.pencil,
+            context.strings.rename,
+            () async {
+              Navigator.of(context).pop();
+              await _renameTable(table);
+            },
+          ),
+          _settingsAction(
+            c,
+            LucideIcons.folder,
+            context.strings.changeType,
+            () async {
+              Navigator.of(context).pop();
+              final selected = await showDataTableTypePicker(
+                context,
+                selectedId: table.typeId,
+              );
+              if (selected == null || !mounted) return;
+              await runDataCommand(
+                context,
+                () => ref
+                    .read(businessUiCommandsProvider)
+                    .assignType(table, selected.id),
+              );
+            },
+          ),
+          _settingsAction(
+            c,
+            LucideIcons.listTree,
+            context.strings.manageFields,
+            () {
+              Navigator.of(context).pop();
+              showFieldManagementSheet(context, ref, table);
+            },
+          ),
+          _settingsAction(c, LucideIcons.upload, context.strings.exportCsv, () {
             Navigator.of(context).pop();
             _exportCsv(table);
           }),
           _settingsAction(
             c,
             LucideIcons.archive,
-            '归档',
+            context.strings.archive,
             color: c.labelPrimary,
             () async {
               Navigator.of(context).pop();
               final confirmed = await showAppConfirmDialog(
                 context,
-                title: '归档这张表？',
-                message: '归档后不在列表显示，数据仍保留。',
-                confirmLabel: '归档',
+                title: context.strings.archiveThisTable,
+                message: context.strings.archivedTablesAreHiddenFromTheList,
+                confirmLabel: context.strings.archive,
                 destructive: true,
               );
               if (!confirmed || !mounted) return;
@@ -317,37 +341,43 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
               });
             },
           ),
-          _settingsAction(c, LucideIcons.trash2, '删除表', color: c.red, () async {
-            Navigator.of(context).pop();
-            final rowCount = ref
-                .read(dataTableProvider.notifier)
-                .rowsOf(table.id)
-                .length;
-            final confirmed = await showAppConfirmDialog(
-              context,
-              title: '删除这张表？',
-              message: rowCount == 0
-                  ? '删除后仍可通过撤销恢复。'
-                  : '将同时删除 $rowCount 行记录；删除后仍可通过撤销恢复。',
-              confirmLabel: '删除',
-              destructive: true,
-            );
-            if (!confirmed || !mounted) return;
-            // Stay on this page: it turns into an empty state after the
-            // delete, and the undo toast can restore it in place.
-            await runDataCommand(context, () async {
-              final change = await ref
-                  .read(businessUiCommandsProvider)
-                  .deleteTable(table);
-              if (!mounted) return;
-              AppToast.show(
+          _settingsAction(
+            c,
+            LucideIcons.trash2,
+            context.strings.deleteTable,
+            color: c.red,
+            () async {
+              Navigator.of(context).pop();
+              final rowCount = ref
+                  .read(dataTableProvider.notifier)
+                  .rowsOf(table.id)
+                  .length;
+              final confirmed = await showAppConfirmDialog(
                 context,
-                message: '已删除「${table.name}」',
-                actionLabel: '撤销',
-                onAction: () => runDataCommand(context, change.undo),
+                title: context.strings.deleteThisTable,
+                message: rowCount == 0
+                    ? context.strings.youCanUndoTheDeletion
+                    : context.strings.alsoDeletesRowsYouCanUndoThe(rowCount),
+                confirmLabel: context.strings.deleteLabel,
+                destructive: true,
               );
-            });
-          }),
+              if (!confirmed || !mounted) return;
+              // Stay on this page: it turns into an empty state after the
+              // delete, and the undo toast can restore it in place.
+              await runDataCommand(context, () async {
+                final change = await ref
+                    .read(businessUiCommandsProvider)
+                    .deleteTable(table);
+                if (!mounted) return;
+                AppToast.show(
+                  context,
+                  message: context.strings.deletedEditcategory(table.name),
+                  actionLabel: context.strings.undo,
+                  onAction: () => runDataCommand(context, change.undo),
+                );
+              });
+            },
+          ),
           const SizedBox(height: 8),
         ],
       ),
@@ -385,13 +415,13 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
   Future<void> _renameTable(DataTableDef table) async {
     final name = await showFieldEditor(
       context,
-      column: DataColumnDef(name: '重命名', type: 'text'),
+      column: DataColumnDef(name: context.strings.rename, type: 'text'),
       current: table.name,
       onSave: (value) =>
           ref.read(businessUiCommandsProvider).renameTable(table, value),
     );
     if (name != null && name != table.name && mounted) {
-      AppToast.show(context, message: '已重命名为「$name」');
+      AppToast.show(context, message: context.strings.renamedTo(name));
     }
   }
 
@@ -403,14 +433,14 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
   void _openSourceSheet() {
     AppSheet.show<void>(
       context,
-      title: '来源',
+      title: context.strings.source,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (mode, label) in [
-            (_SourceFilter.all, '全部'),
-            (_SourceFilter.manual, '我录入的'),
-            (_SourceFilter.ai, 'AI 写入的'),
+            (_SourceFilter.all, context.strings.allLabel),
+            (_SourceFilter.manual, context.strings.addedByMe),
+            (_SourceFilter.ai, context.strings.addedByAi),
           ])
             _optionRow(label, _filter == mode, () {
               setState(() => _filter = mode);
@@ -464,14 +494,14 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
   void _openSortSheet() {
     AppSheet.show<void>(
       context,
-      title: '排序',
+      title: context.strings.reorder,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (mode, label) in [
-            (_SortMode.recent, '最近更新优先'),
-            (_SortMode.firstAsc, '首字段 A → Z'),
-            (_SortMode.firstDesc, '首字段 Z → A'),
+            (_SortMode.recent, context.strings.recentlyUpdatedFirst),
+            (_SortMode.firstAsc, context.strings.firstFieldAZ),
+            (_SortMode.firstDesc, context.strings.firstFieldZA),
           ])
             _optionRow(label, _sort == mode, () {
               setState(() => _sort = mode);
@@ -662,9 +692,11 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
     if (_sqlItems.isEmpty) {
       return AppEmptyState(
         icon: LucideIcons.search,
-        title: _query.isEmpty ? '没有匹配的记录' : '没有找到「$_query」',
-        message: '调整筛选条件，或换个关键词',
-        actionLabel: '清除筛选',
+        title: _query.isEmpty
+            ? context.strings.noMatchingRecords
+            : context.strings.noResultsFor(_query),
+        message: context.strings.adjustTheFiltersOrTryAnotherKeyword,
+        actionLabel: context.strings.clearFilters,
         onAction: _clearRowFilters,
       );
     }
@@ -676,7 +708,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
           return Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
-              '共 $_sqlTotal 条结果',
+              context.strings.results(_sqlTotal),
               style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
             ),
           );
@@ -686,7 +718,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
           return Padding(
             padding: const EdgeInsets.only(top: 4),
             child: AppButton(
-              label: '加载更多',
+              label: context.strings.loadMore,
               type: AppButtonType.secondary,
               expand: true,
               loading: _searching,
@@ -728,15 +760,15 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
           child: Column(
             children: [
               WorkspaceNavBar(
-                title: '数据',
+                title: context.strings.data,
                 onBack: () => context.popOrGo(AppRoutes.dataTables),
               ),
               Expanded(
                 child: AppEmptyState(
                   icon: LucideIcons.table,
-                  title: '这张表不在了',
-                  message: '它可能被归档或删除了',
-                  actionLabel: '返回列表',
+                  title: context.strings.tableUnavailable,
+                  message: context.strings.itMayHaveBeenArchivedOrDeleted,
+                  actionLabel: context.strings.backToList,
                   onAction: () => context.popOrGo(AppRoutes.dataTables),
                 ),
               ),
@@ -786,17 +818,17 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
                   children: [
                     WorkspaceToolbarAction(
                       icon: LucideIcons.moreHorizontal,
-                      label: '表设置',
+                      label: context.strings.tableSettings,
                       onTap: () => _openTableSettings(table),
                     ),
                     WorkspaceToolbarAction(
                       icon: LucideIcons.camera,
-                      label: '截图导入',
+                      label: context.strings.importScreenshot,
                       onTap: _openCameraActions,
                     ),
                     WorkspaceToolbarAction(
                       icon: LucideIcons.plus,
-                      label: '新建行',
+                      label: context.strings.newRow,
                       onTap: () => _openAddRow(table),
                     ),
                   ],
@@ -815,7 +847,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
               child: Row(
                 children: [
                   Text(
-                    '${allRows.length} 行',
+                    context.strings.rows(allRows.length),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelTertiary,
                     ),
@@ -831,7 +863,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
                       },
 
                       behavior: HitTestBehavior.translucent,
-                      semanticLabel: '有待确认的 AI 变更',
+                      semanticLabel: context.strings.aiChangesAwaitingReview,
                       child: PendingBadge(count: pending),
                     ),
                 ],
@@ -844,7 +876,7 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
                   Expanded(
                     child: WorkspaceSearchField(
                       controller: _searchController,
-                      hint: '搜索行',
+                      hint: context.strings.searchRows,
                       onChanged: (value) {
                         setState(() => _query = value.trim().toLowerCase());
                         if (_filters.isNotEmpty) _refreshSqlResults();
@@ -862,20 +894,20 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
                       if (!sqlMode)
                         WorkspaceToolbarAction(
                           icon: LucideIcons.slidersHorizontal,
-                          label: '来源',
+                          label: context.strings.source,
                           active: _filter != _SourceFilter.all,
                           onTap: _openSourceSheet,
                         ),
                       if (sqlCapable)
                         WorkspaceToolbarAction(
                           icon: LucideIcons.filter,
-                          label: '筛选',
+                          label: context.strings.filter,
                           active: sqlMode,
                           onTap: () => _openRowFilterSheet(table),
                         ),
                       WorkspaceToolbarAction(
                         icon: LucideIcons.arrowUpDown,
-                        label: '排序',
+                        label: context.strings.reorder,
                         active: _sort != _SortMode.recent,
                         onTap: _openSortSheet,
                       ),
@@ -899,16 +931,16 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
     if (total == 0) {
       return AppEmptyState(
         icon: LucideIcons.table,
-        title: '还没有数据',
-        actionLabel: '新建一行',
+        title: context.strings.noDataYet,
+        actionLabel: context.strings.createARow,
         onAction: () => _openAddRow(table),
       );
     }
     if (rows.isEmpty) {
       return AppEmptyState(
         icon: LucideIcons.search,
-        title: '没有找到「$_query」',
-        actionLabel: '清除搜索',
+        title: context.strings.noResultsFor(_query),
+        actionLabel: context.strings.clearSearch,
         onAction: () {
           _searchController.clear();
           setState(() {
@@ -943,11 +975,16 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _settingsAction(c, LucideIcons.history, '变更历史', () {
-            Navigator.of(context).pop();
-            showRowHistorySheet(context, table: table, row: row);
-          }),
-          _settingsAction(c, LucideIcons.copy, '复制此行', () {
+          _settingsAction(
+            c,
+            LucideIcons.history,
+            context.strings.changeHistory,
+            () {
+              Navigator.of(context).pop();
+              showRowHistorySheet(context, table: table, row: row);
+            },
+          ),
+          _settingsAction(c, LucideIcons.copy, context.strings.copyRow, () {
             runDataCommand(context, () async {
               final copy = await ref
                   .read(businessUiCommandsProvider)
@@ -955,158 +992,43 @@ class _DataTableDetailPageState extends ConsumerState<DataTableDetailPage> {
               if (!mounted) return;
               Navigator.of(context).pop();
               _highlight([copy.id]);
-              AppToast.show(context, message: '已复制此行');
+              AppToast.show(context, message: context.strings.rowCopied);
             });
           }),
-          _settingsAction(c, LucideIcons.trash2, '删除', color: c.labelPrimary, () async {
-            Navigator.of(context).pop();
-            final confirmed = await showAppConfirmDialog(
-              context,
-              title: '删除这行？',
-              message:
-                  '「${row.values[table.columns.first.name] ?? ''}」将被删除，可在变更历史里追溯。',
-              confirmLabel: '删除',
-              destructive: true,
-            );
-            if (!confirmed || !mounted) return;
-            await runDataCommand(context, () async {
-              final change = await ref
-                  .read(businessUiCommandsProvider)
-                  .deleteRow(row);
-              if (!mounted) return;
-              HapticFeedback.mediumImpact();
-              AppToast.show(
+          _settingsAction(
+            c,
+            LucideIcons.trash2,
+            context.strings.deleteLabel,
+            color: c.labelPrimary,
+            () async {
+              Navigator.of(context).pop();
+              final confirmed = await showAppConfirmDialog(
                 context,
-                message: '已删除',
-                actionLabel: '撤销',
-                onAction: () => runDataCommand(context, change.undo),
+                title: context.strings.deleteThisRow,
+                message: context.strings.willBeDeletedYouCanReviewIt(
+                  row.values[table.columns.first.name] ?? '',
+                ),
+                confirmLabel: context.strings.deleteLabel,
+                destructive: true,
               );
-            });
-          }),
+              if (!confirmed || !mounted) return;
+              await runDataCommand(context, () async {
+                final change = await ref
+                    .read(businessUiCommandsProvider)
+                    .deleteRow(row);
+                if (!mounted) return;
+                HapticFeedback.mediumImpact();
+                AppToast.show(
+                  context,
+                  message: context.strings.deleted,
+                  actionLabel: context.strings.undo,
+                  onAction: () => runDataCommand(context, change.undo),
+                );
+              });
+            },
+          ),
           const SizedBox(height: 8),
         ],
-      ),
-    );
-  }
-}
-
-/// 记录卡片（07-data-tables.md §3.2）：首字段为标题，至多 4 个摘要字段。
-/// 投影列表与 SQL 结果模式共用；[updatedAt] 为空（SQL 预览无时间戳）时不显示更新时间。
-class _RecordCard extends StatelessWidget {
-  const _RecordCard({
-    required this.table,
-    required this.values,
-    required this.highlighted,
-    required this.fromAi,
-    required this.onTap,
-    this.updatedAt,
-    this.onLongPress,
-  });
-
-  final DataTableDef table;
-
-  /// 列名 → 原始字符串值（bool 用 'true'/'false'，经 formatCellValue 展示）。
-  final Map<String, String> values;
-  final bool highlighted;
-  final bool fromAi;
-  final DateTime? updatedAt;
-  final VoidCallback onTap;
-  final VoidCallback? onLongPress;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final firstField = table.columns.isEmpty ? null : table.columns.first;
-    final title = firstField == null ? '记录' : (values[firstField.name] ?? '');
-    final summaryColumns = table.columns.skip(1).take(4).toList();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: AnimatedContainer(
-        // 高亮反馈在减弱动态效果时瞬时出现/消失。
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          color: highlighted ? c.brand25 : c.bgPrimary,
-          borderRadius: AppRadii.brLg,
-        ),
-        child: AppPressable(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          borderRadius: AppRadii.brLg,
-          semanticLabel: title,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title.isEmpty ? '（未命名）' : title,
-                        style: AppTextStyles.body.copyWith(
-                          color: c.labelPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (fromAi) const AiBadge(),
-                  ],
-                ),
-                if (summaryColumns.isNotEmpty) const SizedBox(height: 8),
-                for (final column in summaryColumns)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 72,
-                          child: Text(
-                            column.name,
-                            style: AppTextStyles.caption.copyWith(
-                              color: c.labelTertiary,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            formatCellValue(column, values[column.name]),
-                            style: isNumericColumn(column)
-                                ? tabularStyle(
-                                    AppTextStyles.body.copyWith(
-                                      color: c.labelPrimary,
-                                    ),
-                                  )
-                                : AppTextStyles.body.copyWith(
-                                    color: c.labelPrimary,
-                                  ),
-                            textAlign: TextAlign.right,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (updatedAt != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    '更新于 ${relativeTime(updatedAt!)}',
-                    style: AppTextStyles.caption.copyWith(
-                      color: c.labelTertiary,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

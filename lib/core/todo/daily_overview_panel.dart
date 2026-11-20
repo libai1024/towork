@@ -1,3 +1,6 @@
+import 'package:towork/l10n/repository_messages.dart';
+import 'package:towork/l10n/strings.dart';
+
 import 'todo_step_actions.dart';
 
 import 'package:flutter/material.dart';
@@ -57,10 +60,10 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
               onSelected: (day) => Navigator.of(context).pop(day),
             ),
             AppPressable(
-              semanticLabel: '回到今天',
+              semanticLabel: context.strings.backToToday,
               onTap: () =>
                   Navigator.of(context).pop(DateUtils.dateOnly(data.now)),
-              child: const Text('回到今天'),
+              child: Text(context.strings.backToToday),
             ),
           ],
         ),
@@ -84,14 +87,16 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
       AppToast.show(
         context,
         message: message,
-        actionLabel: '撤销',
+        actionLabel: context.strings.undo,
         onAction: () => workspaceUi(context, () async {
           await receipt.undo();
           return true;
         }),
       );
     } on RepositoryException catch (error) {
-      if (mounted) AppToast.show(context, message: error.message);
+      if (mounted) {
+        AppToast.show(context, message: repositoryErrorMessage(error));
+      }
     }
   }
 
@@ -108,7 +113,9 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
       dailyOverviewProvider((day: _day, categoryId: categoryId)),
     );
     final model = ref.watch(asyncTodoCommandsProvider);
-    final dayLabel = data.isToday ? '今天' : '${data.day.month}月${data.day.day}日';
+    final dayLabel = data.isToday
+        ? context.strings.today
+        : context.strings.formattedValue(data.day.month, data.day.day);
 
     Widget task(Todo todo) {
       final category = categories.byId(todo.categoryId);
@@ -125,14 +132,18 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
           }
           await _mutate(
             () => model.toggleDone(todo.id),
-            todo.isActive ? '已完成' : '已恢复',
+            todo.isActive
+                ? context.strings.completed
+                : context.strings.restored,
           );
         },
         onTap: () => showTodoDetailSheet(
           context,
           todo.id,
-          onDeleted: (deleted) =>
-              _mutate(() => model.delete([deleted.id]), '已删除'),
+          onDeleted: (deleted) => _mutate(
+            () => model.delete([deleted.id]),
+            context.strings.deleted,
+          ),
         ),
       );
     }
@@ -165,7 +176,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
           selected: selected,
           child: AppPressable(
             key: ValueKey('overview-category-${id ?? 'all'}'),
-            semanticLabel: '筛选分类：$label',
+            semanticLabel: context.strings.filterCategory(label),
             onTap: () => setState(() => _category = id),
             borderRadius: BorderRadius.circular(12),
             child: Container(
@@ -224,7 +235,9 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                           alignment: Alignment.centerLeft,
                           child: AppPressable(
                             key: const ValueKey('overview-date'),
-                            semanticLabel: '$dayLabel，选择日期',
+                            semanticLabel: context.strings.chooseDateBuild(
+                              dayLabel,
+                            ),
                             onTap: () => _pickDay(data),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -250,13 +263,18 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                       ),
                       GlassIconButton(
                         icon: LucideIcons.chevronRight,
-                        label: '收起今日总览',
+                        label: context.strings.collapseDailyOverview,
                         onTap: widget.onClose,
                       ),
                     ],
                   ),
                   Text(
-                    '${data.day.year}年${data.day.month}月${data.day.day}日 周${'一二三四五六日'[data.day.weekday - 1]}',
+                    context.strings.formattedValueBuild(
+                      data.day.year,
+                      data.day.month,
+                      data.day.day,
+                      context.strings.mtwtfss[data.day.weekday - 1],
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelSecondary,
                     ),
@@ -268,8 +286,8 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                         child: Text(
                           // 与列表区头一致（今天/当天）：逾期只出现在今天视图，
                           // 计数口径分别标注，避免"0 项待完成却有逾期"的矛盾。
-                          '${data.isToday ? '今天' : '当天'}待完成 ${data.pending.length} 项'
-                          '${data.overdue.isEmpty ? '' : ' 逾期 ${data.overdue.length} 项'}',
+                          '${context.strings.pending(data.isToday ? context.strings.today : context.strings.thatDay, data.pending.length)}'
+                          '${data.overdue.isEmpty ? '' : context.strings.overdue(data.overdue.length)}',
                           style: AppTextStyles.caption.copyWith(
                             color: c.labelSecondary,
                           ),
@@ -291,7 +309,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                     borderRadius: BorderRadius.circular(4),
                     backgroundColor: c.fill2,
                     color: c.labelPrimary,
-                    semanticsLabel: '$dayLabel完成进度',
+                    semanticsLabel: context.strings.completion(dayLabel),
                   ),
                 ],
               ),
@@ -305,7 +323,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                     child: ListView(
                       key: const ValueKey('overview-category-rail'),
                       children: [
-                        filter('全部', null),
+                        filter(context.strings.allLabel, null),
                         for (final root in categories.roots)
                           filter(root.name, root.id, category: root),
                       ],
@@ -324,18 +342,24 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                         padding: const EdgeInsets.only(top: 3, bottom: 14),
                         children: [
                           if (data.overdue.isNotEmpty) ...[
-                            section('逾期', data.overdue.length, overdue: true),
+                            section(
+                              context.strings.overdueBuild,
+                              data.overdue.length,
+                              overdue: true,
+                            ),
                             ...data.overdue.map(task),
                           ],
                           section(
-                            data.isToday ? '今天' : '当天',
+                            data.isToday
+                                ? context.strings.today
+                                : context.strings.thatDay,
                             data.pending.length,
                           ),
                           if (data.pending.isEmpty)
                             Padding(
                               padding: const EdgeInsets.all(14),
                               child: Text(
-                                '暂无待办',
+                                context.strings.noTasks,
                                 style: AppTextStyles.body.copyWith(
                                   color: c.labelSecondary,
                                 ),
@@ -343,7 +367,9 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                             ),
                           ...data.pending.map(task),
                           AppPressable(
-                            semanticLabel: '已完成 ${data.completed.length} 项',
+                            semanticLabel: context.strings.completedBuild(
+                              data.completed.length,
+                            ),
                             onTap: () => setState(
                               () => _completedOpen = !_completedOpen,
                             ),
@@ -363,7 +389,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      '已完成',
+                                      context.strings.completed,
                                       style: AppTextStyles.caption.copyWith(
                                         color: c.labelSecondary,
                                       ),
@@ -394,7 +420,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                 children: [
                   Flexible(
                     child: AppButton(
-                      label: '全部待办',
+                      label: context.strings.allTasks,
                       type: AppButtonType.ghost,
                       icon: LucideIcons.listTodo,
                       onPressed: () {
@@ -409,7 +435,7 @@ class _DailyOverviewPanelState extends ConsumerState<DailyOverviewPanel> {
                   ),
                   const SizedBox(width: 6),
                   WorkspaceAddButton(
-                    label: '新建待办',
+                    label: context.strings.newTask,
                     onTap: () => AppSheet.show<void>(
                       context,
                       child: CreateTodoSheet(

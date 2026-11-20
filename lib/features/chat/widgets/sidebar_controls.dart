@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:ui' as ui show Gradient;
 
 import 'package:flutter/material.dart';
@@ -53,7 +55,7 @@ class SidebarHeader extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: '收起侧栏',
+            tooltip: context.strings.collapseSidebar,
             onPressed: onCollapse,
             icon: Icon(
               LucideIcons.panelLeftClose,
@@ -81,17 +83,24 @@ class SidebarHeader extends StatelessWidget {
                         children: [
                           Flexible(
                             child: AppPressable(
-                              semanticLabel: '头像',
+                              semanticLabel: context.strings.avatar,
                               onTap: onProfile,
                               borderRadius: BorderRadius.circular(height / 2),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  AppAvatar(nickname: user.nickname, size: 30),
+                                  AppAvatar(
+                                    nickname: user.displayName(
+                                      context.strings.defaultNickname,
+                                    ),
+                                    size: 30,
+                                  ),
                                   const SizedBox(width: 7),
                                   Flexible(
                                     child: Text(
-                                      user.nickname,
+                                      user.displayName(
+                                        context.strings.defaultNickname,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: AppTextStyles.body.copyWith(
@@ -130,7 +139,7 @@ class SidebarHeader extends StatelessWidget {
         GlassIconButton(
           key: const ValueKey('sidebar-new-conversation'),
           icon: LucideIcons.messageCirclePlus,
-          label: '新建会话',
+          label: context.strings.newChatBuild,
           size: 44,
           iconSize: 20,
           opacity: tint,
@@ -168,7 +177,7 @@ class SidebarSearchBar extends StatelessWidget {
             opacity: tint,
             blur: 18,
             child: AppPressable(
-              semanticLabel: '搜索',
+              semanticLabel: context.strings.search,
               onTap: onSearch,
               borderRadius: BorderRadius.circular(height / 2),
               child: SizedBox(
@@ -185,7 +194,7 @@ class SidebarSearchBar extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '搜索',
+                          context.strings.search,
                           style: AppTextStyles.footnote.copyWith(
                             color: c.labelSecondary,
                           ),
@@ -211,7 +220,7 @@ class SidebarSearchBar extends StatelessWidget {
             icon: Theme.of(context).brightness == Brightness.dark
                 ? LucideIcons.sun
                 : LucideIcons.moon,
-            label: '切换明暗主题',
+            label: context.strings.toggleLightOrDarkTheme,
             iconSize: 19,
             opacity: tint,
             blur: 18,

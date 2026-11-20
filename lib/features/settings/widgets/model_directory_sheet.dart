@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -62,7 +63,7 @@ class _ModelDirectorySheetState extends State<ModelDirectorySheet> {
         () => _error =
             error is ModelFailure &&
                 (error.statusCode == 404 || error.statusCode == 405)
-            ? '此接口未提供模型列表，可手动输入模型 ID。'
+            ? context.strings.thisApiDoesntListModelsEnterA
             : describeModelSettingsError(error),
       );
     } finally {
@@ -86,9 +87,11 @@ class _ModelDirectorySheetState extends State<ModelDirectorySheet> {
     final status =
         _error ??
         (_request != null
-            ? '正在获取模型'
+            ? context.strings.fetchingModels
             : matches.isEmpty
-            ? (query.isEmpty ? '没有可用模型' : '无匹配模型')
+            ? (query.isEmpty
+                  ? context.strings.noAvailableModels
+                  : context.strings.noMatchingModels)
             : null);
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 340),
@@ -130,13 +133,13 @@ class _ModelDirectorySheetState extends State<ModelDirectorySheet> {
                 Expanded(
                   child: WorkspaceSearchField(
                     controller: _search,
-                    hint: '搜索模型',
+                    hint: context.strings.searchModels,
                     onChanged: (_) => setState(() {}),
                     onClear: () => setState(_search.clear),
                   ),
                 ),
                 ModelActionButton(
-                  label: '刷新模型列表',
+                  label: context.strings.refreshModelList,
                   icon: LucideIcons.refreshCw,
                   onPressed: _request == null ? _fetch : null,
                   loading: _request != null,

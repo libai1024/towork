@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -179,7 +181,7 @@ class QuickAssistSheetState extends State<QuickAssistSheet>
             children: [
               Positioned.fill(
                 child: Semantics(
-                  label: '关闭快问',
+                  label: context.strings.closeQuickAsk,
                   button: true,
                   excludeSemantics: true,
                   child: GestureDetector(
@@ -233,7 +235,7 @@ class QuickAssistSheetState extends State<QuickAssistSheet>
                             scopesRoute: true,
                             namesRoute: true,
                             explicitChildNodes: true,
-                            label: '快问',
+                            label: context.strings.quickAsk,
                             child: Column(
                               children: [
                                 GestureDetector(
@@ -255,7 +257,9 @@ class QuickAssistSheetState extends State<QuickAssistSheet>
                                     children: [
                                       Semantics(
                                         button: true,
-                                        label: _expanded ? '收起快问面板' : '展开快问面板',
+                                        label: _expanded
+                                            ? context.strings.collapseQuickAsk
+                                            : context.strings.expandQuickAsk,
                                         onTap: _toggleHeight,
                                         child: Container(
                                           width: 32,

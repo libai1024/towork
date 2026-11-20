@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -126,19 +128,19 @@ class _TextEditorSheetState extends State<_TextEditorSheet> {
             maxLines: 5,
             style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             cursorColor: c.brand,
-            decoration: const InputDecoration(hintText: '输入内容'),
+            decoration: InputDecoration(hintText: context.strings.enterText),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               AppButton(
-                label: '取消',
+                label: context.strings.cancel,
                 type: AppButtonType.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const Spacer(),
               AppButton(
-                label: '保存',
+                label: context.strings.save,
                 onPressed: () =>
                     _saveField(context, _controller.text.trim(), widget.onSave),
               ),
@@ -190,7 +192,7 @@ class _NumberEditorSheetState extends State<_NumberEditorSheet> {
       return;
     }
     if (!(double.tryParse(text)?.isFinite ?? false)) {
-      setState(() => _error = '请输入数字');
+      setState(() => _error = context.strings.enterANumber);
       HapticFeedback.heavyImpact();
       return;
     }
@@ -234,12 +236,12 @@ class _NumberEditorSheetState extends State<_NumberEditorSheet> {
           Row(
             children: [
               AppButton(
-                label: '取消',
+                label: context.strings.cancel,
                 type: AppButtonType.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const Spacer(),
-              AppButton(label: '保存', onPressed: _save),
+              AppButton(label: context.strings.save, onPressed: _save),
             ],
           ),
         ],
@@ -288,9 +290,12 @@ class _DateEditorSheetState extends State<_DateEditorSheet> {
             child: Row(
               children: [
                 for (final (label, day) in [
-                  ('今天', today),
-                  ('明天', today.add(const Duration(days: 1))),
-                  ('下周一', nextMonday),
+                  (context.strings.today, today),
+                  (
+                    context.strings.tomorrow,
+                    today.add(const Duration(days: 1)),
+                  ),
+                  (context.strings.nextMonday, nextMonday),
                 ])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -308,7 +313,7 @@ class _DateEditorSheetState extends State<_DateEditorSheet> {
                     ),
                   ),
                 AppChip(
-                  label: '清除',
+                  label: context.strings.clear,
                   onTap: () => _saveField(context, '', widget.onSave),
                 ),
               ],
@@ -329,13 +334,13 @@ class _DateEditorSheetState extends State<_DateEditorSheet> {
           Row(
             children: [
               AppButton(
-                label: '取消',
+                label: context.strings.cancel,
                 type: AppButtonType.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const Spacer(),
               AppButton(
-                label: '保存',
+                label: context.strings.save,
                 onPressed: () => _saveField(
                   context,
                   widget.current != null && _parse(widget.current) == _selected

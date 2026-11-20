@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_colors.dart';
@@ -146,7 +147,7 @@ class FieldDiffLine extends StatelessWidget {
                 value,
                 if (lowConfidence && afterText != null)
                   Text(
-                    'AI 不太确定，请核对',
+                    context.strings.aiIsUnsurePleaseVerify,
                     style: AppTextStyles.caption.copyWith(
                       color: c.labelSecondary,
                     ),

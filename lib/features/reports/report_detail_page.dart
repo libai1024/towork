@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/local_workspace_session.dart';
 import '../../app/routes.dart';
 
@@ -28,6 +30,8 @@ import 'widgets/report_common.dart';
 import 'widgets/report_markdown.dart';
 import 'widgets/report_stats_grid.dart';
 
+part 'report_incomplete_banner.dart';
+
 /// 报告详情（06-reports.md §3.3 / §3.4）。
 /// 进入即标已读；生成中显示进度卡（三点脉冲 + 阶段文案轮换 + 不定量进度条）。
 class ReportDetailPage extends ConsumerStatefulWidget {
@@ -43,7 +47,12 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
   Timer? _stageTimer;
   int _stageIndex = 0;
 
-  static const _stageLabels = ['统计完成事项', '汇总分类', '汇总数据', '生成总结'];
+  static List<String> get _stageLabels => [
+    strings.countingCompletedTasks,
+    strings.summarizingCategories,
+    strings.aggregatingData,
+    strings.generatingSummary,
+  ];
 
   @override
   void initState() {
@@ -88,7 +97,10 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
   /// 返回：生成中时提示后台继续（§3.4）。
   void _goBack(Report? report) {
     if (report != null && report.status == ReportStatus.generating) {
-      AppToast.show(context, message: '报告在后台继续写，好了会通知你');
+      AppToast.show(
+        context,
+        message: context.strings.theReportWillContinueInTheBackground,
+      );
     }
     if (context.canPop()) {
       context.pop();
@@ -101,7 +113,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
     final c = AppColors.of(context);
     AppSheet.show<void>(
       context,
-      title: '停止生成？',
+      title: context.strings.stopGeneratingConfirmstop,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.md,
@@ -113,7 +125,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '已写的内容会被丢弃。',
+              context.strings.thePartialDraftWillBeDiscarded,
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -121,7 +133,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
               children: [
                 Expanded(
                   child: AppButton(
-                    label: '继续生成',
+                    label: context.strings.keepGenerating,
                     type: AppButtonType.secondary,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -129,7 +141,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: AppButton(
-                    label: '停止',
+                    label: context.strings.stop,
                     type: AppButtonType.destructive,
                     onPressed: () {
                       ref
@@ -165,7 +177,9 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
             children: [
               ReportMenuRow(
                 icon: report.isRead ? LucideIcons.mail : LucideIcons.mailOpen,
-                label: report.isRead ? '标为未读' : '标为已读',
+                label: report.isRead
+                    ? context.strings.markUnread
+                    : context.strings.markRead,
                 onTap: () {
                   Navigator.of(context).pop();
                   ref
@@ -173,13 +187,15 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
                       .markRead(report.id, read: !report.isRead);
                   AppToast.show(
                     context,
-                    message: report.isRead ? '已标为未读' : '已标为已读',
+                    message: report.isRead
+                        ? context.strings.markedUnread
+                        : context.strings.markedRead,
                   );
                 },
               ),
               ReportMenuRow(
                 icon: LucideIcons.refreshCw,
-                label: '重新生成',
+                label: context.strings.regenerateConfirmregenerate,
                 onTap: () {
                   Navigator.of(context).pop();
                   confirmRegenerate(context, ref, report);
@@ -187,7 +203,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
               ),
               ReportMenuRow(
                 icon: LucideIcons.trash2,
-                label: '删除',
+                label: context.strings.deleteLabel,
                 destructive: true,
                 onTap: () {
                   Navigator.of(context).pop();
@@ -254,7 +270,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
   Widget _buildAppBar(AppColors c, Report report) {
     final generating = report.status == ReportStatus.generating;
     return WorkspaceNavBar(
-      title: generating ? '生成中' : reportNavTitle(report),
+      title: generating ? context.strings.generating : reportNavTitle(report),
       onBack: () => _goBack(report),
       actions: [
         WorkspaceToolbarGroup(
@@ -262,18 +278,18 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
             if (generating)
               WorkspaceToolbarAction(
                 icon: LucideIcons.square,
-                label: '停止生成',
+                label: context.strings.stopGenerating,
                 onTap: () => _confirmStop(report),
               )
             else ...[
               WorkspaceToolbarAction(
                 icon: LucideIcons.share,
-                label: '分享',
+                label: context.strings.share,
                 onTap: () => showReportShareSheet(context, ref, report),
               ),
               WorkspaceToolbarAction(
                 icon: LucideIcons.ellipsis,
-                label: '更多',
+                label: context.strings.more,
                 onTap: () => _showMoreMenu(report),
               ),
             ],
@@ -324,7 +340,7 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '预计 10–30 秒',
+                context.strings.aboutSeconds,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -424,65 +440,18 @@ class _ReportDetailPageState extends ConsumerState<ReportDetailPage> {
     return Column(
       children: [
         WorkspaceNavBar(
-          title: '报告',
+          title: context.strings.report,
           onBack: () => context.go(AppRoutes.reports),
         ),
         Expanded(
           child: AppEmptyState(
             icon: LucideIcons.cloudOff,
-            title: '这份报告已被删除',
-            actionLabel: '返回列表',
+            title: context.strings.thisReportHasBeenDeleted,
+            actionLabel: context.strings.backToList,
             onAction: () => context.go(AppRoutes.reports),
           ),
         ),
       ],
-    );
-  }
-}
-
-/// 部分失败横幅（§6.4）：受影响分类的数据没赶上，给「重新生成」出口。
-class _IncompleteBanner extends StatelessWidget {
-  const _IncompleteBanner({
-    required this.categoryNames,
-    required this.onRegenerate,
-  });
-
-  final List<String> categoryNames;
-  final VoidCallback onRegenerate;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final names = categoryNames.map((e) => '「$e」').join('、');
-    return Container(
-      constraints: const BoxConstraints(minHeight: 36),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(color: c.fill1, borderRadius: AppRadii.brMd),
-      child: Row(
-        children: [
-          Icon(LucideIcons.triangleAlert, size: 16, color: c.labelPrimary),
-          const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: Text(
-              '$names分类的数据没赶上，本报告按现有数据生成',
-              style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
-            ),
-          ),
-          AppPressable(
-            onTap: onRegenerate,
-
-            behavior: HitTestBehavior.translucent,
-            semanticLabel: '重新生成',
-            child: Text(
-              '重新生成',
-              style: AppTextStyles.caption.copyWith(color: c.brand),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

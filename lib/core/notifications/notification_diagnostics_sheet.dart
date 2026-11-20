@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,7 +18,7 @@ import '../../theme/app_text_styles.dart';
 Future<void> showNotificationDiagnostics(BuildContext context) =>
     AppSheet.show<void>(
       context,
-      title: '通知与提醒',
+      title: context.strings.notificationsAndReminders,
       child: const NotificationDiagnosticsSheet(),
     );
 
@@ -41,7 +42,9 @@ class _NotificationDiagnosticsSheetState
     try {
       await work();
     } catch (_) {
-      if (mounted) error = '暂时无法访问系统通知设置，请重试。';
+      if (mounted) {
+        error = context.strings.couldntOpenNotificationSettingsTryAgain;
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -52,9 +55,9 @@ class _NotificationDiagnosticsSheetState
     final worker = ref.watch(notificationCoordinatorProvider);
     final maintenance = ref.watch(maintenanceRegistrationProvider);
     if (worker == null) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-        child: Text('本地工作区尚未就绪。'),
+        child: Text(context.strings.localWorkspaceIsntReady),
       );
     }
     return StreamBuilder<NotificationState>(
@@ -72,22 +75,33 @@ class _NotificationDiagnosticsSheetState
               children: [
                 Text(
                   access == null
-                      ? '正在检查系统权限…'
+                      ? context.strings.checkingPermissions
                       : !access.supported
-                      ? '此平台暂不支持本地通知'
+                      ? context
+                            .strings
+                            .localNotificationsAreUnavailableOnThisPlatform
                       : access.enabled
-                      ? '系统通知已开启'
-                      : '系统通知未开启，提醒规则已保留。',
+                      ? context.strings.systemNotificationsEnabled
+                      : context.strings.notificationsAreOffYourReminderRulesAre,
                 ),
                 const SizedBox(height: 4),
                 Text(switch (maintenance) {
-                  MaintenanceRegistration.scheduled => '后台维护已登记，执行时间由系统决定。',
-                  MaintenanceRegistration.failed => '后台维护登记失败，前台仍可排期。',
-                  MaintenanceRegistration.foregroundOnly => '仅前台维护，退出后暂停生成摘要。',
+                  MaintenanceRegistration.scheduled =>
+                    context
+                        .strings
+                        .backgroundMaintenanceRegisteredTheSystemControlsTiming,
+                  MaintenanceRegistration.failed =>
+                    context
+                        .strings
+                        .backgroundRegistrationFailedRemindersCanStillBe,
+                  MaintenanceRegistration.foregroundOnly =>
+                    context
+                        .strings
+                        .foregroundMaintenanceOnlyDigestGenerationPausesWhen,
                 }),
                 if (maintenance == MaintenanceRegistration.failed)
                   AppButton(
-                    label: '重试后台维护',
+                    label: context.strings.retryBackgroundMaintenance,
                     type: AppButtonType.ghost,
                     onPressed: busy
                         ? null
@@ -106,16 +120,26 @@ class _NotificationDiagnosticsSheetState
                           }),
                   ),
                 const SizedBox(height: 4),
-                Text('已排期 ${state.registered} 条，待排期 ${state.deferred} 条。'),
+                Text(
+                  context.strings.scheduledPending(
+                    state.registered,
+                    state.deferred,
+                  ),
+                ),
                 if (access != null && access.supported && !access.exact)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 4),
-                    child: Text('截止提醒可能延迟。需要准点提醒时请开启精确提醒。'),
+                    child: Text(
+                      context.strings.dueRemindersMayArriveLateEnableExact,
+                    ),
                   ),
                 if (state.failed > 0 || state.error || error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text(error ?? '部分提醒未排期，请重试。'),
+                    child: Text(
+                      error ??
+                          context.strings.someRemindersWerentScheduledTryAgain,
+                    ),
                   ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -123,7 +147,7 @@ class _NotificationDiagnosticsSheetState
                   runSpacing: 4,
                   children: [
                     AppButton(
-                      label: '检查并重试',
+                      label: context.strings.checkAndRetry,
                       onPressed: busy
                           ? null
                           : () =>
@@ -131,20 +155,20 @@ class _NotificationDiagnosticsSheetState
                     ),
                     if (access?.supported == true && access?.enabled != true)
                       AppButton(
-                        label: '开启系统通知',
+                        label: context.strings.enableNotifications,
                         onPressed: busy
                             ? null
                             : () => run(worker.requestPermission),
                       ),
                     if (access != null && access.supported && !access.exact)
                       AppButton(
-                        label: '开启精确提醒',
+                        label: context.strings.enableExactAlarms,
                         onPressed: busy
                             ? null
                             : () => run(worker.requestExactPermission),
                       ),
                     AppButton(
-                      label: '系统通知设置',
+                      label: context.strings.systemNotificationSettings,
                       type: AppButtonType.ghost,
                       onPressed: busy
                           ? null
@@ -160,7 +184,7 @@ class _NotificationDiagnosticsSheetState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '排期详情',
+                          context.strings.scheduleDetails,
                           style: AppTextStyles.footnote.copyWith(
                             color: AppColors.of(context).labelSecondary,
                           ),
@@ -178,8 +202,8 @@ class _NotificationDiagnosticsSheetState
                 ),
                 if (_showDetails)
                   Text(
-                    '待办需设提醒规则。未来 30 天最多预排 60 条，每日摘要最多预排 7 天，使用排期时的本机数据。'
-                    '后台或下次打开时补排。每日摘要按普通排期，省电、勿扰或强制停止可能影响送达。',
+                    '${context.strings.setAReminderOnTheTaskUp}'
+                    '${context.strings.schedulingResumesInTheBackgroundOrWhen}',
                     style: AppTextStyles.footnote.copyWith(
                       color: AppColors.of(context).labelSecondary,
                     ),
@@ -210,7 +234,7 @@ class NotificationPermissionHint extends ConsumerWidget {
         }
         return TextButton(
           onPressed: () => showNotificationDiagnostics(context),
-          child: const Text('开启系统通知'),
+          child: Text(context.strings.enableNotifications),
         );
       },
     );

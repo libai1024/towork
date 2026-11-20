@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import '../local_chat_runtime.dart';
@@ -272,7 +274,7 @@ class LiveChatViewModel extends ChatViewModel {
     );
     _activeVersion = routed.credential.configuration.version;
     final from = failed == null
-        ? '当前模型'
+        ? strings.currentModel
         : ProviderCatalog.modelLabel(
             failed.profile.model,
             kind: failed.profile.product,
@@ -284,7 +286,7 @@ class LiveChatViewModel extends ChatViewModel {
     return _Failover(
       rebound,
       routed.credential,
-      '$from${advice.reason}，已改用 $to',
+      strings.switchedTo(from, advice.reason, to),
     );
   }
 

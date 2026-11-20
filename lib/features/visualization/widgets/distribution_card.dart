@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/routes.dart';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -44,21 +46,24 @@ class _DistributionCardState extends State<DistributionCard> {
       ? c.labelSecondary
       : c.categoryAccent(s.category!.color);
 
-  String _sliceName(CategorySlice s) => s.category?.name ?? '未分类';
+  String _sliceName(CategorySlice s) =>
+      s.category?.name ?? context.strings.uncategorized;
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
 
     return VizCard(
-      title: '分类分布',
+      title: context.strings.byCategory,
       trailing: VizMiniSegmented<_ChartMode>(
         options: _ChartMode.values,
         selected: _mode,
-        labelOf: (m) => m == _ChartMode.pie ? '饼图' : '柱状图',
+        labelOf: (m) => m == _ChartMode.pie
+            ? context.strings.pieChart
+            : context.strings.barChart,
         iconOf: (m) =>
             m == _ChartMode.pie ? LucideIcons.chartPie : LucideIcons.chartBar,
-        semanticLabel: '切换图形',
+        semanticLabel: context.strings.switchChart,
         onChanged: (m) {
           HapticFeedback.lightImpact();
           setState(() {
@@ -87,13 +92,13 @@ class _DistributionCardState extends State<DistributionCard> {
         child: Column(
           children: [
             Text(
-              '分类还太少，看不出分布——再给待办们归归类。',
+              context.strings.addCategoriesToYourTasksToSee,
               style: AppTextStyles.body.copyWith(color: c.labelTertiary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             AppButton(
-              label: '去整理分类',
+              label: context.strings.organizeCategories,
               type: AppButtonType.ghost,
               onPressed: () => context.push(AppRoutes.categories),
             ),
@@ -112,8 +117,11 @@ class _DistributionCardState extends State<DistributionCard> {
         ? '${touched.total}'
         : '${(_done / _total * 100).round()}%';
     final centerLabel = touched != null
-        ? '${_sliceName(touched)} 完成 ${(touched.rate * 100).round()}%'
-        : '完成率';
+        ? context.strings.completeBuildpie(
+            _sliceName(touched),
+            (touched.rate * 100).round(),
+          )
+        : context.strings.completionRateBuildpie;
 
     return Column(
       children: [
@@ -186,8 +194,11 @@ class _DistributionCardState extends State<DistributionCard> {
                   },
 
             behavior: HitTestBehavior.opaque,
-            semanticLabel:
-                '${_sliceName(slice)}，${slice.total} 件，完成率 ${(slice.rate * 100).round()}%',
+            semanticLabel: context.strings.itemsComplete(
+              _sliceName(slice),
+              slice.total,
+              (slice.rate * 100).round(),
+            ),
             child: SizedBox(
               height: 36,
               child: Row(
@@ -210,7 +221,10 @@ class _DistributionCardState extends State<DistributionCard> {
                     ),
                   ),
                   Text(
-                    '${slice.total} 件 完成 ${(slice.rate * 100).round()}%',
+                    context.strings.itemsCompleteBuildpie(
+                      slice.total,
+                      (slice.rate * 100).round(),
+                    ),
                     style: AppTextStyles.footnote.copyWith(
                       color: c.labelSecondary,
                     ),

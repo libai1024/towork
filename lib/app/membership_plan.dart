@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Presentation-only subscription state. Never consumed by AI quotas or billing.
@@ -5,16 +6,27 @@ enum MembershipFamily {
   music('乐章'),
   alpine('山岳');
 
-  const MembershipFamily(this.label);
-  final String label;
+  const MembershipFamily(this._label);
+  final String _label;
+  String get label => localizedBuiltin(_label);
 
   String englishName(int tier) => switch (this) {
     music => ['Note', 'Prelude', 'Sonata', 'Symphony'][tier],
     alpine => ['Vale', 'Ridge', 'Summit', 'Zenith'][tier],
   };
   String title(int tier) => switch (this) {
-    music => ['音符', '序曲', '奏鸣曲', '交响曲'][tier],
-    alpine => ['山谷', '山脊', '峰顶', '天顶'][tier],
+    music => [
+      strings.note,
+      strings.overture,
+      strings.sonata,
+      strings.symphony,
+    ][tier],
+    alpine => [
+      strings.valley,
+      strings.ridge,
+      strings.summit,
+      strings.zenith,
+    ][tier],
   };
   String asset(int tier, String extension) =>
       'assets/membership/${englishName(tier).toLowerCase()}.$extension';
@@ -55,7 +67,7 @@ class MembershipPlan {
     3 => annual ? 980 : 98,
     _ => 0,
   };
-  String get period => annual ? '年' : '月';
+  String get period => annual ? strings.year : strings.month;
 }
 
 // Deliberately scoped to the running app. No production identity is overwritten.

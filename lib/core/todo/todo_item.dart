@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter/services.dart';
@@ -58,10 +59,10 @@ class TodoListItem extends StatelessWidget {
               size: 20,
               onTap: selectionMode ? onToggleSelect : onToggleDone,
               semanticLabel: selectionMode
-                  ? '选择待办：${todo.title}'
+                  ? context.strings.selectTask(todo.title)
                   : done
-                  ? '恢复待办：${todo.title}'
-                  : '完成待办：${todo.title}',
+                  ? context.strings.restoreTask(todo.title)
+                  : context.strings.completeTask(todo.title),
             ),
             const SizedBox(width: 2),
             Expanded(
@@ -221,7 +222,7 @@ class TodoSwipeRowState extends State<TodoSwipeRow>
                               color: c.fill3,
                               icon: LucideIcons.calendar,
                               iconColor: c.labelPrimary,
-                              label: '改期待办',
+                              label: context.strings.rescheduleTask,
                               onTap: () {
                                 close();
                                 widget.onReschedule?.call();
@@ -232,7 +233,7 @@ class TodoSwipeRowState extends State<TodoSwipeRow>
                               color: c.brand,
                               icon: LucideIcons.trash2,
                               iconColor: c.onBrand,
-                              label: '删除待办',
+                              label: context.strings.deleteTask,
                               onTap: () {
                                 close();
                                 widget.onDelete?.call();
@@ -276,12 +277,17 @@ class TodoSwipeRowState extends State<TodoSwipeRow>
 
   Map<CustomSemanticsAction, VoidCallback> _customActions() => {
     if (widget.onComplete != null)
-      CustomSemanticsAction(label: widget.isDone ? '恢复待办' : '完成待办'):
-          widget.onComplete!,
+      CustomSemanticsAction(
+        label: widget.isDone
+            ? context.strings.restoreTaskCustomactions
+            : context.strings.completeTaskConfirmremainingsteps,
+      ): widget.onComplete!,
     if (widget.onReschedule != null)
-      CustomSemanticsAction(label: '改期待办'): widget.onReschedule!,
+      CustomSemanticsAction(label: context.strings.rescheduleTask):
+          widget.onReschedule!,
     if (widget.onDelete != null)
-      CustomSemanticsAction(label: '删除待办'): widget.onDelete!,
+      CustomSemanticsAction(label: context.strings.deleteTask):
+          widget.onDelete!,
   };
 }
 
@@ -359,7 +365,9 @@ class TodoBoardCard extends StatelessWidget {
               checked: done,
               size: 20,
               onTap: onToggleDone,
-              semanticLabel: done ? '恢复待办：${todo.title}' : '完成待办：${todo.title}',
+              semanticLabel: done
+                  ? context.strings.restoreTask(todo.title)
+                  : context.strings.completeTask(todo.title),
             ),
             const SizedBox(width: 2),
             Expanded(

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/recurrence/recurrence_rule.dart';
@@ -23,7 +24,9 @@ class RecurrencePreview extends StatelessWidget {
       color: AppColors.of(context).labelSecondary,
     );
     final due = anchor;
-    if (due == null) return Text('设置截止时间后可预览后续日期', style: style);
+    if (due == null) {
+      return Text(context.strings.setADueTimeToPreviewUpcoming, style: style);
+    }
     try {
       final schedule = RecurrenceSchedule(
         rule: RecurrenceRule.parse(rule),
@@ -41,19 +44,30 @@ class RecurrencePreview extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('本次：${format(due)}', style: style),
+          Text(context.strings.thisOccurrenceBuild(format(due)), style: style),
           const SizedBox(height: 4),
-          Text(next.isEmpty ? '没有后续日期（已达到结束条件）' : '后续日期预览', style: style),
+          Text(
+            next.isEmpty
+                ? context.strings.noUpcomingDatesTheEndConditionHas
+                : context.strings.upcomingDates,
+            style: style,
+          ),
           for (final occurrence in next)
             Text(format(occurrence.dueAt), style: style),
         ],
       );
     } on RecurrenceCoverageException catch (error) {
-      return Text('当前时区数据支持至 ${error.lastYear} 年，请缩短预览范围', style: style);
+      return Text(
+        context.strings.timeZoneDataIsAvailableThroughShorten(error.lastYear),
+        style: style,
+      );
     } on FormatException {
-      return Text('当前规则或时区暂不支持预览', style: style);
+      return Text(
+        context.strings.previewUnavailableForThisRuleOrTime,
+        style: style,
+      );
     } on StateError {
-      return Text('日期范围过大，请缩短重复间隔或范围', style: style);
+      return Text(context.strings.dateRangeIsTooLargeShortenThe, style: style);
     }
   }
 }

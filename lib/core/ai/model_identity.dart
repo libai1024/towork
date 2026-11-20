@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -55,7 +56,7 @@ List<String> modelsForProduct(ProviderKind product) => [
 
 /// 服务商显示名（对话页模型切换头部与额度页「模型服务」行共用）。
 String productLabel(ProviderKind product) =>
-    ProviderCatalog.of(product).shortLabel;
+    localizedBuiltin(ProviderCatalog.of(product).shortLabel);
 
 String shortModelLabel(String model) => ProviderCatalog.modelLabel(model);
 

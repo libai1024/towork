@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -207,7 +209,7 @@ class _QuickAssistPanelState extends ConsumerState<QuickAssistPanel> {
     await _sheet.currentState?.dismiss();
     if (!mounted || epoch != _epoch) return;
     if (ref.read(chatViewModelProvider).isGenerating) {
-      await _host.hide('后台生成中');
+      await _host.hide(context.strings.generatingInBackground);
       await _closeWhenIdle(epoch);
     } else {
       await _host.close();
@@ -324,19 +326,19 @@ class _QuickAssistPanelState extends ConsumerState<QuickAssistPanel> {
           if (hasSession)
             action(
               LucideIcons.messageCirclePlus,
-              '新对话',
+              context.strings.newChatHeader,
               _newConversation,
               key: const ValueKey('quick-assist-new'),
             ),
           action(
             LucideIcons.externalLink,
-            '在 ToWork 中打开',
+            context.strings.openInTowork,
             _openApp,
             key: const ValueKey('quick-assist-open-app'),
           ),
           action(
             LucideIcons.x,
-            '关闭',
+            context.strings.close,
             _close,
             key: const ValueKey('quick-assist-close'),
           ),
@@ -349,13 +351,28 @@ class _QuickAssistPanelState extends ConsumerState<QuickAssistPanel> {
     final shared = _shared;
     final suggestions = shared.isEmpty
         ? <(String, VoidCallback)>[
-            ('今天还有什么要做', () => _ask('今天还有什么要做？')),
-            ('记一条待办', () => _prefill('帮我记一条待办：')),
-            ('这周做了什么', () => _ask('帮我总结一下这周完成了什么')),
+            (
+              context.strings.whatsLeftToday,
+              () => _ask(context.strings.whatElseDoINeedToDo),
+            ),
+            (
+              context.strings.addATask,
+              () => _prefill(context.strings.helpMeAddATask),
+            ),
+            (
+              context.strings.whatDidIDoThisWeek,
+              () => _ask(context.strings.summarizeWhatICompletedThisWeek),
+            ),
           ]
         : <(String, VoidCallback)>[
-            ('记成待办', () => _ask('把下面的内容记成待办：\n$shared')),
-            ('总结要点', () => _ask('总结下面内容的要点：\n$shared')),
+            (
+              context.strings.saveAsTask,
+              () => _ask(context.strings.turnThisIntoATask(shared)),
+            ),
+            (
+              context.strings.summarize,
+              () => _ask(context.strings.summarizeTheseKeyPoints(shared)),
+            ),
           ];
     return Center(
       child: SingleChildScrollView(
@@ -366,7 +383,9 @@ class _QuickAssistPanelState extends ConsumerState<QuickAssistPanel> {
             const WorkMark(size: 26),
             const SizedBox(height: 8),
             Text(
-              shared.isEmpty ? '快问' : '处理这段文字',
+              shared.isEmpty
+                  ? context.strings.quickAsk
+                  : context.strings.workWithThisText,
               key: const ValueKey('quick-assist-greeting'),
               textAlign: TextAlign.center,
               style: AppTextStyles.displaySmall.copyWith(color: c.labelPrimary),
@@ -432,12 +451,12 @@ class QuickAssistStartup extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '无法打开工作区，原有数据已保留。',
+                  context.strings.couldntOpenTheWorkspaceYourDataIs,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                 ),
                 const SizedBox(height: 10),
-                AppButton(label: '重新打开', onPressed: retry),
+                AppButton(label: context.strings.reopen, onPressed: retry),
               ],
             ),
           ),

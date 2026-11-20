@@ -1,3 +1,6 @@
+import 'package:towork/l10n/repository_messages.dart';
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import '../../../core/workspace_actions.dart';
@@ -16,7 +19,9 @@ bool runRepositoryCommand(BuildContext context, VoidCallback command) {
     command();
     return true;
   } on RepositoryException catch (error) {
-    if (context.mounted) AppToast.show(context, message: error.message);
+    if (context.mounted) {
+      AppToast.show(context, message: repositoryErrorMessage(error));
+    }
     return false;
   }
 }
@@ -29,18 +34,22 @@ Future<bool> runDataCommand(
     await command();
     return true;
   } on RepositoryException catch (error) {
-    if (context.mounted) AppToast.show(context, message: error.message);
+    if (context.mounted) {
+      AppToast.show(context, message: repositoryErrorMessage(error));
+    }
   } on WorkspaceFailure catch (error) {
     if (context.mounted) {
       AppToast.show(
         context,
         message: error.code == WorkspaceFailureCode.validation
-            ? '内容或字段格式无效，请检查后重试'
+            ? context.strings.invalidContentOrFieldFormatCheckAnd
             : workspaceErrorMessage(error),
       );
     }
   } on WorkspaceBusy {
-    if (context.mounted) AppToast.show(context, message: '正在保存，请稍候');
+    if (context.mounted) {
+      AppToast.show(context, message: context.strings.savingPleaseWait);
+    }
   }
   return false;
 }

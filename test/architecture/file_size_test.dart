@@ -16,7 +16,12 @@ void main() {
         'lib',
       ).listSync(recursive: true).whereType<File>()) {
         final path = file.path.replaceAll('\\', '/');
-        if (!path.endsWith('.dart') || path.endsWith('.g.dart')) continue;
+        if (!path.endsWith('.dart') ||
+            path.endsWith('.g.dart') ||
+            (path.startsWith('lib/l10n/generated/app_localizations') &&
+                file.readAsStringSync().contains('class AppLocalizations'))) {
+          continue;
+        }
         final lines = file.readAsLinesSync().length;
         final limit = baseline[path] ?? 500;
         if (lines > limit) violations.add('$path: $lines > $limit');

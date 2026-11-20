@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -14,14 +15,16 @@ class ReplyCopyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Tooltip(
-    message: '复制回复',
+    message: context.strings.copyReply,
     excludeFromSemantics: true,
     child: AppPressable(
-      semanticLabel: '复制回复',
+      semanticLabel: context.strings.copyReply,
       minSize: 48,
       onTap: () async {
         await Clipboard.setData(ClipboardData(text: text));
-        if (context.mounted) AppToast.show(context, message: '已复制');
+        if (context.mounted) {
+          AppToast.show(context, message: context.strings.copied);
+        }
       },
       child: SizedBox(
         width: 48,

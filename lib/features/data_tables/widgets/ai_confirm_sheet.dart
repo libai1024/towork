@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -67,9 +68,9 @@ class _AiConfirmSheetState extends State<AiConfirmSheet> {
     if (hasDelete) {
       final confirmed = await showAppConfirmDialog(
         context,
-        title: '丢弃本次分析结果？',
-        message: '包含 1 处删除，丢弃后 AI 本次的分析结果不会保留。',
-        confirmLabel: '丢弃',
+        title: context.strings.discardThisAnalysis,
+        message: context.strings.includesOneDeletionDiscardingRemovesThisAi,
+        confirmLabel: context.strings.discard,
         destructive: true,
       );
       if (!confirmed || !mounted) return;
@@ -100,7 +101,7 @@ class _AiConfirmSheetState extends State<AiConfirmSheet> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'AI 想写入 ${changes.length} 处变更',
+                    context.strings.aiProposesChanges(changes.length),
                     style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
                   ),
                 ),
@@ -113,9 +114,9 @@ class _AiConfirmSheetState extends State<AiConfirmSheet> {
                   showMockImageViewer(context, label: widget.batch.sourceLabel),
               behavior: HitTestBehavior.translucent,
 
-              semanticLabel: '查看来源',
+              semanticLabel: context.strings.viewSource,
               child: Text(
-                '来自${widget.batch.sourceLabel} ›',
+                context.strings.from(widget.batch.sourceLabel),
                 style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
               ),
             ),
@@ -173,14 +174,14 @@ class _AiConfirmSheetState extends State<AiConfirmSheet> {
             Row(
               children: [
                 AppButton(
-                  label: '丢弃',
+                  label: context.strings.discard,
                   type: AppButtonType.ghost,
                   onPressed: _discard,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: AppButton(
-                    label: '应用所选 (${_selected.length})',
+                    label: context.strings.applySelected(_selected.length),
                     enabled: _selected.isNotEmpty,
                     expand: true,
                     onPressed: _selected.isEmpty
@@ -225,9 +226,9 @@ class _ConfirmChangeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final actionLabel = switch (change.action) {
-      DataChangeAction.create => '新增',
-      DataChangeAction.update => '修改',
-      DataChangeAction.delete => '删除',
+      DataChangeAction.create => context.strings.add,
+      DataChangeAction.update => context.strings.change,
+      DataChangeAction.delete => context.strings.deleteLabel,
     };
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +236,9 @@ class _ConfirmChangeTile extends StatelessWidget {
         AppPressable(
           onTap: onToggle,
           behavior: HitTestBehavior.translucent,
-          semanticLabel: selected ? '取消勾选' : '勾选',
+          semanticLabel: selected
+              ? context.strings.deselect
+              : context.strings.selectLabelBuild,
           child: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: AnimatedContainer(

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -225,9 +227,7 @@ class ChatViewModel extends StateNotifier<ChatGenerationState> {
         throw StateError('The assistant returned an empty reply.');
       }
       final reply = !agentEnabled && parsed.draft != null
-          ? const ChatReply(
-              text: '这件事可以拆成准备资料、完成初稿和发送确认三个步骤。切换到 Agent 模式，我可以帮你直接创建待办。',
-            )
+          ? ChatReply(text: strings.thisCanBeSplitIntoThreeSteps)
           : parsed;
       _responseTimer = Timer(responseDelay, () {
         if (!_isActive(request)) return;
@@ -367,9 +367,9 @@ class ChatViewModel extends StateNotifier<ChatGenerationState> {
         task == null ||
         current.todoId != task.id ||
         current.sessionId != card.sessionId) {
-      throw const RepositoryException(
+      throw RepositoryException(
         RepositoryErrorCode.conflict,
-        '任务卡或待办已变化',
+        strings.theTaskOrItsCardHasChanged,
       );
     }
     final index = _chats
@@ -404,26 +404,26 @@ class ChatViewModel extends StateNotifier<ChatGenerationState> {
 
   ChatTodoUndo undoTodo(ChatMessage card, Todo todo) {
     if (!mounted || !_chats.mounted || !_todos.mounted) {
-      throw const RepositoryException(
+      throw RepositoryException(
         RepositoryErrorCode.conflict,
-        '当前会话已关闭，无法撤销待办',
+        strings.thisChatIsClosedItsTaskCan,
       );
     }
     final currentCard = _chats.messageById(card.id);
     final currentTodo = _todos.byId(todo.id);
     if (currentCard == null || currentTodo == null) {
-      throw const RepositoryException(
+      throw RepositoryException(
         RepositoryErrorCode.notFound,
-        '待办或任务卡已不存在',
+        strings.theTaskOrItsCardNoLonger,
       );
     }
     if (currentCard.type != ChatMessageType.todoCard ||
         currentCard.todoId != currentTodo.id ||
         currentCard.sessionId != card.sessionId ||
         _chats.sessionById(currentCard.sessionId) == null) {
-      throw const RepositoryException(
+      throw RepositoryException(
         RepositoryErrorCode.conflict,
-        '任务卡关联已变化，无法撤销',
+        strings.theCardNowLinksToADifferent,
       );
     }
     final index = _chats
@@ -472,9 +472,9 @@ class ChatViewModel extends StateNotifier<ChatGenerationState> {
       // listener during the insertion instead of overwriting its newer state.
       if (!identical(_todos.byId(todo.id), todo) ||
           _chats.messageById(card.id) != null) {
-        throw const RepositoryException(
+        throw RepositoryException(
           RepositoryErrorCode.conflict,
-          '相关记录已变化，无法恢复',
+          strings.relatedRecordsHaveChangedAndCannotBe,
         );
       }
       _chats.insertMessageAt(undo.messageIndex, card);

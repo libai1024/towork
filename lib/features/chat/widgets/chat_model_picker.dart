@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,7 +68,9 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
       final service = await ref.read(modelAccountServiceProvider.future);
       if (mounted) setState(() => _service = service);
     } catch (_) {
-      if (mounted) setState(() => _error = '暂时无法载入模型配置');
+      if (mounted) {
+        setState(() => _error = context.strings.couldntLoadModelSettings);
+      }
     }
   }
 
@@ -82,8 +85,8 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
         AppToast.show(
           context,
           message: error is ModelSelectionRestoreFailure
-              ? '模型未能切换，自动换用已关闭，请重新开启'
-              : '暂时无法切换，请稍后重试',
+              ? context.strings.couldntSwitchModelsTurnAutomaticFallbackBack
+              : context.strings.couldntSwitchTryAgainLater,
         );
       }
     } finally {
@@ -122,7 +125,11 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
   Widget build(BuildContext context) {
     final snapshot = widget.demo ? null : ref.watch(modelAccountsProvider);
     final accounts = snapshot?.valueOrNull;
-    final error = _error ?? (snapshot?.hasError == true ? '暂时无法载入模型配置' : null);
+    final error =
+        _error ??
+        (snapshot?.hasError == true
+            ? context.strings.couldntLoadModelSettings
+            : null);
     final ready = widget.demo || (accounts != null && _service != null);
     final c = AppColors.of(context);
     return ConstrainedBox(
@@ -151,7 +158,7 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
                                 ref.invalidate(modelAccountServiceProvider);
                                 _load();
                               },
-                              child: const Text('重试'),
+                              child: Text(context.strings.retry),
                             ),
                           ],
                         ),
@@ -172,7 +179,7 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
                           size: 16,
                           color: c.labelPrimary,
                         ),
-                        semanticLabel: '返回供应商列表',
+                        semanticLabel: context.strings.backToProviders,
                         onTap: _saving
                             ? null
                             : () => setState(() => _product = null),
@@ -199,7 +206,7 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
     return [
       if (!widget.demo)
         ChatModelPickerRow(
-          label: '自动换用',
+          label: context.strings.automaticFallback,
           leading: Icon(LucideIcons.route, size: 16, color: c.labelPrimary),
           selected: autoRoute,
           onTap: _saving
@@ -226,13 +233,13 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
             child: Text(
-              '添加模型账户',
+              context.strings.addModelAccount,
               style: AppTextStyles.modelLabel.copyWith(color: c.labelSecondary),
             ),
           ),
         _divider(),
         ChatModelPickerRow(
-          label: '管理账户',
+          label: context.strings.manageAccounts,
           leading: Icon(
             LucideIcons.settings2,
             size: 16,
@@ -260,7 +267,7 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                '${accounts.length > 1 ? '账户 ${index + 1} ' : ''}${accountStatusLabel(account, now)}',
+                '${accounts.length > 1 ? context.strings.account(index + 1) : ''}${accountStatusLabel(account, now)}',
                 style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
               ),
             ),
@@ -302,14 +309,14 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
       ],
       if (accounts.isEmpty)
         ChatModelPickerRow(
-          label: '账户已移除，返回重新选择',
+          label: context.strings.accountRemovedGoBackAndChooseAnother,
           onTap: () => setState(() => _product = null),
         ),
     ];
   }
 
   List<Widget> _demoModels() => [
-    for (final name in ['K3', '快速'])
+    for (final name in ['K3', context.strings.fast])
       ChatModelPickerRow(
         label: name == 'K3' ? 'Kimi K3' : name,
         leading: const ProviderLogo(ProviderKind.moonshot),
@@ -330,7 +337,12 @@ class _ModelSwitcherPopoverState extends ConsumerState<_ModelSwitcherPopover> {
     padding: const EdgeInsets.only(left: 6),
     child: Row(
       children: [
-        Expanded(child: Text('深度思考', style: AppTextStyles.modelLabel)),
+        Expanded(
+          child: Text(
+            context.strings.deepThinking,
+            style: AppTextStyles.modelLabel,
+          ),
+        ),
         CupertinoSwitch(
           value: value,
           activeTrackColor: AppColors.of(context).labelPrimary,

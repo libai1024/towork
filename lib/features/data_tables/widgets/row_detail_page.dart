@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 
 import 'package:flutter/material.dart' hide DataRow;
@@ -47,8 +49,8 @@ class RowDetailPage extends ConsumerWidget {
         body: SafeArea(
           child: AppEmptyState(
             icon: LucideIcons.fileQuestion,
-            title: '这条记录已不存在',
-            actionLabel: '返回数据表',
+            title: context.strings.recordNoLongerExists,
+            actionLabel: context.strings.backToTable,
             onAction: () => context.popOrGo(AppRoutes.dataTable(tableId)),
           ),
         ),
@@ -56,7 +58,7 @@ class RowDetailPage extends ConsumerWidget {
     }
 
     final firstField = table.columns.isEmpty ? null : table.columns.first.name;
-    final title = row.values[firstField] ?? '记录详情';
+    final title = row.values[firstField] ?? context.strings.recordDetails;
 
     return Scaffold(
       backgroundColor: c.bgGround,
@@ -71,7 +73,7 @@ class RowDetailPage extends ConsumerWidget {
                   children: [
                     WorkspaceToolbarAction(
                       icon: LucideIcons.history,
-                      label: '变更历史',
+                      label: context.strings.changeHistory,
                       onTap: () =>
                           showRowHistorySheet(context, table: table, row: row!),
                     ),
@@ -114,7 +116,7 @@ class RowDetailPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '更新于 ${relativeTime(row.updatedAt)}',
+                        context.strings.updated(relativeTime(row.updatedAt)),
                         style: AppTextStyles.caption.copyWith(
                           color: c.labelTertiary,
                         ),
@@ -184,7 +186,7 @@ class _FieldRow extends ConsumerWidget {
                       .updateCell(table, row, column.name, boolRaw(v));
                   if (!context.mounted) return;
                   HapticFeedback.lightImpact();
-                  AppToast.show(context, message: '已保存');
+                  AppToast.show(context, message: context.strings.saved);
                 });
               },
             ),
@@ -197,7 +199,7 @@ class _FieldRow extends ConsumerWidget {
     return AppPressable(
       onTap: () => _edit(context, ref),
       borderRadius: AppRadii.brLg,
-      semanticLabel: '编辑${column.name}',
+      semanticLabel: context.strings.editCategorylist(column.name),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
@@ -206,7 +208,7 @@ class _FieldRow extends ConsumerWidget {
             Expanded(
               flex: 3,
               child: Text(
-                display.isEmpty ? '未填写' : display,
+                display.isEmpty ? context.strings.notSet : display,
                 style: isNumericColumn(column)
                     ? tabularStyle(
                         AppTextStyles.body.copyWith(color: c.labelPrimary),
@@ -241,6 +243,6 @@ class _FieldRow extends ConsumerWidget {
     if (result == null || !context.mounted) return;
     if (result == (row.values[column.name] ?? '')) return;
     HapticFeedback.lightImpact();
-    AppToast.show(context, message: '已保存');
+    AppToast.show(context, message: context.strings.saved);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/local/workspace_model_codec.dart';
@@ -56,8 +57,10 @@ class RecurrenceCommands {
       through: _through(todo),
     );
     return RecurrenceProposal(
-      title: '开启重复待办',
-      choices: [_choice('从本次开始', command, future: true)],
+      title: strings.makeTaskRecurring,
+      choices: [
+        _choice(strings.startingWithThisOccurrence, command, future: true),
+      ],
     );
   }
 
@@ -75,7 +78,7 @@ class RecurrenceCommands {
           key: updated[key],
     };
     return _scopes(
-      '修改重复待办',
+      strings.editRecurringTask,
       (scope) => plans.edit(
         before.id,
         patch,
@@ -89,7 +92,7 @@ class RecurrenceCommands {
   RecurrenceProposal deleteProposal(Todo todo) {
     _checkDisplayed(todo);
     return _scopes(
-      '删除重复待办',
+      strings.deleteRecurringTask,
       (scope) => plans.delete(
         todo.id,
         scope: scope,
@@ -110,7 +113,9 @@ class RecurrenceCommands {
       try {
         choices.add(
           _choice(
-            scope == RecurrenceScope.current ? '仅本次' : '本次及以后',
+            scope == RecurrenceScope.current
+                ? strings.thisOccurrence
+                : strings.thisAndFutureOccurrences,
             prepare(scope),
             future: scope == RecurrenceScope.currentAndFuture,
           ),
@@ -121,8 +126,8 @@ class RecurrenceCommands {
         if (error.code != WorkspaceFailureCode.validation) rethrow;
         notes.add(
           scope == RecurrenceScope.current
-              ? '重复规则或时区的修改需要应用于本次及以后。'
-              : '本次及以后暂不可用，请检查截止日期和系列状态；记录较多时也可能超过单次处理上限。',
+              ? strings.changesToTheRecurrenceRuleOrTime
+              : strings.checkTheDueDateAndSeriesStatus,
         );
       }
     }

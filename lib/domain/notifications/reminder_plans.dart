@@ -2,6 +2,12 @@ import '../settings/app_preferences.dart';
 import '../workspace/workspace_commands.dart';
 import 'daily_digest.dart';
 
+class ReminderWording {
+  const ReminderWording(this.language, this.task, this.digest, this.format);
+  final String language, task, digest;
+  final DigestFormatter format;
+}
+
 class ReminderPlan {
   ReminderPlan({
     required this.key,
@@ -19,6 +25,7 @@ List<ReminderPlan> reminderPlans(
   WorkspaceSnapshot snapshot,
   AppPreferences prefs,
   DateTime now,
+  ReminderWording wording,
 ) {
   final plans = <ReminderPlan>[];
   if (prefs.notifyDue) {
@@ -65,7 +72,8 @@ List<ReminderPlan> reminderPlans(
               'todo_version': todo.version,
               'rule_id': entry.key,
               'at': entry.value.toUtc().toIso8601String(),
-              'title': '待办提醒',
+              'title': wording.task,
+              'language': wording.language,
               'body': todo.data['title'],
               'kind': 'due',
             },
@@ -94,8 +102,9 @@ List<ReminderPlan> reminderPlans(
             'key': key,
             'at': at.toUtc().toIso8601String(),
             'kind': 'morning',
-            'title': '每日待办摘要',
-            'body': dailyDigest(snapshot, at),
+            'title': wording.digest,
+            'language': wording.language,
+            'body': dailyDigest(snapshot, at, wording.format),
           },
         ),
       );

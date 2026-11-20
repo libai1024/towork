@@ -1,27 +1,27 @@
-import '../../core/widgets/mobile_sidebar_reveal.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:towork/l10n/strings.dart';
 
-import '../../app/workspace_state.dart';
-import '../../core/widgets/work_mark.dart';
-import '../../core/widgets/app_sheet.dart';
-import '../../core/widgets/app_button.dart';
-import '../../core/widgets/app_toast.dart';
-import '../../app/providers.dart';
+import '../../app/chat/chat_view_model.dart';
 import '../../app/local_chat_runtime.dart';
+import '../../app/providers.dart';
+import '../../app/workspace_state.dart';
 import '../../core/agent/agent_run_card.dart';
+import '../../core/todo/daily_overview_panel.dart';
+import '../../core/widgets/app_button.dart';
+import '../../core/widgets/app_sheet.dart';
+import '../../core/widgets/app_toast.dart';
+import '../../core/widgets/mobile_sidebar_reveal.dart';
+import '../../core/widgets/work_mark.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../app/chat/chat_view_model.dart';
 import 'chat_actions.dart';
-import '../../core/todo/daily_overview_panel.dart';
+import 'widgets/chat_composer_layout.dart';
 import 'widgets/chat_drawer.dart';
+import 'widgets/chat_header.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/chat_thread.dart';
-import 'widgets/chat_header.dart';
-import 'widgets/chat_composer_layout.dart';
 import 'widgets/workspace_search.dart';
 
 /// 对话首页（01-chat-home.md）。
@@ -79,10 +79,6 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
   void _stopGenerating() => ref.read(chatViewModelProvider.notifier).cancel();
 
-  // -------------------------------------------------------------------------
-  // 构建
-  // -------------------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
@@ -110,7 +106,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           children: [
             if (ref.watch(localChatRuntimeProvider)?.readError != null)
               MaterialBanner(
-                content: const Text('本地会话暂时无法刷新，已保留上次内容。'),
+                content: Text(
+                  context.strings.couldntRefreshLocalChatsShowingTheLast,
+                ),
                 actions: [
                   TextButton(
                     onPressed: () async {
@@ -125,7 +123,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                         }
                       }
                     },
-                    child: const Text('重新加载'),
+                    child: Text(context.strings.reload),
                   ),
                 ],
               ),
@@ -228,7 +226,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
     String? error;
     await AppSheet.show<void>(
       context,
-      title: '重命名会话',
+      title: context.strings.renameChat,
       child: StatefulBuilder(
         builder: (sheetContext, update) {
           Future<void> save() async {
@@ -258,7 +256,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Semantics(
-                  label: '会话名称',
+                  label: context.strings.chatName,
                   child: TextField(
                     key: const ValueKey('chat-session-name'),
                     controller: controller,
@@ -266,7 +264,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     readOnly: saving,
                     maxLength: 100,
                     decoration: InputDecoration(
-                      hintText: '会话名称',
+                      hintText: context.strings.chatName,
                       errorText: error,
                     ),
                     onSubmitted: (_) => save(),
@@ -274,7 +272,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 ),
                 const SizedBox(height: 8),
                 AppButton(
-                  label: '保存',
+                  label: context.strings.save,
                   loading: saving,
                   expand: true,
                   onPressed: saving ? null : save,
@@ -286,18 +284,20 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                           final confirmed = await showDialog<bool>(
                             context: sheetContext,
                             builder: (dialogContext) => AlertDialog(
-                              title: const Text('删除这段会话？'),
-                              content: const Text('已创建的待办会保留。'),
+                              title: Text(context.strings.deleteThisChat),
+                              content: Text(
+                                context.strings.tasksCreatedInThisChatWillBe,
+                              ),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.of(dialogContext).pop(false),
-                                  child: const Text('取消'),
+                                  child: Text(context.strings.cancel),
                                 ),
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.of(dialogContext).pop(true),
-                                  child: const Text('删除'),
+                                  child: Text(context.strings.deleteLabel),
                                 ),
                               ],
                             ),
@@ -328,7 +328,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                             }
                           }
                         },
-                  child: const Text('删除会话'),
+                  child: Text(context.strings.deleteChat),
                 ),
               ],
             ),
@@ -340,7 +340,11 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 
   Widget _emptyHome(AppColors c, bool desktop) {
-    final user = ref.watch(userProfileProvider);
+    final copy = context.strings;
+    final name = ref
+        .watch(userProfileProvider)
+        .displayName(copy.defaultNickname);
+    final greeting = copy.hiWhatsOnYourListToday(name);
     if (!desktop) {
       return Column(
         children: [
@@ -354,7 +358,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     const WorkMark(size: 28),
                     const SizedBox(height: 12),
                     Text(
-                      '嗨 ${user.nickname}，今天想做点什么',
+                      greeting,
                       key: const ValueKey('home-greeting'),
                       textAlign: TextAlign.center,
                       style: AppTextStyles.display.copyWith(
@@ -389,7 +393,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                       const WorkMark(size: 32),
                       const SizedBox(height: 12),
                       Text(
-                        '嗨 ${user.nickname}，今天想做点什么',
+                        greeting,
                         key: const ValueKey('home-greeting'),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.display.copyWith(
@@ -471,11 +475,11 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                   ),
                   child: Row(
                     children: [
-                      const Expanded(child: Text('回复未完成')),
+                      Expanded(child: Text(context.strings.replyIncomplete)),
                       TextButton(
                         onPressed: () =>
                             ref.read(chatViewModelProvider.notifier).retry(),
-                        child: const Text('重试'),
+                        child: Text(context.strings.retry),
                       ),
                     ],
                   ),

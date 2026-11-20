@@ -48,7 +48,7 @@ class UpdateRestart : BroadcastReceiver() {
             if (!manager.areNotificationsEnabled()) return
             val builder = if (Build.VERSION.SDK_INT >= 26) {
                 manager.createNotificationChannel(NotificationChannel(
-                    channelId, "应用更新", NotificationManager.IMPORTANCE_DEFAULT,
+                    channelId, context.getString(R.string.update_channel), NotificationManager.IMPORTANCE_DEFAULT,
                 ))
                 Notification.Builder(context, channelId)
             } else {
@@ -59,8 +59,8 @@ class UpdateRestart : BroadcastReceiver() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             manager.notify(notificationId, builder
                 .setSmallIcon(R.drawable.ic_stat_towork)
-                .setContentTitle("ToWork 已更新到 $version")
-                .setContentText("点按打开新版")
+                .setContentTitle(context.getString(R.string.update_installed, version))
+                .setContentText(context.getString(R.string.update_open))
                 .setContentIntent(open)
                 .setAutoCancel(true)
                 .build())

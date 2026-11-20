@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart' show dataTableProvider;
@@ -118,7 +119,7 @@ class DataTableLibrarySnapshot {
       types: [
         DataTableTypeCount(
           id: allDataTableTypes,
-          name: '全部',
+          name: strings.allLabel,
           count: matching.length,
         ),
         for (final type in bundle.types)
@@ -130,7 +131,7 @@ class DataTableLibrarySnapshot {
         if (unassigned > 0 || selected == unassignedDataTableType)
           DataTableTypeCount(
             id: unassignedDataTableType,
-            name: '未分类',
+            name: strings.uncategorized,
             count: unassigned,
           ),
       ],

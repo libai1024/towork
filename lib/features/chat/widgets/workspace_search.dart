@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/routes.dart';
 
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ Future<void> showWorkspaceSearch(BuildContext context) async {
   final sessionId = await showGeneralDialog<String>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: '关闭搜索',
+    barrierLabel: context.strings.closeSearch,
     barrierColor: AppColors.of(context).scrim.withValues(alpha: .2),
     transitionDuration: const Duration(milliseconds: 240),
     pageBuilder: (context, animation, secondaryAnimation) =>
@@ -111,8 +113,8 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
         if (!mounted || change == null) return;
         AppToast.show(
           context,
-          message: '已删除',
-          actionLabel: '撤销',
+          message: context.strings.deleted,
+          actionLabel: context.strings.undo,
           onAction: () => workspaceUi(context, change.undo),
         );
       },
@@ -179,7 +181,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                       child: Semantics(
                         header: true,
                         child: Text(
-                          '历史会话',
+                          context.strings.chatHistory,
                           style: AppTextStyles.subhead.copyWith(
                             color: c.labelPrimary,
                           ),
@@ -198,8 +200,10 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                     sliver: SliverToBoxAdapter(
                       child: AppEmptyState(
                         icon: LucideIcons.search,
-                        title: _query.isEmpty ? '暂无会话' : '无搜索结果',
-                        actionLabel: '去对话页',
+                        title: _query.isEmpty
+                            ? context.strings.noChatsYet
+                            : context.strings.noResults,
+                        actionLabel: context.strings.goToChat,
                         onAction: _exitToConversation,
                       ),
                     ),
@@ -231,7 +235,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                       child: Semantics(
                         header: true,
                         child: Text(
-                          '待办',
+                          context.strings.task,
                           style: AppTextStyles.body.copyWith(
                             color: c.labelSecondary,
                             fontWeight: FontWeight.w500,
@@ -283,7 +287,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Semantics(
-                                label: '搜索会话和待办',
+                                label: context.strings.searchChatsAndTasks,
                                 child: TextField(
                                   key: const ValueKey('workspace-search-input'),
                                   controller: _controller,
@@ -298,7 +302,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                                     color: c.labelPrimary,
                                   ),
                                   decoration: appInlineInput(
-                                    hintText: '搜索',
+                                    hintText: context.strings.search,
                                     hintStyle: AppTextStyles.body.copyWith(
                                       color: c.labelTertiary,
                                     ),
@@ -309,7 +313,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                             if (_controller.text.isNotEmpty)
                               IconButton(
                                 key: const ValueKey('workspace-search-clear'),
-                                tooltip: '清除搜索',
+                                tooltip: context.strings.clearSearch,
                                 icon: Icon(
                                   LucideIcons.circleX,
                                   color: c.labelSecondary,
@@ -326,7 +330,7 @@ class _WorkspaceSearchState extends ConsumerState<_WorkspaceSearch> {
                   GlassIconButton(
                     key: const ValueKey('workspace-search-close'),
                     icon: LucideIcons.x,
-                    label: '关闭搜索',
+                    label: context.strings.closeSearch,
                     size: 48,
                     onTap: () => Navigator.of(context).pop(),
                   ),

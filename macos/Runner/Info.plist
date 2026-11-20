@@ -6,6 +6,8 @@
 	<string>将你主动录制的语音转换为待办指令，不在后台监听。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>使用系统语音识别转换指令；普通模式可能连接系统识别服务。</string>
+	<key>CFBundleLocalizations</key>
+	<array><string>en</string><string>zh-Hans</string></array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

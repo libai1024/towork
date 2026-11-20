@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/app_preferences_provider.dart';
 import '../../../app/routes.dart';
 
@@ -29,13 +31,15 @@ import 'sidebar_quota_strip.dart';
 
 import 'package:flutter/services.dart';
 
-const workspaceEntries = [
-  (LucideIcons.listTodo, '待办', AppRoutes.todos),
-  (LucideIcons.calendarDays, '日程', AppRoutes.visualization),
-  (LucideIcons.fileText, '报告', AppRoutes.reports),
-  (LucideIcons.table2, '数据', AppRoutes.dataTables),
-  (LucideIcons.brain, '记忆', AppRoutes.memory),
-  (LucideIcons.settings2, '设置', AppRoutes.settings),
+part 'chat_drawer_categories.dart';
+
+List<(IconData, String, String)> get workspaceEntries => [
+  (LucideIcons.listTodo, strings.task, AppRoutes.todos),
+  (LucideIcons.calendarDays, strings.schedule, AppRoutes.visualization),
+  (LucideIcons.fileText, strings.report, AppRoutes.reports),
+  (LucideIcons.table2, strings.data, AppRoutes.dataTables),
+  (LucideIcons.brain, strings.memory, AppRoutes.memory),
+  (LucideIcons.settings2, strings.settings, AppRoutes.settings),
 ];
 
 /// Shared workspace destinations in two rows of three shortcuts.
@@ -145,13 +149,15 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
           children: [
             Expanded(
               child: AppPressable(
-                semanticLabel: _categoriesOpen ? '收起分类' : '展开分类',
+                semanticLabel: _categoriesOpen
+                    ? context.strings.collapseCategories
+                    : context.strings.expandCategories,
                 onTap: () => setState(() => _categoriesOpen = !_categoriesOpen),
                 child: Row(
                   children: [
                     const SizedBox(width: 8),
                     Text(
-                      '分类',
+                      context.strings.category,
                       style: AppTextStyles.footnote.copyWith(
                         color: c.labelSecondary,
                       ),
@@ -172,7 +178,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
             // 读屏/触屏用户同等可达（长按入口保留）。
             if (!_sorting)
               IconButton(
-                tooltip: '分类排序',
+                tooltip: context.strings.reorderCategoriesBuild,
                 onPressed: _categoriesOpen
                     ? () => setState(() => _sorting = true)
                     : null,
@@ -185,10 +191,10 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
             if (_sorting)
               TextButton(
                 onPressed: () => setState(() => _sorting = false),
-                child: const Text('完成'),
+                child: Text(context.strings.complete),
               ),
             IconButton(
-              tooltip: '新建分类',
+              tooltip: context.strings.newCategory,
               onPressed: () => CategoryEditSheet.showCreate(context),
               icon: Icon(
                 LucideIcons.folderPlus,
@@ -203,7 +209,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
           _row(
             c,
             icon: LucideIcons.plus,
-            label: '新建分类',
+            label: context.strings.newCategory,
             muted: true,
             onTap: () => CategoryEditSheet.showCreate(context),
           ),
@@ -212,7 +218,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
           child: Text(
-            '历史会话',
+            context.strings.chatHistory,
             style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
           ),
         ),
@@ -220,7 +226,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Text(
-              '暂无会话',
+              context.strings.noChatsYet,
               style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
             ),
           ),
@@ -297,7 +303,9 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                 child: Row(
                   children: [
                     AppAvatar(
-                      nickname: user.nickname,
+                      nickname: user.displayName(
+                        context.strings.defaultNickname,
+                      ),
                       size: 32,
                       onTap: () => _go(AppRoutes.settings),
                     ),
@@ -309,7 +317,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              user.nickname,
+                              user.displayName(context.strings.defaultNickname),
                               style: AppTextStyles.footnote,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -323,7 +331,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                       ),
                     ),
                     IconButton(
-                      tooltip: '切换明暗主题',
+                      tooltip: context.strings.toggleLightOrDarkTheme,
                       onPressed: _toggleTheme,
                       icon: Icon(
                         Theme.of(context).brightness == Brightness.dark
@@ -478,7 +486,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                   ),
                   if (_sorting) ...[
                     IconButton(
-                      tooltip: '编辑${cat.name}',
+                      tooltip: context.strings.editCategorylist(cat.name),
                       onPressed: () => _editCategory(cat),
                       icon: Icon(
                         LucideIcons.penLine,
@@ -490,15 +498,19 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                       key: ValueKey('category-drag-${cat.id}'),
                       index: index,
                       child: Semantics(
-                        label: '拖动排序${cat.name}',
+                        label: context.strings.dragToReorder(cat.name),
                         // 拖拽手势读屏无法完成：提供 上移/下移 自定义
                         // 操作（走 moveWithin，与拖拽同一落库链路）。
                         customSemanticsActions: {
                           if (index > 0)
-                            CustomSemanticsAction(label: '上移'): () =>
+                            CustomSemanticsAction(
+                              label: context.strings.moveUp,
+                            ): () =>
                                 _moveWithin(cat.id, -1),
                           if (index < siblings.length - 1)
-                            CustomSemanticsAction(label: '下移'): () =>
+                            CustomSemanticsAction(
+                              label: context.strings.moveDown,
+                            ): () =>
                                 _moveWithin(cat.id, 1),
                         },
                         child: SizedBox(
@@ -514,7 +526,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                     ),
                   ] else if (hasChildren)
                     IconButton(
-                      tooltip: '展开${cat.name}子分类',
+                      tooltip: context.strings.expandSubcategoriesOf(cat.name),
                       onPressed: () => setState(
                         () => _expanded.contains(cat.id)
                             ? _expanded.remove(cat.id)
@@ -591,15 +603,18 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
         _undoTimer = Timer(const Duration(seconds: 3), undo.dispose);
         AppToast.show(
           context,
-          message: '已删除「${undo.categoryName}」',
-          actionLabel: '恢复',
+          message: context.strings.deletedEditcategory(undo.categoryName),
+          actionLabel: context.strings.restore,
           onAction: () async {
             if (!mounted) return;
             final result = await workspaceUi(context, undo.undo);
             if (!mounted) return;
             _undoTimer?.cancel();
             if (result != null && result != CategoryUndoResult.restored) {
-              AppToast.show(context, message: '相关记录已变化，无法恢复');
+              AppToast.show(
+                context,
+                message: context.strings.relatedRecordsHaveChangedAndCannotBe,
+              );
             }
           },
         );
@@ -609,65 +624,5 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
         }
       }
     }
-  }
-
-  Widget _row(
-    AppColors c, {
-    IconData? icon,
-    required String label,
-    required VoidCallback onTap,
-    bool selected = false,
-    bool muted = false,
-    String? trailing,
-  }) => AppPressable(
-    semanticLabel: label,
-    borderRadius: BorderRadius.circular(14),
-    onTap: onTap,
-    child: Container(
-      constraints: BoxConstraints(minHeight: widget.desktop ? 44 : 48),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? c.fill1 : null,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18, color: c.labelSecondary),
-            const SizedBox(width: 8),
-          ],
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.body.copyWith(
-                color: muted ? c.labelTertiary : c.labelPrimary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (trailing != null)
-            Text(
-              trailing,
-              style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-            ),
-        ],
-      ),
-    ),
-  );
-
-  String _group(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final days = today
-        .difference(DateTime(date.year, date.month, date.day))
-        .inDays;
-    return days <= 0
-        ? '今天'
-        : days == 1
-        ? '昨天'
-        : days < 7
-        ? '近 7 天'
-        : '更早';
   }
 }

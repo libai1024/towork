@@ -1,3 +1,5 @@
+import 'package:towork/app/app_preferences_provider.dart';
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,6 +75,12 @@ class ToWorkApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'ToWork',
       debugShowCheckedModeBanner: false,
+      locale: preferredLocale(
+        ref.watch(appPreferencesSnapshotProvider.select((p) => p.language)),
+      ),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: appLocalizationDelegates,
+      localeListResolutionCallback: resolveAppLocale,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../app/business_ui_commands.dart';
 
 import 'package:flutter/material.dart' hide DataRow;
@@ -21,7 +23,7 @@ import 'repository_command.dart';
 Future<DataRow?> showAddRowSheet(BuildContext context, DataTableDef table) {
   return AppSheet.show<DataRow>(
     context,
-    title: '新增一行',
+    title: context.strings.addRow,
     child: ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * .85,
@@ -127,7 +129,7 @@ class _AddRowSheetState extends ConsumerState<_AddRowSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: AppButton(
-              label: '保存',
+              label: context.strings.save,
               expand: true,
               loading: _saving,
               onPressed: _save,
@@ -183,7 +185,7 @@ class _AddRowField extends StatelessWidget {
               if (error) ...[
                 const Spacer(),
                 Text(
-                  '必填',
+                  context.strings.required,
                   style: AppTextStyles.caption.copyWith(color: c.labelPrimary),
                 ),
               ],
@@ -205,7 +207,9 @@ class _AddRowField extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      (value ?? '') == 'true' ? '是' : '否',
+                      (value ?? '') == 'true'
+                          ? context.strings.yes
+                          : context.strings.no,
                       style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                     ),
                   ),
@@ -239,7 +243,7 @@ class _AddRowField extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        display.isEmpty ? '未填写' : display,
+                        display.isEmpty ? context.strings.notSet : display,
                         style: isNumericColumn(column)
                             ? tabularStyle(
                                 AppTextStyles.body.copyWith(

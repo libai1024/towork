@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -16,15 +18,15 @@ String? quotaResetLabel(DateTime? resetAt, DateTime now) {
   if (resetAt == null) return null;
   final left = resetAt.difference(now);
   if (left.isNegative) return null;
-  if (left.inMinutes < 1) return '即将重置';
-  if (left.inHours < 1) return '${left.inMinutes} 分钟后重置';
+  if (left.inMinutes < 1) return strings.resetsSoon;
+  if (left.inHours < 1) return strings.resetsInMin(left.inMinutes);
   if (left.inHours < 24) {
     final minutes = left.inMinutes % 60;
     return minutes == 0
-        ? '${left.inHours} 小时后重置'
-        : '${left.inHours} 小时 $minutes 分后重置';
+        ? strings.resetsInHr(left.inHours)
+        : strings.resetsInHrMin(left.inHours, minutes);
   }
-  return '${left.inDays} 天后重置';
+  return strings.resetsInDays(left.inDays);
 }
 
 /// 余额文本：`¥12.34`。未知币种按原样跟在后面。
@@ -40,21 +42,23 @@ String balanceLabel(double balance, String? currency) {
 /// 账户的一句话状态，按「最需要用户知道的」排序：
 /// 没有 Key → 冷却中 → 额度 → 余额 → 计费方式。
 String accountStatusLabel(ModelAccount account, DateTime now) {
-  if (!account.hasCredential) return '未填写 Key';
+  if (!account.hasCredential) return strings.noKey;
   if (account.coolingAt(now)) {
     final until = quotaResetLabel(account.cooldownUntil, now);
-    final reason = account.cooldownReason ?? '暂时不可用';
-    return until == null ? reason : '$reason ${until.replaceAll('重置', '恢复')}';
+    final reason = account.cooldownReason ?? strings.unavailable;
+    return until == null
+        ? reason
+        : '$reason ${until.replaceAll(strings.reset, strings.restore)}';
   }
   final quota = account.quota;
   if (quota != null) {
     final tightest = quota.tightest;
     if (tightest != null) {
       final left = (tightest.remainingRatio * 100).round();
-      return '${tightest.label}剩余 $left%';
+      return strings.left(_windowLabel(tightest.label), left);
     }
     if (quota.balance != null) {
-      return '余额 ${balanceLabel(quota.balance!, quota.currency)}';
+      return strings.balance(balanceLabel(quota.balance!, quota.currency));
     }
   }
   return account.descriptor.accessLabel;
@@ -125,7 +129,11 @@ class QuotaWindowMeter extends StatelessWidget {
     final reset = quotaResetLabel(window.resetAt, now);
     final style = AppTextStyles.caption.copyWith(color: c.labelSecondary);
     return Semantics(
-      label: '${window.label}额度已用 $used%${reset == null ? '' : '，$reset'}',
+      label: context.strings.quotaUsed(
+        _windowLabel(window.label),
+        used,
+        reset == null ? '' : '，$reset',
+      ),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +146,7 @@ class QuotaWindowMeter extends StatelessWidget {
                   spacing: 6,
                   children: [
                     Text(
-                      window.label,
+                      _windowLabel(window.label),
                       style: style.copyWith(color: c.labelPrimary),
                     ),
                     if (!dense && reset != null) Text(reset, style: style),
@@ -147,7 +155,7 @@ class QuotaWindowMeter extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                '已用 $used%',
+                context.strings.used(used),
                 style: style.copyWith(
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -183,8 +191,8 @@ class AccountQuotaBlock extends StatelessWidget {
     if (quota == null) {
       return Text(
         account.descriptor.quota == QuotaSource.none
-            ? '额度请在服务商控制台查看'
-            : '尚未查询额度',
+            ? context.strings.checkQuotaInTheProviderConsole
+            : context.strings.quotaNotCheckedYet,
         style: caption,
       );
     }
@@ -200,7 +208,9 @@ class AccountQuotaBlock extends StatelessWidget {
           if (quota.windows.isNotEmpty) SizedBox(height: dense ? 4 : 6),
           Row(
             children: [
-              Expanded(child: Text('账户余额', style: caption)),
+              Expanded(
+                child: Text(context.strings.accountBalance, style: caption),
+              ),
               const SizedBox(width: 6),
               Text(
                 balanceLabel(quota.balance!, quota.currency),
@@ -270,10 +280,10 @@ class _QuotaCell extends StatelessWidget {
     final colors = AppColors.of(context);
     final label = switch (window.label) {
       '5 小时' => '5h',
-      '1 天' || '24 小时' || '每日' => '日限',
-      '每周' => '周限',
-      '每月' => '月限',
-      _ => window.label,
+      '1 天' || '24 小时' || '每日' => context.strings.daily,
+      '每周' => context.strings.weekly,
+      '每月' => context.strings.monthly,
+      _ => _windowLabel(window.label),
     };
     final value = '${(window.remainingRatio * 100).round()}%';
     final caption = AppTextStyles.caption.copyWith(
@@ -301,7 +311,7 @@ class _QuotaCell extends StatelessWidget {
     );
     return Semantics(
       excludeSemantics: true,
-      label: '${window.label}，剩余 $value',
+      label: context.strings.remaining(_windowLabel(window.label), value),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -317,4 +327,17 @@ class _QuotaCell extends StatelessWidget {
       ),
     );
   }
+}
+
+String _windowLabel(String value) {
+  if (value == '额度') return strings.quota;
+  if (value == '周期额度') return strings.periodQuota;
+  final duration = RegExp(r'^(\d+) (天|小时|分钟)$').firstMatch(value);
+  if (duration == null) return localizedBuiltin(value);
+  final count = int.parse(duration[1]!);
+  return switch (duration[2]) {
+    '天' => strings.windowDays(count),
+    '小时' => strings.windowHours(count),
+    _ => strings.windowMinutes(count),
+  };
 }

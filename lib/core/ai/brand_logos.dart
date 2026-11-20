@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -30,11 +31,11 @@ String brandLabel(AiBrand brand) => switch (brand) {
   AiBrand.kimi => 'Kimi',
   AiBrand.kimiCode => 'Kimi Code',
   AiBrand.deepseek => 'DeepSeek',
-  AiBrand.zhipu => 'GLM 智谱',
+  AiBrand.zhipu => strings.glm,
   AiBrand.openai => 'OpenAI',
   AiBrand.claude => 'Claude',
   AiBrand.gemini => 'Gemini',
-  AiBrand.compatible => '其他（OpenAI 格式）',
+  AiBrand.compatible => strings.otherOpenaiCompatible,
 };
 
 /// Monochrome brand artwork follows the theme foreground. Source attribution

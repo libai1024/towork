@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "将你主动录制的语音转换为待办指令，不在后台监听。";
+"NSSpeechRecognitionUsageDescription" = "使用系统语音识别转换指令；普通模式可能连接系统识别服务。";

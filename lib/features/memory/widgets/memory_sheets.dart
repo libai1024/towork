@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -16,17 +17,17 @@ enum MemoryCardAction { edit, copy, delete }
 Future<String?> showMemoryLibraryMenu(BuildContext context) =>
     AppSheet.show<String>(
       context,
-      title: '记忆库',
+      title: context.strings.memoryLibrary,
       child: Builder(
         builder: (sheetContext) => Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final (label, action) in const [
-                ('更多筛选', 'filter'),
-                ('记忆规则', 'rules'),
-                ('清空全部记忆', 'clear'),
+              for (final (label, action) in [
+                (context.strings.moreFilters, 'filter'),
+                (context.strings.memoryRules, 'rules'),
+                (context.strings.clearAllMemories, 'clear'),
               ])
                 AppButton(
                   label: label,
@@ -42,21 +43,42 @@ Future<String?> showMemoryLibraryMenu(BuildContext context) =>
 
 Future<void> showMemoryRules(BuildContext context) => AppSheet.show<void>(
   context,
-  title: '记忆规则',
+  title: context.strings.memoryRules,
   child: SingleChildScrollView(
     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('AI 会记住你提过、以后还会用到的信息。', style: AppTextStyles.body),
+        Text(
+          context.strings.theAiRemembersInformationYouMentionThat,
+          style: AppTextStyles.body,
+        ),
         const SizedBox(height: 8),
-        for (final (label, example) in const [
-          ('长期偏好', '答复先给结论'),
-          ('固定流程', '周报按项目分组'),
-          ('稳定职责', '我负责合同审批'),
-          ('项目约定', '验收以签字版为准'),
-          ('术语别名', '“北区”指华北项目组'),
-          ('事实纠正', '周报改为每周四提交'),
+        for (final (label, example) in [
+          (
+            context.strings.longTermPreferences,
+            context.strings.leadWithTheConclusion,
+          ),
+          (
+            context.strings.recurringWorkflows,
+            context.strings.groupWeeklyReportsByProject,
+          ),
+          (
+            context.strings.responsibilities,
+            context.strings.iHandleContractApprovals,
+          ),
+          (
+            context.strings.projectAgreements,
+            context.strings.useTheSignedVersionForAcceptance,
+          ),
+          (
+            context.strings.terminology,
+            context.strings.northMeansTheNorthChinaProjectTeam,
+          ),
+          (
+            context.strings.corrections,
+            context.strings.weeklyReportsAreNowDueOnThursdays,
+          ),
         ])
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -76,7 +98,7 @@ Future<void> showMemoryRules(BuildContext context) => AppSheet.show<void>(
           ),
         const SizedBox(height: 8),
         Text(
-          '可随时开启免记忆模式。',
+          context.strings.youCanPauseMemoryAtAnyTime,
           style: AppTextStyles.caption.copyWith(
             color: AppColors.of(context).labelSecondary,
           ),
@@ -98,17 +120,17 @@ Future<MemoryCardAction?> showMemoryActionSheet(BuildContext context) {
         children: [
           _ActionRow(
             icon: LucideIcons.pencil,
-            label: '编辑',
+            label: context.strings.edit,
             onTap: () => Navigator.pop(context, MemoryCardAction.edit),
           ),
           _ActionRow(
             icon: LucideIcons.copy,
-            label: '复制内容',
+            label: context.strings.copyContent,
             onTap: () => Navigator.pop(context, MemoryCardAction.copy),
           ),
           _ActionRow(
             icon: LucideIcons.trash2,
-            label: '删除',
+            label: context.strings.deleteLabel,
             color: c.labelPrimary,
             onTap: () => Navigator.pop(context, MemoryCardAction.delete),
           ),
@@ -165,12 +187,12 @@ Future<bool> showDeleteMemoryConfirm(BuildContext context) async {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '删除这条记忆？',
+            context.strings.deleteThisMemory,
             style: AppTextStyles.subhead.copyWith(color: c.labelPrimary),
           ),
           const SizedBox(height: 4),
           Text(
-            'AI 之后将不再记得它。',
+            context.strings.theAiWillNoLongerRememberIt,
             style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 12),
@@ -178,7 +200,7 @@ Future<bool> showDeleteMemoryConfirm(BuildContext context) async {
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   onPressed: () => Navigator.pop(context, false),
                 ),
@@ -186,7 +208,7 @@ Future<bool> showDeleteMemoryConfirm(BuildContext context) async {
               const SizedBox(width: 12),
               Expanded(
                 child: AppButton(
-                  label: '删除',
+                  label: context.strings.deleteLabel,
                   type: AppButtonType.destructive,
                   onPressed: () => Navigator.pop(context, true),
                 ),
@@ -212,7 +234,7 @@ Future<(MemorySource?, MemoryExpiryFilter)?> showMoreFilterSheet(
 
   return AppSheet.show<(MemorySource?, MemoryExpiryFilter)>(
     context,
-    title: '筛选',
+    title: context.strings.filter,
     child: StatefulBuilder(
       builder: (context, setSheetState) {
         Widget section(String label, List<Widget> chips) {
@@ -235,36 +257,36 @@ Future<(MemorySource?, MemoryExpiryFilter)?> showMoreFilterSheet(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              section('来源', [
+              section(context.strings.source, [
                 AppChip(
-                  label: '全部',
+                  label: context.strings.allLabel,
                   selected: source == null,
                   onTap: () => setSheetState(() => source = null),
                 ),
                 AppChip(
-                  label: 'AI 提取',
+                  label: context.strings.extractedByAi,
                   selected: source == MemorySource.ai,
                   onTap: () => setSheetState(() => source = MemorySource.ai),
                 ),
                 AppChip(
-                  label: '手动',
+                  label: context.strings.manual,
                   selected: source == MemorySource.manual,
                   onTap: () =>
                       setSheetState(() => source = MemorySource.manual),
                 ),
               ]),
               const SizedBox(height: 16),
-              section('时效', [
+              section(context.strings.retention, [
                 for (final f in MemoryExpiryFilter.values)
                   AppChip(
-                    label: f.label,
+                    label: localizedBuiltin(f.label),
                     selected: expiry == f,
                     onTap: () => setSheetState(() => expiry = f),
                   ),
               ]),
               const SizedBox(height: 12),
               AppButton(
-                label: '完成',
+                label: context.strings.complete,
                 expand: true,
                 onPressed: () => Navigator.pop(context, (source, expiry)),
               ),
@@ -288,12 +310,12 @@ Future<bool> showPauseMemoryConfirm(BuildContext context) async {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '开启免记忆模式',
+            context.strings.pauseMemory,
             style: AppTextStyles.subhead.copyWith(color: c.labelPrimary),
           ),
           const SizedBox(height: 4),
           Text(
-            '新对话不再写入记忆库。已有记忆保留。',
+            context.strings.newChatsWontAddMemoriesExistingMemories,
             style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 12),
@@ -301,7 +323,7 @@ Future<bool> showPauseMemoryConfirm(BuildContext context) async {
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   onPressed: () => Navigator.pop(context, false),
                 ),
@@ -309,7 +331,7 @@ Future<bool> showPauseMemoryConfirm(BuildContext context) async {
               const SizedBox(width: 12),
               Expanded(
                 child: AppButton(
-                  label: '开启',
+                  label: context.strings.onLabel,
                   onPressed: () => Navigator.pop(context, true),
                 ),
               ),
@@ -335,12 +357,12 @@ Future<bool> showClearAllConfirm(BuildContext context, int total) async {
           Icon(LucideIcons.trash2, size: 24, color: c.labelPrimary),
           const SizedBox(height: 8),
           Text(
-            '清空全部记忆？',
+            context.strings.clearAllMemoriesShowclearallconfirm,
             style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
           ),
           const SizedBox(height: 8),
           Text(
-            '将删除全部 $total 条记忆，包括 AI 提取与手动添加的内容。此操作不可撤销，AI 会重新开始了解你。',
+            context.strings.deletesAllMemoriesIncludingAiExtractedAnd(total),
             style: AppTextStyles.body.copyWith(color: c.labelSecondary),
             textAlign: TextAlign.center,
           ),
@@ -349,7 +371,7 @@ Future<bool> showClearAllConfirm(BuildContext context, int total) async {
             children: [
               Expanded(
                 child: AppButton(
-                  label: '取消',
+                  label: context.strings.cancel,
                   type: AppButtonType.secondary,
                   onPressed: () => Navigator.pop(context, false),
                 ),
@@ -414,7 +436,7 @@ class _HoldToConfirmButtonState extends State<HoldToConfirmButton>
     final c = AppColors.of(context);
     return Semantics(
       button: true,
-      label: '全部清空，需长按 1 秒确认',
+      label: context.strings.holdForOneSecondToConfirmClearing,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onLongPressStart: (_) => _ctrl.forward(),
@@ -446,7 +468,9 @@ class _HoldToConfirmButtonState extends State<HoldToConfirmButton>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    pressing ? '继续按住…' : '长按 1 秒清空',
+                    pressing
+                        ? context.strings.keepHolding
+                        : context.strings.holdForSecondToClear,
                     style: AppTextStyles.body.copyWith(
                       color: c.onBrand,
                       fontWeight: FontWeight.w500,

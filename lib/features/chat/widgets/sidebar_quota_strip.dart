@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -26,7 +27,7 @@ class SidebarQuotaStrip extends ConsumerWidget {
         child: AppPressable(
           onTap: onOpen,
           borderRadius: BorderRadius.circular(14),
-          semanticLabel: '添加模型账户',
+          semanticLabel: context.strings.addModelAccount,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
@@ -39,7 +40,7 @@ class SidebarQuotaStrip extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '添加模型账户',
+                    context.strings.addModelAccount,
                     style: AppTextStyles.footnote.copyWith(
                       color: c.labelSecondary,
                     ),
@@ -66,7 +67,9 @@ class SidebarQuotaStrip extends ConsumerWidget {
       child: AppPressable(
         onTap: onOpen,
         borderRadius: BorderRadius.circular(14),
-        semanticLabel: '模型与额度，${account.descriptor.shortLabel}',
+        semanticLabel: context.strings.modelsAndUsage(
+          account.descriptor.shortLabel,
+        ),
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
           decoration: BoxDecoration(
@@ -111,7 +114,7 @@ class SidebarQuotaStrip extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 3),
                       child: Text(
-                        '剩余',
+                        context.strings.remainingBuild,
                         style: AppTextStyles.caption.copyWith(
                           color: c.labelSecondary,
                         ),

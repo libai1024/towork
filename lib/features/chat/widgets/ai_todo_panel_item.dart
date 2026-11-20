@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -36,7 +38,13 @@ class AiTodoPanelItem extends StatelessWidget {
   static TextSpan _metadata(BuildContext context, Todo todo, DateTime now) {
     final c = AppColors.of(context);
     final parts = <TextSpan>[
-      if (todo.steps.isNotEmpty) TextSpan(text: todo.stepProgress),
+      if (todo.steps.isNotEmpty)
+        TextSpan(
+          text: context.strings.stepsStepprogress(
+            todo.completedSteps,
+            todo.steps.length,
+          ),
+        ),
       if (!todo.isActive || todo.status == TodoStatus.inProgress)
         TextSpan(
           text: todo.status.label,
@@ -121,13 +129,16 @@ class AiTodoPanelItem extends StatelessWidget {
             onTap: busy || todo.status == TodoStatus.cancelled
                 ? null
                 : onToggle,
-            semanticLabel: '${done ? '恢复' : '完成'}待办：${todo.title}',
+            semanticLabel: context.strings.taskBuild(
+              done ? context.strings.restore : context.strings.complete,
+              todo.title,
+            ),
           ),
           Expanded(
             child: AppPressable(
               minSize: 48,
               onTap: busy ? null : onEdit,
-              semanticLabel: '编辑待办：${todo.title}',
+              semanticLabel: context.strings.editTaskBuild(todo.title),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(

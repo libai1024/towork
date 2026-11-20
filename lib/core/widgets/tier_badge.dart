@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
@@ -60,7 +61,7 @@ class TierBadge extends StatelessWidget {
     return AppPressable(
       onTap: onTap,
       behavior: HitTestBehavior.translucent,
-      semanticLabel: '订阅等级 $tier',
+      semanticLabel: context.strings.subscriptionTier(tier),
       child: Center(
         widthFactor: 1,
         heightFactor: 1,

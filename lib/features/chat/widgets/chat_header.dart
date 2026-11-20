@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -39,7 +40,7 @@ class ChatHeader extends StatelessWidget {
               size: 48,
               icon: LucideIcons.menu,
               iconSize: 20,
-              label: '打开菜单',
+              label: context.strings.openMenu,
               onTap: onMenu,
               elevated: false,
               opacity: opacity,
@@ -55,11 +56,27 @@ class ChatHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                action(LucideIcons.search, '搜索会话和待办', onSearch),
-                action(LucideIcons.listTodo, '打开今日总览', onOverview),
-                action(LucideIcons.squarePen, '新建会话', onNew),
+                action(
+                  LucideIcons.search,
+                  context.strings.searchChatsAndTasks,
+                  onSearch,
+                ),
+                action(
+                  LucideIcons.listTodo,
+                  context.strings.openDailyOverview,
+                  onOverview,
+                ),
+                action(
+                  LucideIcons.squarePen,
+                  context.strings.newChatBuild,
+                  onNew,
+                ),
                 if (onOptions != null)
-                  action(LucideIcons.ellipsis, '会话选项', onOptions!),
+                  action(
+                    LucideIcons.ellipsis,
+                    context.strings.chatOptions,
+                    onOptions!,
+                  ),
               ],
             ),
           ),

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show ChangeNotifier;
@@ -68,7 +70,7 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
        super(const SpeechCaptureState()) {
     _subscription = input.events.listen(
       _event,
-      onError: (Object _) => _fail('语音输入已中断'),
+      onError: (Object _) => _fail(strings.voiceInputInterrupted),
     );
   }
   final SpeechInput input;
@@ -120,8 +122,9 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
     return next;
   }
 
-  Future<void> start({String locale = 'zh-CN', bool onDevice = false}) async {
+  Future<void> start({String? locale, bool onDevice = false}) async {
     if (!mounted || _active != null) return;
+    final recognitionLocale = locale ?? speechLocale;
     final id = _newId();
     _active = id;
     _acceptedFinal = false;
@@ -131,7 +134,7 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
     try {
       await _enqueue(() async {
         if (!_current(id)) return;
-        final capabilities = await input.prepare(locale);
+        final capabilities = await input.prepare(recognitionLocale);
         if (!_current(id)) return;
         _publish(SpeechPhase.requesting, capabilities: capabilities);
         if (!capabilities.available) {
@@ -146,17 +149,18 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
         if (capabilities.locales.isNotEmpty &&
             !capabilities.locales.any(
               (l) =>
-                  l.replaceAll('_', '-').toLowerCase() == locale.toLowerCase(),
+                  l.replaceAll('_', '-').toLowerCase() ==
+                  recognitionLocale.toLowerCase(),
             )) {
           throw const SpeechFailure(SpeechFailureCode.localeUnavailable);
         }
         _publish(SpeechPhase.starting);
         _timer = Timer(startTimeout, () {
           if (_current(id) && state.phase == SpeechPhase.starting) {
-            _fail('语音输入未能启动');
+            _fail(strings.couldntStartVoiceInput);
           }
         });
-        await input.start(id, locale: locale, onDevice: onDevice);
+        await input.start(id, locale: recognitionLocale, onDevice: onDevice);
       });
     } catch (error) {
       if (_current(id)) _fail(speechErrorMessage(error));
@@ -178,7 +182,7 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
       case SpeechEventKind.partial:
         if (_receiving && !_acceptedFinal) {
           if (event.text.length > 20000) {
-            _fail('转写过长，请分成几条指令。');
+            _fail(strings.transcriptIsTooLongSplitItInto);
             return;
           }
           _publish(state.phase, text: event.text);
@@ -188,11 +192,11 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
         _acceptedFinal = true;
         _clearTimers();
         if (event.text.trim().isEmpty) {
-          _fail('没有听清，请再说一次');
+          _fail(strings.couldntHearThatTryAgain);
           return;
         }
         if (event.text.length > 20000) {
-          _fail('转写过长，请分成几条指令。');
+          _fail(strings.transcriptIsTooLongSplitItInto);
           return;
         }
         if (_finishAsDraft) {
@@ -227,7 +231,7 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
     _publish(SpeechPhase.finalizing);
     final id = _active!;
     _timer = Timer(finalTimeout, () {
-      if (_current(id)) _fail('识别超时，请再说一次');
+      if (_current(id)) _fail(strings.recognitionTimedOutTryAgain);
     });
   }
 
@@ -274,10 +278,10 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
       _cleanup(id);
       _publish(
         accepted ? SpeechPhase.sent : SpeechPhase.draft,
-        problem: accepted ? null : '发送失败，文字已保留',
+        problem: accepted ? null : strings.couldntSendYourTextIsSaved,
       );
     } catch (_) {
-      if (_current(id)) _fail('发送失败，文字已保留');
+      if (_current(id)) _fail(strings.couldntSendYourTextIsSaved);
     }
   }
 
@@ -319,13 +323,18 @@ class SpeechCaptureController extends StateNotifier<SpeechCaptureState> {
 }
 
 String speechErrorMessage(Object error) => switch (error) {
-  SpeechFailure(code: SpeechFailureCode.permissionDenied) => '请在系统设置中允许麦克风权限',
-  SpeechFailure(code: SpeechFailureCode.localeUnavailable) => '暂不支持所选语言',
+  SpeechFailure(code: SpeechFailureCode.permissionDenied) =>
+    strings.allowMicrophoneAccessInSystemSettings,
+  SpeechFailure(code: SpeechFailureCode.localeUnavailable) =>
+    strings.selectedLanguageIsUnavailable,
   SpeechFailure(code: SpeechFailureCode.onDeviceUnavailable) =>
-    '当前识别器不支持设备端模式，不会自动切换到联网识别。',
-  SpeechFailure(code: SpeechFailureCode.noResult) => '没有听清，请再说一次',
-  SpeechFailure(code: SpeechFailureCode.network) => '语音服务连接失败',
-  SpeechFailure(code: SpeechFailureCode.busy) => '麦克风正在使用中',
-  SpeechFailure(code: SpeechFailureCode.interrupted) => '录音已中断',
-  _ => '语音输入暂不可用',
+    strings.thisRecognizerDoesNotSupportOnDevice,
+  SpeechFailure(code: SpeechFailureCode.noResult) =>
+    strings.couldntHearThatTryAgain,
+  SpeechFailure(code: SpeechFailureCode.network) =>
+    strings.couldntConnectToSpeechService,
+  SpeechFailure(code: SpeechFailureCode.busy) => strings.microphoneInUse,
+  SpeechFailure(code: SpeechFailureCode.interrupted) =>
+    strings.recordingInterrupted,
+  _ => strings.voiceInputUnavailable,
 };

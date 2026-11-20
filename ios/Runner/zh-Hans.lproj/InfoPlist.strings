@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "仅在你主动拍摄附件图片时调用相机，不会自动打开。";
+"NSPhotoLibraryUsageDescription" = "仅读取你主动选择要附加的图片，不访问其他照片。";
+"NSMicrophoneUsageDescription" = "将你主动录制的语音转换为待办指令，不在后台监听。";
+"NSSpeechRecognitionUsageDescription" = "将语音转换为文字，以便编辑或发送。";

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -26,7 +27,7 @@ class TodoReminderEditor extends StatelessWidget {
   void _addRule(BuildContext context) {
     AppSheet.show<void>(
       context,
-      title: '添加提醒',
+      title: context.strings.addReminder,
       child: _AddReminderSheet(
         hasDue: todo.dueAt != null,
         onAdd: (rule) => onChanged([...todo.remindRules, rule]),
@@ -67,7 +68,9 @@ class TodoReminderEditor extends StatelessWidget {
                   onTap: () =>
                       onChanged(rules.where((e) => e.id != rule.id).toList()),
                   behavior: HitTestBehavior.translucent,
-                  semanticLabel: '删除提醒：${remindRuleLabel(rule)}',
+                  semanticLabel: context.strings.deleteReminder(
+                    remindRuleLabel(rule),
+                  ),
                   child: Icon(LucideIcons.x, size: 16, color: c.labelTertiary),
                 ),
               ],
@@ -80,14 +83,14 @@ class TodoReminderEditor extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             AppButton(
-              label: '添加提醒',
+              label: context.strings.addReminder,
               type: AppButtonType.ghost,
               icon: LucideIcons.plus,
               onPressed: full ? null : () => _addRule(context),
             ),
             if (full)
               Text(
-                '最多 5 条提醒',
+                context.strings.upToReminders,
                 style: AppTextStyles.caption.copyWith(color: c.labelQuaternary),
               ),
           ],
@@ -95,7 +98,7 @@ class TodoReminderEditor extends StatelessWidget {
         if (todo.repeatRule != null) ...[
           const SizedBox(height: 4),
           Text(
-            '重复任务将在每次截止前提醒',
+            context.strings.recurringTasksSendRemindersBeforeEachDue,
             style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
           ),
         ],
@@ -116,11 +119,9 @@ class _AddReminderSheet extends StatefulWidget {
 
 class _AddReminderSheetState extends State<_AddReminderSheet> {
   int _offset = 30;
-  String _unit = '分钟';
+  int _unit = 1;
   DateTime? _absDate;
   TimeOfDay? _absTime;
-
-  static const _unitMinutes = {'分钟': 1, '小时': 60, '天': 60 * 24};
 
   int get _seq => DateTime.now().millisecondsSinceEpoch % 100000;
 
@@ -130,7 +131,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
   }
 
   void _addCustom() {
-    _addRelative(_offset * _unitMinutes[_unit]!);
+    _addRelative(_offset * _unit);
   }
 
   void _addAbsolute() {
@@ -149,13 +150,13 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    const presets = [
-      ('截止时', 0),
-      ('前 5 分钟', 5),
-      ('前 15 分钟', 15),
-      ('前 30 分钟', 30),
-      ('前 1 小时', 60),
-      ('前 1 天', 60 * 24),
+    final presets = [
+      (context.strings.whenDue, 0),
+      (context.strings.minutesBeforeBuild2, 5),
+      (context.strings.minutesBeforeBuild3, 15),
+      (context.strings.minutesBeforeBuild4, 30),
+      (context.strings.hourBeforeBuild, 60),
+      (context.strings.dayBeforeBuild, 60 * 24),
     ];
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 16),
@@ -166,7 +167,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '相对截止',
+              context.strings.relativeToDueTime,
               style: AppTextStyles.footnote.copyWith(
                 color: widget.hasDue ? c.labelSecondary : c.labelQuaternary,
               ),
@@ -176,7 +177,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
               child: Text(
-                '先设置截止时间',
+                context.strings.setADueTimeFirst,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
             ),
@@ -195,27 +196,31 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
-                    '自定义',
+                    context.strings.custom,
                     style: AppTextStyles.body.copyWith(color: c.labelSecondary),
                   ),
                   TodoEditorStepper(
-                    label: '提醒提前量',
+                    label: context.strings.reminderLeadTime,
                     value: _offset,
                     min: 1,
                     max: 99,
                     onChanged: (v) => setState(() => _offset = v),
                   ),
-                  for (final u in _unitMinutes.keys)
+                  for (final (u, label) in [
+                    (1, context.strings.minutes),
+                    (60, context.strings.hours),
+                    (1440, context.strings.days),
+                  ])
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: AppChip(
-                        label: u,
+                        label: label,
                         selected: _unit == u,
                         onTap: () => setState(() => _unit = u),
                       ),
                     ),
                   AppButton(
-                    label: '添加',
+                    label: context.strings.addBuild,
                     type: AppButtonType.ghost,
                     onPressed: _addCustom,
                   ),
@@ -228,7 +233,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              '指定时间',
+              context.strings.specificTime,
               style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
             ),
           ),
@@ -246,10 +251,16 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
               runSpacing: 8,
               children: [
                 for (final (label, tod) in [
-                  ('上午 9:00', const TimeOfDay(hour: 9, minute: 0)),
-                  ('中午 12:00', const TimeOfDay(hour: 12, minute: 0)),
-                  ('下午 18:00', const TimeOfDay(hour: 18, minute: 0)),
-                  ('晚上 20:00', const TimeOfDay(hour: 20, minute: 0)),
+                  (context.strings.am, const TimeOfDay(hour: 9, minute: 0)),
+                  (context.strings.pm, const TimeOfDay(hour: 12, minute: 0)),
+                  (
+                    context.strings.pmBuild,
+                    const TimeOfDay(hour: 18, minute: 0),
+                  ),
+                  (
+                    context.strings.pmBuild2,
+                    const TimeOfDay(hour: 20, minute: 0),
+                  ),
                 ])
                   AppChip(
                     label: label,
@@ -263,7 +274,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppButton(
-              label: '添加提醒',
+              label: context.strings.addReminder,
               type: AppButtonType.primary,
               expand: true,
               enabled: _absDate != null && _absTime != null,

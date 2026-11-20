@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -15,8 +16,8 @@ import 'widgets/settings_shared.dart';
 /// 设置行里的一句话摘要。系统不告知是否为默认助手时留空。
 String quickAssistSummary(AssistEntryStatus? status) =>
     switch (status?.defaultAssistant) {
-      true => '已设为默认助手',
-      false => '未设为默认助手',
+      true => strings.defaultAssistantEnabled,
+      false => strings.notTheDefaultAssistant,
       null => '',
     };
 
@@ -72,7 +73,7 @@ class _QuickAssistSettingsPageState
         child: Column(
           children: [
             SettingsNavBar(
-              title: '快捷唤醒',
+              title: context.strings.quickLaunch,
               onBack: () => context.popOrGo(AppRoutes.settings),
               actions: [
                 WorkspaceToolbarGroup(
@@ -80,8 +81,11 @@ class _QuickAssistSettingsPageState
                     WorkspaceToolbarAction(
                       key: const ValueKey('quick-assist-try'),
                       icon: LucideIcons.play,
-                      label: '现在试一下',
-                      onTap: () => _run(entries.openPanel, '这台设备上暂时打不开快问面板'),
+                      label: context.strings.tryNow,
+                      onTap: () => _run(
+                        entries.openPanel,
+                        context.strings.quickAskIsUnavailableOnThisDevice,
+                      ),
                     ),
                   ],
                 ),
@@ -95,75 +99,93 @@ class _QuickAssistSettingsPageState
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
                     children: [
-                      const SettingsSectionTitle(label: '默认助手', topGap: 8),
+                      SettingsSectionTitle(
+                        label: context.strings.defaultAssistant,
+                        topGap: 8,
+                      ),
                       SettingsGroupCard(
                         footer: Text(
-                          '助手手势可唤起快问。电源键快捷操作由系统保留，第三方应用不能接管。',
+                          context.strings.openQuickAskWithTheAssistantGesture,
                           style: caption,
                         ),
                         children: [
                           SettingsRow(
                             key: const ValueKey('quick-assist-default'),
                             icon: LucideIcons.sparkles,
-                            title: '设为默认助手应用',
+                            title: context.strings.setAsDefaultAssistant,
                             value: quickAssistSummary(status),
                             showChevron: true,
                             onTap: () => _run(
                               entries.openAssistantSettings,
-                              '打不开系统设置，请到 系统设置 → 应用 → 默认应用 里选择 ToWork',
+                              context
+                                  .strings
+                                  .openSystemSettingsAppsDefaultAppsAnd,
                             ),
                           ),
                         ],
                       ),
-                      const SettingsSectionTitle(label: '其他入口'),
+                      SettingsSectionTitle(
+                        label: context.strings.otherShortcuts,
+                      ),
                       SettingsGroupCard(
                         children: [
                           if (status?.canPin ?? false)
                             SettingsRow(
                               key: const ValueKey('quick-assist-pin'),
                               icon: LucideIcons.squarePlus,
-                              title: '添加「快问」到桌面',
+                              title: context.strings.addQuickAskToHomeScreen,
                               showChevron: true,
                               onTap: () => _run(
                                 entries.pinShortcut,
-                                '桌面没有接受这次请求，可以长按 ToWork 图标，把「快问」拖到桌面',
+                                context
+                                    .strings
+                                    .theLauncherDidntAddTheShortcutHold,
                               ),
                             ),
                           if (status?.canPin ?? false)
                             SettingsRow(
                               key: const ValueKey('quick-assist-pin-voice'),
                               icon: LucideIcons.mic,
-                              title: '添加「语音快问」到桌面',
+                              title:
+                                  context.strings.addVoiceQuickAskToHomeScreen,
                               showChevron: true,
                               onTap: () => _run(
                                 () => entries.pinShortcut(voice: true),
-                                '桌面没有接受这次请求，可以长按 ToWork 图标，把「语音快问」拖到桌面',
+                                context
+                                    .strings
+                                    .theLauncherDidntAddTheShortcutHoldTheTowork,
                               ),
                             ),
-                          const _Entry(
+                          _Entry(
                             icon: LucideIcons.zap,
-                            title: '系统快捷功能',
-                            detail: '在系统菜单中选「ToWork 快问」或「ToWork 语音快问」。',
+                            title: context.strings.systemShortcuts,
+                            detail: context
+                                .strings
+                                .selectToworkQuickAskOrToworkVoice,
                           ),
-                          const _Entry(
+                          _Entry(
                             icon: LucideIcons.fingerprint,
-                            title: '华为智控键双触',
-                            detail: '确认系统的添加提示后，到「智控键 / 双触」选择快问或语音快问。',
+                            title: context.strings.huaweiSmartControlDoubleTap,
+                            detail: context
+                                .strings
+                                .confirmTheSystemPromptThenChooseQuick,
                           ),
-                          const _Entry(
+                          _Entry(
                             icon: LucideIcons.layoutGrid,
-                            title: '控制中心',
-                            detail: '编辑快捷开关，添加「快问」。',
+                            title: context.strings.controlCenter,
+                            detail:
+                                context.strings.editTheQuickSettingsTilesAndAdd,
                           ),
-                          const _Entry(
+                          _Entry(
                             icon: LucideIcons.textCursorInput,
-                            title: '选中文字或分享',
-                            detail: '选择「问 ToWork」。',
+                            title: context.strings.selectTextOrShare,
+                            detail: context.strings.chooseAskTowork,
                           ),
-                          const _Entry(
+                          _Entry(
                             icon: LucideIcons.pointer,
-                            title: '长按桌面图标',
-                            detail: '选择「快问」或「语音快问」。',
+                            title: context.strings.holdTheAppIcon,
+                            detail:
+                                context.strings.selectQuickAskOrVoiceQuickAsk,
                           ),
                         ],
                       ),

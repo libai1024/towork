@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -59,14 +60,14 @@ class WorkspaceScopeRail extends StatefulWidget {
     required this.selectedId,
     required this.onSelected,
     this.onAdd,
-    this.addLabel = '新增类型',
+    this.addLabel,
     this.horizontal = false,
   });
   final List<WorkspaceScopeItem> items;
   final String selectedId;
   final ValueChanged<String> onSelected;
   final VoidCallback? onAdd;
-  final String addLabel;
+  final String? addLabel;
   final bool horizontal;
 
   @override
@@ -99,7 +100,7 @@ class _WorkspaceScopeRailState extends State<WorkspaceScopeRail> {
     final c = AppColors.of(context);
     final selectedId = widget.selectedId;
     final onAdd = widget.onAdd;
-    final addLabel = widget.addLabel;
+    final addLabel = widget.addLabel ?? context.strings.newType;
     final entries = [
       for (final item in widget.items)
         Semantics(
@@ -107,7 +108,7 @@ class _WorkspaceScopeRailState extends State<WorkspaceScopeRail> {
           selected: item.id == selectedId,
           child: AppPressable(
             semanticLabel:
-                '${item.label}${item.count == null ? '' : '，${item.count}项'}',
+                '${item.label}${item.count == null ? '' : context.strings.items(item.count.toString())}',
             onTap: () => widget.onSelected(item.id),
             borderRadius: BorderRadius.circular(16),
             child: Align(

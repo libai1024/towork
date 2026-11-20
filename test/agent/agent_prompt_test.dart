@@ -84,7 +84,7 @@ void main() {
     });
 
     test('专业用户文风与分隔符规则随系统提示词生效', () {
-      expect(AgentPrompt.version, 8);
+      expect(AgentPrompt.version, 9);
       expect(AgentPrompt.policy(), contains('问题只写在卡片标题'));
       expect(policy, contains(AgentPrompt.responseStyle));
       expect(policy, contains('默认用户是专业人士'));

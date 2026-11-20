@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -60,7 +61,7 @@ class _SettingsEditorHeaderState extends State<SettingsEditorHeader> {
             child: Row(
               children: [
                 ModelActionButton(
-                  label: '关闭',
+                  label: context.strings.close,
                   icon: LucideIcons.x,
                   onPressed: widget.onClose,
                 ),

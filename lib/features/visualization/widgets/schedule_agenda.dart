@@ -1,3 +1,6 @@
+import 'package:towork/l10n/repository_messages.dart';
+import 'package:towork/l10n/strings.dart';
+
 import '../../../core/todo/todo_step_actions.dart';
 
 import 'package:flutter/material.dart';
@@ -49,14 +52,14 @@ class ScheduleAgenda extends ConsumerWidget {
       AppToast.show(
         context,
         message: label,
-        actionLabel: '撤销',
+        actionLabel: context.strings.undo,
         onAction: () => workspaceUi(context, () async {
           await receipt.undo();
           return true;
         }),
       );
     } on RepositoryException catch (error) {
-      AppToast.show(context, message: error.message);
+      AppToast.show(context, message: repositoryErrorMessage(error));
     }
   }
 
@@ -67,8 +70,11 @@ class ScheduleAgenda extends ConsumerWidget {
     final categories = ref.read(categoryListProvider.notifier);
     final model = ref.watch(asyncTodoCommandsProvider);
     final entries = <Object>[
-      if (data.pending.isNotEmpty) ...['待办', ...data.pending],
-      if (data.completed.isNotEmpty) ...['已完成', ...data.completed],
+      if (data.pending.isNotEmpty) ...[context.strings.task, ...data.pending],
+      if (data.completed.isNotEmpty) ...[
+        context.strings.completed,
+        ...data.completed,
+      ],
     ];
 
     Widget task(Todo todo) => TodoListItem(
@@ -84,21 +90,26 @@ class ScheduleAgenda extends ConsumerWidget {
         await _mutate(
           context,
           () => model.toggleDone(todo.id),
-          todo.isActive ? '已完成' : '已恢复',
+          todo.isActive ? context.strings.completed : context.strings.restored,
         );
       },
       onTap: () => showTodoDetailSheet(
         context,
         todo.id,
-        onDeleted: (deleted) =>
-            _mutate(context, () => model.delete([deleted.id]), '已删除'),
+        onDeleted: (deleted) => _mutate(
+          context,
+          () => model.delete([deleted.id]),
+          context.strings.deleted,
+        ),
       ),
     );
 
     Widget entry(int index) {
       final value = entries[index];
       if (value is Todo) return task(value);
-      final count = value == '待办' ? data.pending.length : data.completed.length;
+      final count = value == context.strings.task
+          ? data.pending.length
+          : data.completed.length;
       return Padding(
         padding: const EdgeInsets.fromLTRB(8, 12, 8, 3),
         child: Text(
@@ -121,7 +132,7 @@ class ScheduleAgenda extends ConsumerWidget {
         headerTrailing: SizedBox(
           width: 94,
           child: WorkspaceSegmentedControl(
-            labels: const ['月', '周'],
+            labels: [context.strings.month, context.strings.week],
             selectedIndex: weekOnly ? 1 : 0,
             onChanged: (value) => onWeekModeChanged(value == 1),
           ),
@@ -135,12 +146,16 @@ class ScheduleAgenda extends ConsumerWidget {
         children: [
           Expanded(
             child: Text(
-              '${data.day.month}月${data.day.day}日 周${'一二三四五六日'[data.day.weekday - 1]}',
+              context.strings.formattedValueBuild5(
+                data.day.month,
+                data.day.day,
+                context.strings.mtwtfss[data.day.weekday - 1],
+              ),
               style: AppTextStyles.subhead.copyWith(color: c.labelPrimary),
             ),
           ),
           Text(
-            '${data.total} 项',
+            context.strings.itemsBuild(data.total),
             key: const ValueKey('schedule-count'),
             style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
           ),
@@ -150,7 +165,9 @@ class ScheduleAgenda extends ConsumerWidget {
     final empty = Padding(
       padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
       child: Text(
-        searching ? '没有匹配的待办' : '这一天没有待办',
+        searching
+            ? context.strings.noMatchingTasksBuild
+            : context.strings.noTasksOnThisDay,
         style: AppTextStyles.body.copyWith(color: c.labelSecondary),
       ),
     );

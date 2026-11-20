@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Take a photo to attach when you choose the camera.";
+"NSPhotoLibraryUsageDescription" = "Read the photos you select as attachments.";
+"NSMicrophoneUsageDescription" = "Use the microphone when you record a voice command.";
+"NSSpeechRecognitionUsageDescription" = "Transcribe your voice so you can edit or send the text.";

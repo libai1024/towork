@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -47,10 +48,13 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dueOptions = <(String, DateTime?)>[
-      ('今天', DateTime(today.year, today.month, today.day, 18)),
-      ('明天', DateTime(today.year, today.month, today.day + 1, 18)),
-      ('下周', today.add(const Duration(days: 7))),
-      ('无截止', null),
+      (context.strings.today, DateTime(today.year, today.month, today.day, 18)),
+      (
+        context.strings.tomorrow,
+        DateTime(today.year, today.month, today.day + 1, 18),
+      ),
+      (context.strings.nextWeekBuild, today.add(const Duration(days: 7))),
+      (context.strings.noDueDate, null),
     ];
     final selectableCategories =
         widget.categories.where((e) => !e.archived).toList()
@@ -63,7 +67,7 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppFieldLabel(
-            label: '标题',
+            label: context.strings.title,
             child: TextField(
               controller: _titleController,
               style: AppTextStyles.body.copyWith(color: c.labelPrimary),
@@ -72,7 +76,7 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
           ),
           const SizedBox(height: 12),
           Text(
-            '截止时间',
+            context.strings.due,
             style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
           ),
           const SizedBox(height: 4),
@@ -90,7 +94,7 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
           ),
           const SizedBox(height: 12),
           Text(
-            '分类',
+            context.strings.category,
             style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
           ),
           const SizedBox(height: 4),
@@ -117,11 +121,11 @@ class ChatTodoEditSheetState extends State<ChatTodoEditSheet> {
                   ? widget.onSteps
                   : null,
               icon: const Icon(LucideIcons.plus, size: 16),
-              label: const Text('添加步骤'),
+              label: Text(context.strings.addStep),
             ),
           AppButton(
             expand: true,
-            label: '保存',
+            label: context.strings.save,
             enabled: _titleController.text.trim().isNotEmpty,
             onPressed: () {
               final title = _titleController.text.trim();

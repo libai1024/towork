@@ -1,3 +1,6 @@
+import 'package:towork/l10n/repository_messages.dart';
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/app_preferences_provider.dart';
 import '../../app/memory_persistence_provider.dart';
 
@@ -30,6 +33,8 @@ import 'widgets/memory_edit_sheet.dart';
 import 'widgets/memory_list_row.dart';
 import 'widgets/memory_sheets.dart';
 import 'widgets/memory_type_sheet.dart';
+
+part 'memory_list_content.dart';
 
 /// Narrow type index, compact grouped records, and floating search controls.
 class MemoryPage extends ConsumerStatefulWidget {
@@ -88,9 +93,11 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
 
   String _vaultFailureMessage(MemoryPersistenceFailure failure) =>
       switch (failure.code) {
-        MemoryPersistenceFailureCode.paused => '记忆已暂停，先在设置里恢复',
-        MemoryPersistenceFailureCode.validation => '内容或类型无效',
-        _ => '暂时无法保存，请重试',
+        MemoryPersistenceFailureCode.paused =>
+          context.strings.memoryIsPausedResumeItInSettings,
+        MemoryPersistenceFailureCode.validation =>
+          context.strings.invalidContentOrType,
+        _ => context.strings.couldntSaveTryAgain,
       };
 
   /// 生产命令包装：失败弹轻提示并返回 false（调用方保留输入/弹层）。
@@ -148,7 +155,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
       final kind = ref.read(memoryTypesProvider.notifier).add(name);
       setState(() => _typeFilter = kind.id);
     } on RepositoryException catch (error) {
-      AppToast.show(context, message: error.message);
+      AppToast.show(context, message: repositoryErrorMessage(error));
     }
   }
 
@@ -160,7 +167,10 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
           : await _productionPaused();
       if (blocked) {
         if (mounted) {
-          AppToast.show(context, message: '免记忆模式下不可新增');
+          AppToast.show(
+            context,
+            message: context.strings.resumeMemoryToAddAnItem,
+          );
         }
         return;
       }
@@ -186,7 +196,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
         customTypeId: draft.customTypeId,
         expiresAt: draft.expiresAt,
       );
-      AppToast.show(context, message: '已记住');
+      AppToast.show(context, message: context.strings.remembered);
     } else {
       repo.updateEntry(
         existing.copyWith(
@@ -197,7 +207,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
           updatedAt: DateTime.now(),
         ),
       );
-      AppToast.show(context, message: '已更新');
+      AppToast.show(context, message: context.strings.updatedOpeneditor);
     }
   }
 
@@ -220,7 +230,9 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
                 updatedAt: DateTime.now(),
               ),
             ),
-      successMessage: existing == null ? '已记住' : '已更新',
+      successMessage: existing == null
+          ? context.strings.remembered
+          : context.strings.updatedOpeneditor,
     );
   }
 
@@ -232,7 +244,11 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
     final action = await showMemoryDetailSheet(
       context,
       entry: entry,
-      typeLabel: matching.isEmpty ? entry.typeLabel : matching.first.label,
+      typeLabel: matching.isEmpty
+          ? localizedBuiltin(entry.typeLabel)
+          : matching.first.isBuiltIn
+          ? localizedBuiltin(matching.first.label)
+          : matching.first.label,
     );
     if (!mounted || action == null) return;
     switch (action) {
@@ -244,7 +260,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
         _openSourceSession(entry);
       case MemoryDetailAction.copy:
         await copyMemoryContent(entry.content);
-        if (mounted) AppToast.show(context, message: '已复制');
+        if (mounted) AppToast.show(context, message: context.strings.copied);
     }
   }
 
@@ -259,8 +275,8 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
       if (removed == null) return;
       AppToast.show(
         context,
-        message: '已删除',
-        actionLabel: '撤销',
+        message: context.strings.deleted,
+        actionLabel: context.strings.undo,
         duration: const Duration(seconds: 5),
         onAction: () {
           if (repository.mounted) repository.insertAt(removed.$2, removed.$1);
@@ -273,8 +289,8 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
     // 生产撤销 = 重新记住内容（新 ID），由 addManual 走完整写入校验。
     AppToast.show(
       context,
-      message: '已删除',
-      actionLabel: '重新记住',
+      message: context.strings.deleted,
+      actionLabel: context.strings.rememberAgain,
       duration: const Duration(seconds: 5),
       onAction: () => unawaited(() async {
         try {
@@ -302,7 +318,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
         await _openEditor(existing: entry);
       case MemoryCardAction.copy:
         await copyMemoryContent(entry.content);
-        if (mounted) AppToast.show(context, message: '已复制');
+        if (mounted) AppToast.show(context, message: context.strings.copied);
       case MemoryCardAction.delete:
         await _deleteEntry(entry);
     }
@@ -317,7 +333,10 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
       context.go(AppRoutes.home);
     } else {
       // 来源会话已删除（§6.4）。
-      AppToast.show(context, message: '原会话已不存在');
+      AppToast.show(
+        context,
+        message: context.strings.originalChatNoLongerExists,
+      );
     }
   }
 
@@ -333,7 +352,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
         'memory_paused': !paused,
       });
       if (mounted && saved && paused) {
-        AppToast.show(context, message: '已恢复记忆');
+        AppToast.show(context, message: context.strings.memoryRestored);
       }
       return;
     }
@@ -347,7 +366,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
     }
     ref.invalidate(memoryPausedViewProvider);
     if (mounted && paused) {
-      AppToast.show(context, message: '已恢复记忆');
+      AppToast.show(context, message: context.strings.memoryRestored);
     }
   }
 
@@ -357,10 +376,13 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
     HapticFeedback.heavyImpact();
     if (_vault == null) {
       ref.read(memoryListProvider.notifier).clearAll();
-      AppToast.show(context, message: '记忆库已清空');
+      AppToast.show(context, message: context.strings.memoryCleared);
       return;
     }
-    await _runVault((v) => v.clearAll(), successMessage: '记忆库已清空');
+    await _runVault(
+      (v) => v.clearAll(),
+      successMessage: context.strings.memoryCleared,
+    );
   }
 
   Future<void> _openMoreFilters() async {
@@ -427,7 +449,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
         child: SafeArea(
           bottom: false,
           child: WorkspaceNavBar(
-            title: '记忆库',
+            title: context.strings.memoryLibrary,
             onBack: () =>
                 context.canPop() ? context.pop() : context.go(AppRoutes.home),
             actions: [
@@ -435,13 +457,15 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
                 children: [
                   WorkspaceToolbarAction(
                     icon: paused ? LucideIcons.shieldOff : LucideIcons.brain,
-                    label: '免记忆模式，当前${paused ? '开启' : '关闭'}',
+                    label: context.strings.memoryOffModeIs(
+                      paused ? context.strings.onLabel : context.strings.close,
+                    ),
                     active: paused,
                     onTap: ready ? () => _togglePaused(paused) : null,
                   ),
                   WorkspaceToolbarAction(
                     icon: LucideIcons.ellipsis,
-                    label: '更多操作',
+                    label: context.strings.moreActions,
                     active:
                         _sourceFilter != null ||
                         _expiryFilter != MemoryExpiryFilter.all,
@@ -465,13 +489,15 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
                     items: [
                       WorkspaceScopeItem(
                         id: 'all',
-                        label: '全部',
+                        label: context.strings.allLabel,
                         count: library.counts['all'],
                       ),
                       for (final kind in kinds)
                         WorkspaceScopeItem(
                           id: kind.id,
-                          label: kind.label,
+                          label: kind.isBuiltIn
+                              ? localizedBuiltin(kind.label)
+                              : kind.label,
                           count: library.counts[kind.id],
                         ),
                     ],
@@ -481,8 +507,8 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
                     child: vaultAsync.hasError
                         ? AppEmptyState(
                             icon: LucideIcons.cloudOff,
-                            title: '记忆读取失败',
-                            actionLabel: '重试',
+                            title: context.strings.couldntLoadMemories,
+                            actionLabel: context.strings.retry,
                             onAction: () => ref.invalidate(memoryVaultProvider),
                           )
                         : !vaultAsync.hasValue
@@ -497,8 +523,8 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
               child: WorkspaceBottomBar(
                 searchController: _searchController,
                 focusNode: _searchFocus,
-                hint: '搜索记忆',
-                addLabel: '新增记忆',
+                hint: context.strings.searchMemories,
+                addLabel: context.strings.newMemory,
                 onAdd: ready ? _openEditor : null,
                 onClear: _clearSearch,
                 onSearchChanged: (value) {
@@ -515,96 +541,4 @@ class _MemoryPageState extends ConsumerState<MemoryPage> {
       ),
     );
   }
-
-  Widget _pausedBanner(AppColors c) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-    child: Row(
-      children: [
-        Icon(LucideIcons.shieldOff, size: 16, color: c.labelSecondary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            '免记忆模式已开启，新对话不会写入记忆库',
-            style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
-          ),
-        ),
-        AppPressable(
-          semanticLabel: '关闭免记忆模式',
-          onTap: () => _togglePaused(true),
-          child: Center(
-            child: Text(
-              '关闭',
-              style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _list(MemoryLibrary library, bool empty) {
-    if (library.visible.isEmpty) {
-      final filtered =
-          _query.isNotEmpty ||
-          _typeFilter != 'all' ||
-          _sourceFilter != null ||
-          _expiryFilter != MemoryExpiryFilter.all;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 88),
-        child: AppEmptyState(
-          icon: empty ? LucideIcons.brain : LucideIcons.searchX,
-          title: empty ? '还没有记忆' : '暂无相关记忆',
-          actionLabel: filtered ? '清除筛选' : null,
-          onAction: filtered ? _clearFilters : null,
-        ),
-      );
-    }
-    final items = <Object>[
-      for (final group in library.groups) ...[group, ...group.entries],
-    ];
-    final c = AppColors.of(context);
-    final now = DateTime.now();
-    return ListView.builder(
-      key: const ValueKey('memory-record-list'),
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        if (item is MemoryGroup) {
-          return Padding(
-            padding: EdgeInsets.only(top: index == 0 ? 4 : 12, bottom: 2),
-            child: Text(
-              '${item.kind.label} ${item.entries.length}',
-              style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
-            ),
-          );
-        }
-        final entry = item as MemoryEntry;
-        return MemoryListRow(
-          key: ValueKey(entry.id),
-          entry: entry,
-          now: now,
-          highlight: _query,
-          onTap: () => _openDetail(entry),
-          onLongPress: () => _onLongPressMenu(entry),
-        );
-      },
-    );
-  }
-
-  Widget _skeleton() => ListView.builder(
-    padding: const EdgeInsets.fromLTRB(8, 4, 16, 88),
-    itemCount: 6,
-    itemBuilder: (context, index) => const Padding(
-      padding: EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppSkeleton(height: 15),
-          SizedBox(height: 8),
-          AppSkeleton(height: 12, width: 112),
-        ],
-      ),
-    ),
-  );
 }

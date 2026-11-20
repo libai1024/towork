@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/ai/model_gateway.dart';
@@ -25,26 +26,39 @@ class AgentTablePreview extends StatelessWidget {
     final create = change['operation'] == 'create';
     final lines = <String>[
       if (!create && before['name'] != after['name'])
-        '名称　${before['name']} → ${after['name']}',
+        context.strings.name('${before['name']}', '${after['name']}'),
       if (before['description'] != after['description'] &&
           (after['description'] != '' || !create))
-        '说明　${create ? '' : '${_text(before['description'])} → '}${_text(after['description'])}',
+        context.strings.description(
+          create ? '' : '${_text(before['description'])} → ',
+          _text(after['description']),
+        ),
       for (final entry in newFields.entries)
         if (!oldFields.containsKey(entry.key))
-          '${create ? '' : '新增字段　'}${_field(entry.value)}'
+          '${create ? '' : context.strings.addField}${_field(entry.value)}'
         else if (canonicalWorkspaceJson(oldFields[entry.key]) !=
             canonicalWorkspaceJson(entry.value))
-          '修改字段　${_field(oldFields[entry.key]!)} → ${_field(entry.value)}',
+          context.strings.editField(
+            _field(oldFields[entry.key]!),
+            _field(entry.value),
+          ),
       for (final entry in oldFields.entries)
-        if (!newFields.containsKey(entry.key)) '移除字段　${_field(entry.value)}',
+        if (!newFields.containsKey(entry.key))
+          context.strings.removeField(_field(entry.value)),
     ];
     final rows = [
-      ['字段', '类型', '要求'],
+      [
+        context.strings.field,
+        context.strings.type,
+        context.strings.requirement,
+      ],
       for (final field in newFields.values)
         [
           '${field['name']}',
           _type(field),
-          field['required'] == true ? '必填' : '选填',
+          field['required'] == true
+              ? context.strings.required
+              : context.strings.optional,
         ],
     ];
     return Padding(
@@ -53,7 +67,7 @@ class AgentTablePreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${create ? '新增表格' : '编辑表格'} ${after['name']}',
+            '${create ? context.strings.createTable : context.strings.editTable} ${after['name']}',
             style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
           ),
           if (create) ...[
@@ -115,27 +129,31 @@ class AgentTablePreview extends StatelessWidget {
                   ),
                 ),
               ),
-          if (lines.isEmpty) Text('内容与当前表格一致', style: AppTextStyles.footnote),
+          if (lines.isEmpty)
+            Text(
+              context.strings.noChangesToTheTable,
+              style: AppTextStyles.footnote,
+            ),
         ],
       ),
     );
   }
 
   static String _text(Object? value) =>
-      value == null || value == '' ? '无' : '$value';
+      value == null || value == '' ? strings.noneLabel : '$value';
 
   static String _field(Map<Object?, Object?> field) =>
-      '${field['name']} ${_type(field)} ${field['required'] == true ? '必填' : '选填'}';
+      '${field['name']} ${_type(field)} ${field['required'] == true ? strings.required : strings.optional}';
 
   static String _type(Map<Object?, Object?> field) {
     final type = switch (field['type']) {
-      'number' => '数字',
-      'money' => '金额 ${field['scale']} 位小数',
-      'date' => '日期',
-      'datetime' => '日期时间',
-      'selection' => '单选',
-      'boolean' => '是否',
-      _ => '文本',
+      'number' => strings.number,
+      'money' => strings.currencyDecimalPlaces('${field['scale']}'),
+      'date' => strings.date,
+      'datetime' => strings.dateAndTime,
+      'selection' => strings.singleSelect,
+      'boolean' => strings.yesNo,
+      _ => strings.text,
     };
     final options = field['options'] as List? ?? [];
     return '$type'

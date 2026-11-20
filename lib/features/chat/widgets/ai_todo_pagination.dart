@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -49,9 +51,14 @@ class AiTodoPagination extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          arrow(LucideIcons.chevronLeft, '上一页', page - 1, page > 0),
+          arrow(
+            LucideIcons.chevronLeft,
+            context.strings.previousPage,
+            page - 1,
+            page > 0,
+          ),
           Semantics(
-            label: '页码',
+            label: context.strings.page,
             child: SizedBox(
               height: controlHeight,
               child: DropdownButton<int>(
@@ -80,7 +87,12 @@ class AiTodoPagination extends StatelessWidget {
               ),
             ),
           ),
-          arrow(LucideIcons.chevronRight, '下一页', page + 1, page + 1 < pages),
+          arrow(
+            LucideIcons.chevronRight,
+            context.strings.nextPage,
+            page + 1,
+            page + 1 < pages,
+          ),
         ],
       ),
     );

@@ -31,6 +31,7 @@ void main() {
       expect(first.permission, AiWritePermission.askOnChange);
       await store.update({
         'theme': 'dark',
+        'language': 'en',
         'input_mode': 'voice',
         'permission': 'askAll',
         'memory_paused': true,
@@ -50,6 +51,7 @@ void main() {
       expect(result.version, 2);
       expect(result.toJson(), {
         'theme': 'dark',
+        'language': 'en',
         'input_mode': 'voice',
         'permission': 'askAll',
         'memory_paused': true,

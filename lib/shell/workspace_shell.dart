@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../app/routes.dart';
 
 import 'package:flutter/material.dart';
@@ -69,7 +71,7 @@ class WorkspaceShell extends ConsumerWidget {
                             const WorkMark(size: 30),
                             const SizedBox(height: 18),
                             IconButton(
-                              tooltip: '展开侧栏',
+                              tooltip: context.strings.expandSidebar,
                               onPressed: toggle,
                               icon: const Icon(
                                 LucideIcons.panelLeftOpen,
@@ -77,7 +79,7 @@ class WorkspaceShell extends ConsumerWidget {
                               ),
                             ),
                             IconButton(
-                              tooltip: '新建会话',
+                              tooltip: context.strings.newChatBuild,
                               onPressed: newChat,
                               icon: const Icon(
                                 LucideIcons.messageCirclePlus,
@@ -93,7 +95,7 @@ class WorkspaceShell extends ConsumerWidget {
                               ),
                             const Spacer(),
                             IconButton(
-                              tooltip: '搜索',
+                              tooltip: context.strings.search,
                               onPressed: () => showWorkspaceSearch(context),
                               icon: const Icon(LucideIcons.search, size: 20),
                             ),

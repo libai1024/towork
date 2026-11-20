@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/membership_plan.dart';
@@ -20,11 +21,18 @@ class MembershipDetails extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        MembershipDetail(label: '每月积分', value: '${plan.credits} 点'),
+        MembershipDetail(
+          label: context.strings.monthlyCredits,
+          value: context.strings.credits(plan.credits),
+        ),
         if (plan.tier < 2)
           MembershipDetail(
-            label: plan.tier == 0 ? '模型接入' : '上下文',
-            value: plan.tier == 0 ? '自有 API Key' : '短上下文',
+            label: plan.tier == 0
+                ? context.strings.modelAccess
+                : context.strings.context,
+            value: plan.tier == 0
+                ? context.strings.yourOwnApiKey
+                : context.strings.shortContext,
           )
         else
           Row(
@@ -34,7 +42,9 @@ class MembershipDetails extends StatelessWidget {
                   child: Semantics(
                     selected: plan.annual == annual,
                     child: AppPressable(
-                      semanticLabel: annual ? '年付' : '月付',
+                      semanticLabel: annual
+                          ? context.strings.yearlyBuild
+                          : context.strings.monthlyBuild2,
                       onTap: () => onAnnualChanged(annual),
                       child: AnimatedContainer(
                         duration: MediaQuery.disableAnimationsOf(context)
@@ -52,7 +62,7 @@ class MembershipDetails extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          '${annual ? '年付' : '月付'}  ¥${MembershipPlan(family: plan.family, tier: plan.tier, annual: annual).price}',
+                          '${annual ? context.strings.yearlyBuild : context.strings.monthlyBuild2}  ¥${MembershipPlan(family: plan.family, tier: plan.tier, annual: annual).price}',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.footnote.copyWith(
                             color: plan.annual == annual

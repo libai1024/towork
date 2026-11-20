@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -57,7 +58,7 @@ class _ReleaseHistoryViewState extends State<ReleaseHistoryView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (current != null) ...[
-          Text('当前版本', style: secondary),
+          Text(context.strings.currentVersion, style: secondary),
           const SizedBox(height: 6),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -79,8 +80,13 @@ class _ReleaseHistoryViewState extends State<ReleaseHistoryView> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(current.title, style: AppTextStyles.subhead),
-                  ReleaseNotes(notes: current.notes),
+                  Text(
+                    current.titleFor(context.strings.localeName),
+                    style: AppTextStyles.subhead,
+                  ),
+                  ReleaseNotes(
+                    notes: current.notesFor(context.strings.localeName),
+                  ),
                 ],
               ),
             ),
@@ -88,12 +94,12 @@ class _ReleaseHistoryViewState extends State<ReleaseHistoryView> {
         ],
         if (older.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Text('版本历史', style: secondary),
+          Text(context.strings.versionHistory, style: secondary),
           const SizedBox(height: 4),
           for (final entry in older) ...[
             AppPressable(
               semanticLabel:
-                  '${expanded == entry.id ? '收起' : '展开'} ${entry.label}',
+                  '${expanded == entry.id ? context.strings.collapse : context.strings.expand} ${entry.label}',
               onTap: () => setState(
                 () => expanded = expanded == entry.id ? null : entry.id,
               ),
@@ -111,7 +117,10 @@ class _ReleaseHistoryViewState extends State<ReleaseHistoryView> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          Text(entry.title, style: secondary),
+                          Text(
+                            entry.titleFor(context.strings.localeName),
+                            style: secondary,
+                          ),
                         ],
                       ),
                     ),
@@ -131,7 +140,9 @@ class _ReleaseHistoryViewState extends State<ReleaseHistoryView> {
             if (expanded == entry.id)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: ReleaseNotes(notes: entry.notes),
+                child: ReleaseNotes(
+                  notes: entry.notesFor(context.strings.localeName),
+                ),
               ),
             Divider(height: 1, color: c.separator),
           ],

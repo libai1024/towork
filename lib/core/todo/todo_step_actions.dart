@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,7 +21,7 @@ Future<bool> confirmRemainingSteps(
   if (remaining == 0) return true;
   return await AppSheet.show<bool>(
         context,
-        title: '还有 $remaining 个未完成步骤',
+        title: context.strings.unfinishedSteps(remaining),
         child: Builder(
           builder: (sheet) => Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -28,7 +29,7 @@ Future<bool> confirmRemainingSteps(
               children: [
                 Expanded(
                   child: AppButton(
-                    label: '返回',
+                    label: context.strings.back,
                     type: AppButtonType.ghost,
                     onPressed: () => Navigator.of(sheet).pop(false),
                   ),
@@ -36,7 +37,7 @@ Future<bool> confirmRemainingSteps(
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    label: '完成待办',
+                    label: context.strings.completeTaskConfirmremainingsteps,
                     onPressed: () => Navigator.of(sheet).pop(true),
                   ),
                 ),
@@ -82,15 +83,17 @@ Future<bool> commitTodoStep(
       AppToast.show(
         context,
         message: status != todo.status
-            ? (status == TodoStatus.done ? '待办已完成' : '待办已重新打开')
+            ? (status == TodoStatus.done
+                  ? context.strings.taskCompleted
+                  : context.strings.taskReopened)
             : edit.action == StepAction.remove
-            ? '步骤已删除'
-            : '进度已更新',
-        actionLabel: '撤销',
+            ? context.strings.stepDeleted
+            : context.strings.progressUpdated,
+        actionLabel: context.strings.undo,
         onAction: () async {
           try {
             await receipt.undo();
-            report('已撤销');
+            report(strings.undone);
           } catch (error) {
             report(workspaceErrorMessage(error));
           }

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -252,7 +254,7 @@ class _ToastWidgetState extends State<_ToastWidget>
                       if (!widget.centered)
                         AppPressable(
                           key: const ValueKey('toast-dismiss'),
-                          semanticLabel: '关闭提示',
+                          semanticLabel: context.strings.dismiss,
                           borderRadius: AppRadii.brFull,
                           onTap: widget.onTimeout,
                           child: SizedBox(

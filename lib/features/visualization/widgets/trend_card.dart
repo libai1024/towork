@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,12 +32,12 @@ class _TrendCardState extends State<TrendCard> {
     final degraded = dataSpanDays(widget.todos) < 14;
 
     return VizCard(
-      title: '创建 vs 完成',
+      title: context.strings.createdVsCompleted,
       trailing: VizMiniSegmented<int>(
         options: const [4, 8, 12],
         selected: _weeks,
-        labelOf: (w) => '$w 周',
-        semanticLabel: '切换统计周期',
+        labelOf: (w) => context.strings.weeks(w),
+        semanticLabel: context.strings.changePeriod,
         onChanged: (w) {
           HapticFeedback.lightImpact();
           setState(() => _weeks = w);
@@ -53,13 +54,16 @@ class _TrendCardState extends State<TrendCard> {
         child: Column(
           children: [
             Text(
-              '趋势要等数据攒够两周才看得出来，先到的是惊喜。',
+              context.strings.trendsAppearAfterTwoWeeksOfActivity,
               style: AppTextStyles.body.copyWith(color: c.labelTertiary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              '本周创建 ${thisWeek.created} 件，完成 ${thisWeek.completed} 件',
+              context.strings.thisWeekCreatedCompleted(
+                thisWeek.created,
+                thisWeek.completed,
+              ),
               style: AppTextStyles.body.copyWith(color: c.labelSecondary),
               textAlign: TextAlign.center,
             ),
@@ -196,16 +200,20 @@ class _TrendCardState extends State<TrendCard> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _lineLegend(c, c.brand, '创建'),
+            _lineLegend(c, c.brand, context.strings.create),
             const SizedBox(width: 16),
-            _lineLegend(c, c.labelSecondary, '完成'),
+            _lineLegend(c, c.labelSecondary, context.strings.complete),
           ],
         ),
         const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            '近 $_weeks 周创建 $createdSum 件，完成 $completedSum 件',
+            context.strings.lastWeeksCreatedCompleted(
+              _weeks,
+              createdSum,
+              completedSum,
+            ),
             style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
           ),
         ),
@@ -215,10 +223,14 @@ class _TrendCardState extends State<TrendCard> {
             TextSpan(
               style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
               children: [
-                TextSpan(text: '完成率 ${(rate * 100).round()}%，比上一周期 '),
+                TextSpan(
+                  text: context.strings.completeComparedWithLastPeriod(
+                    (rate * 100).round(),
+                  ),
+                ),
                 if (deltaPct == 0)
                   TextSpan(
-                    text: '持平',
+                    text: context.strings.noChange,
                     style: TextStyle(color: c.labelTertiary),
                   )
                 else
@@ -240,7 +252,11 @@ class _TrendCardState extends State<TrendCard> {
   String _tooltipText(List<WeekPoint> points, int index) {
     if (index < 0 || index >= points.length) return '';
     final p = points[index];
-    return '第 ${p.weekNumber} 周：创建 ${p.created} 完成 ${p.completed}';
+    return context.strings.weekCreatedCompleted(
+      p.weekNumber,
+      p.created,
+      p.completed,
+    );
   }
 
   Widget _lineLegend(AppColors c, Color color, String label) {

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -11,10 +12,10 @@ import '../../../theme/app_text_styles.dart';
 /// 相对时间（08-memory.md §3.5 元信息行）。
 String relativeTimeLabel(DateTime time, DateTime now) {
   final diff = now.difference(time);
-  if (diff.inMinutes < 1) return '刚刚';
-  if (diff.inHours < 1) return '${diff.inMinutes} 分钟前';
-  if (diff.inDays < 1) return '${diff.inHours} 小时前';
-  if (diff.inDays < 30) return '${diff.inDays} 天前';
+  if (diff.inMinutes < 1) return strings.justNow;
+  if (diff.inHours < 1) return strings.minAgo(diff.inMinutes);
+  if (diff.inDays < 1) return strings.hrAgo(diff.inHours);
+  if (diff.inDays < 30) return strings.daysAgo(diff.inDays);
   return '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')}';
 }
 
@@ -129,8 +130,8 @@ class _MemoryCardState extends State<MemoryCard>
 
     return Semantics(
       label:
-          '${entry.typeLabel}记忆，${entry.content}，置信度${entry.confidenceLabel}'
-          '${expired ? '，已过期' : ''}。双击展开，长按操作。',
+          '${context.strings.memoryConfidence(localizedBuiltin(entry.typeLabel), entry.content, localizedBuiltin(entry.confidenceLabel))}'
+          '${context.strings.doubleTapToExpandHoldForActions(expired ? context.strings.expiredBuild : '')}',
       child: AnimatedBuilder(
         animation: _swipeCtrl,
         builder: (context, child) {
@@ -208,24 +209,28 @@ class _MemoryCardState extends State<MemoryCard>
             background: c.fill1,
             foreground: c.labelSecondary,
             icon: LucideIcons.sparkles,
-            label: 'AI 提取',
+            label: context.strings.extractedByAi,
           )
         else
           _Badge(
             background: c.fill1,
             foreground: c.labelSecondary,
-            label: '手动',
+            label: context.strings.manual,
           ),
         if (entry.isLowConfidence)
-          _Badge(background: c.fill1, foreground: c.labelPrimary, label: '待确认')
+          _Badge(
+            background: c.fill1,
+            foreground: c.labelPrimary,
+            label: context.strings.pendingReview,
+          )
         else
           Text(
-            '置信度 ${entry.confidenceLabel}',
+            context.strings.confidence(localizedBuiltin(entry.confidenceLabel)),
             style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
           ),
         if (expired)
           Text(
-            '已过期',
+            context.strings.expired,
             style: AppTextStyles.caption.copyWith(color: c.labelQuaternary),
           )
         else if (entry.isExpiringSoon(widget.now))
@@ -235,7 +240,9 @@ class _MemoryCardState extends State<MemoryCard>
               Icon(LucideIcons.hourglass, size: 12, color: c.labelSecondary),
               const SizedBox(width: 2),
               Text(
-                '${entry.daysUntilExpiry(widget.now)} 天后失效',
+                context.strings.expiresInDays(
+                  entry.daysUntilExpiry(widget.now),
+                ),
                 style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
               ),
             ],
@@ -258,9 +265,13 @@ class _MemoryCardState extends State<MemoryCard>
               onTap: widget.onTapSession,
 
               behavior: HitTestBehavior.translucent,
-              semanticLabel: '跳转到来源会话 ${entry.sourceSessionTitle}',
+              semanticLabel: context.strings.openSourceChat(
+                entry.sourceSessionTitle.toString(),
+              ),
               child: Text(
-                '来自会话「${entry.sourceSessionTitle}」',
+                context.strings.fromChatShowmemorydetailsheet(
+                  entry.sourceSessionTitle.toString(),
+                ),
                 style: AppTextStyles.caption.copyWith(color: c.brand),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -323,14 +334,14 @@ class _MemoryCardState extends State<MemoryCard>
             background: c.fill3,
             foreground: c.labelPrimary,
             icon: LucideIcons.pencil,
-            label: '编辑',
+            label: context.strings.edit,
             onTap: widget.onEdit,
           ),
           action(
             background: c.fill1,
             foreground: c.labelPrimary,
             icon: LucideIcons.trash2,
-            label: '删除',
+            label: context.strings.deleteLabel,
             onTap: widget.onDelete,
           ),
         ],

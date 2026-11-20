@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,7 +49,10 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
       context.push(AppRoutes.report(report.id));
     } on Object {
       if (mounted) {
-        AppToast.show(context, message: '报告生成失败，请重试');
+        AppToast.show(
+          context,
+          message: context.strings.reportGenerationFailedTryAgain,
+        );
       }
     } finally {
       if (mounted) setState(() => _generating = null);
@@ -73,7 +77,7 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
           child: Column(
             children: [
               WorkspaceNavBar(
-                title: '报告',
+                title: context.strings.report,
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(AppRoutes.home),
@@ -82,8 +86,8 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
                 child: generation.hasError
                     ? AppEmptyState(
                         icon: LucideIcons.cloudOff,
-                        title: '报告服务不可用',
-                        actionLabel: '重试',
+                        title: context.strings.reportServiceUnavailable,
+                        actionLabel: context.strings.retry,
                         onAction: () =>
                             ref.invalidate(reportGenerationProvider),
                       )
@@ -102,7 +106,7 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             WorkspaceNavBar(
-              title: '报告',
+              title: context.strings.report,
               onBack: () =>
                   context.canPop() ? context.pop() : context.go(AppRoutes.home),
               actions: [
@@ -111,9 +115,11 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
                     Builder(
                       builder: (anchor) => WorkspaceToolbarAction(
                         icon: _busy ? LucideIcons.hourglass : LucideIcons.plus,
-                        label: _busy ? '正在生成报告' : '生成报告',
+                        label: _busy
+                            ? context.strings.generatingReport
+                            : context.strings.generateReport,
                         text: reportsAsync.valueOrNull?.isEmpty == true
-                            ? '生成'
+                            ? context.strings.generate
                             : null,
                         onTap: _busy
                             ? null
@@ -123,15 +129,19 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
                                       ReportPeriodKind
                                     >(
                                       anchor,
-                                      items: const [
+                                      items: [
                                         (
                                           value: ReportPeriodKind.weekly,
-                                          label: '生成本周周报',
+                                          label: context
+                                              .strings
+                                              .generateThisWeeksReport,
                                           icon: LucideIcons.calendarDays,
                                         ),
                                         (
                                           value: ReportPeriodKind.monthly,
-                                          label: '生成本月月报',
+                                          label: context
+                                              .strings
+                                              .generateThisMonthsReport,
                                           icon: LucideIcons.calendarRange,
                                         ),
                                       ],
@@ -154,12 +164,15 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
                     const Center(child: CircularProgressIndicator.adaptive()),
                 error: (_, _) => AppEmptyState(
                   icon: LucideIcons.cloudOff,
-                  title: '报告读取失败',
-                  actionLabel: '重试',
+                  title: context.strings.couldntReadReport,
+                  actionLabel: context.strings.retry,
                   onAction: _refresh,
                 ),
                 data: (reports) => reports.isEmpty
-                    ? AppEmptyState(icon: LucideIcons.fileText, title: '还没有报告')
+                    ? AppEmptyState(
+                        icon: LucideIcons.fileText,
+                        title: context.strings.noReportsYet,
+                      )
                     : RefreshIndicator(
                         color: c.brand,
                         backgroundColor: c.bgPrimary,
@@ -182,7 +195,9 @@ class _ProductionReportsViewState extends ConsumerState<ProductionReportsView> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    '周期按 $kProductionReportTimezone 时区计算',
+                                    context.strings.periodUsesTheTimeZone(
+                                      kProductionReportTimezone,
+                                    ),
                                     style: AppTextStyles.caption.copyWith(
                                       color: c.labelQuaternary,
                                     ),
@@ -230,7 +245,7 @@ class _ProductionReportCard extends StatelessWidget {
       semanticLabel:
           '${productionNavTitle(report)}，'
           '${productionStatusChip(report)}，'
-          '完成率 ${productionCompletionLabel(report)}。',
+          '${context.strings.completionRateBuild(productionCompletionLabel(report))}',
       borderRadius: AppRadii.brLg,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.sm),
@@ -276,7 +291,9 @@ class _ProductionReportCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '完成率 ${productionCompletionFraction(report)}',
+                        context.strings.completionRateCompletioncard(
+                          productionCompletionFraction(report),
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: c.labelSecondary,
                         ),
@@ -284,9 +301,23 @@ class _ProductionReportCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Expanded(child: _metric(context, '${m.completed}', '完成')),
-                Expanded(child: _metric(context, '${m.created}', '新增')),
-                Expanded(child: _metric(context, '${m.overdueAtEnd}', '逾期')),
+                Expanded(
+                  child: _metric(
+                    context,
+                    '${m.completed}',
+                    context.strings.complete,
+                  ),
+                ),
+                Expanded(
+                  child: _metric(context, '${m.created}', context.strings.add),
+                ),
+                Expanded(
+                  child: _metric(
+                    context,
+                    '${m.overdueAtEnd}',
+                    context.strings.overdueBuild,
+                  ),
+                ),
               ],
             ),
           ],

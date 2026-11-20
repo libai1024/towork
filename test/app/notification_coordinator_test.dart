@@ -1,3 +1,5 @@
+import 'package:towork/app/reminder_wording.dart';
+
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -301,6 +303,7 @@ void main() {
       await SqliteWorkspaceCommandStore(db).load(),
       const AppPreferences(notifyMorning: false),
       now,
+      reminderWording('zh'),
     );
     expect(plans, hasLength(1));
     expect(plans.single.at, at);

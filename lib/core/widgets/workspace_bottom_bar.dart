@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -14,8 +15,8 @@ class WorkspaceBottomBar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onClear,
     this.onAdd,
-    this.addLabel = '新建',
-    this.hint = '搜索',
+    this.addLabel,
+    this.hint,
     this.focusNode,
   });
 
@@ -23,8 +24,8 @@ class WorkspaceBottomBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onClear;
   final VoidCallback? onAdd;
-  final String addLabel;
-  final String hint;
+  final String? addLabel;
+  final String? hint;
   final FocusNode? focusNode;
 
   @override
@@ -37,14 +38,17 @@ class WorkspaceBottomBar extends StatelessWidget {
             child: WorkspaceSearchField(
               controller: searchController,
               focusNode: focusNode,
-              hint: hint,
+              hint: hint ?? context.strings.search,
               onChanged: onSearchChanged,
               onClear: onClear,
             ),
           ),
           if (onAdd != null) ...[
             const SizedBox(width: 10),
-            WorkspaceAddButton(label: addLabel, onTap: onAdd!),
+            WorkspaceAddButton(
+              label: addLabel ?? context.strings.newLabel,
+              onTap: onAdd!,
+            ),
           ],
         ],
       ),

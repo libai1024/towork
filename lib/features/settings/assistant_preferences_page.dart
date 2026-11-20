@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -17,11 +18,14 @@ import 'widgets/settings_shared.dart';
 /// 设置行里的一句话摘要。
 String assistantPreferencesSummary(AppPreferences preferences) {
   final parts = [
-    if (preferences.customInstructions.trim().isNotEmpty) '已写说明',
+    if (preferences.customInstructions.trim().isNotEmpty)
+      strings.instructionsAdded,
     if (preferences.speechVocabulary.isNotEmpty)
-      '${preferences.speechVocabulary.length} 个常用词',
+      strings.vocabularyWords(preferences.speechVocabulary.length),
   ];
-  return parts.isEmpty ? '未设置' : parts.join(' ');
+  return parts.isEmpty
+      ? strings.notSetAssistantpreferencessummary
+      : parts.join(' ');
 }
 
 /// 助手偏好：写给助手的长期说明与常用词。
@@ -71,7 +75,10 @@ class _AssistantPreferencesPageState
     setState(() => _saving = false);
     if (saved) {
       _instructions.text = text;
-      AppToast.show(context, message: '已保存，下一次对话起生效');
+      AppToast.show(
+        context,
+        message: context.strings.savedAppliesFromTheNextChat,
+      );
     }
   }
 
@@ -82,11 +89,15 @@ class _AssistantPreferencesPageState
     if (word.isEmpty) {
       problem = null;
     } else if (word.length > AppPreferences.maxVocabularyLength) {
-      problem = '每个词最多 ${AppPreferences.maxVocabularyLength} 个字符';
+      problem = context.strings.eachTermCanHaveUpToCharacters(
+        AppPreferences.maxVocabularyLength,
+      );
     } else if (words.any((w) => w.toLowerCase() == word.toLowerCase())) {
-      problem = '「$word」已经在列表里';
+      problem = context.strings.isAlreadyInTheList(word);
     } else if (words.length >= AppPreferences.maxVocabulary) {
-      problem = '最多 ${AppPreferences.maxVocabulary} 个常用词，请先删除不用的';
+      problem = context.strings.limitTermsRemoveAnUnusedTermFirst(
+        AppPreferences.maxVocabulary,
+      );
     } else {
       problem = null;
     }
@@ -125,14 +136,14 @@ class _AssistantPreferencesPageState
         child: Column(
           children: [
             SettingsNavBar(
-              title: '助手偏好',
+              title: context.strings.assistantPreferences,
               onBack: () => context.popOrGo(AppRoutes.settings),
               actions: [
                 WorkspaceToolbarGroup(
                   children: [
                     WorkspaceToolbarAction(
                       key: const ValueKey('save-assistant-instructions'),
-                      label: '保存说明',
+                      label: context.strings.saveInstructions,
                       icon: LucideIcons.check,
                       onTap: changed && !_saving ? _saveInstructions : null,
                     ),
@@ -156,7 +167,7 @@ class _AssistantPreferencesPageState
                     ),
                     children: [
                       AppFieldLabel(
-                        label: '长期说明',
+                        label: context.strings.customInstructions,
                         child: TextField(
                           key: const ValueKey('assistant-instructions'),
                           controller: _instructions,
@@ -165,8 +176,8 @@ class _AssistantPreferencesPageState
                           maxLines: 10,
                           maxLength: AppPreferences.maxInstructionLength,
                           textInputAction: TextInputAction.newline,
-                          decoration: const InputDecoration(
-                            hintText: '例如：回复用简体中文',
+                          decoration: InputDecoration(
+                            hintText: context.strings.eGReplyInEnglish,
                           ),
                           onChanged: (_) => setState(() {}),
                         ),
@@ -177,16 +188,18 @@ class _AssistantPreferencesPageState
                         children: [
                           Expanded(
                             child: AppFieldLabel(
-                              label: '常用词',
+                              label: context.strings.vocabulary,
                               child: TextField(
                                 key: const ValueKey('assistant-word-input'),
                                 controller: _word,
                                 focusNode: _wordFocus,
                                 maxLength: AppPreferences.maxVocabularyLength,
                                 textInputAction: TextInputAction.done,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   counterText: '',
-                                  hintText: '人名、项目名或产品名',
+                                  hintText: context
+                                      .strings
+                                      .personProjectOrProductName,
                                 ),
                                 onChanged: (_) => setState(() {}),
                                 onSubmitted: (_) => _addWord(),
@@ -196,7 +209,7 @@ class _AssistantPreferencesPageState
                           const SizedBox(width: 6),
                           WorkspaceToolbarAction(
                             key: const ValueKey('assistant-word-add'),
-                            label: '添加',
+                            label: context.strings.addBuild,
                             icon: LucideIcons.plus,
                             onTap: _word.text.trim().isEmpty ? null : _addWord,
                           ),
@@ -204,7 +217,10 @@ class _AssistantPreferencesPageState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '语音词库 ${words.length}/${AppPreferences.maxVocabulary}',
+                        context.strings.speechVocabulary(
+                          words.length,
+                          AppPreferences.maxVocabulary,
+                        ),
                         style: caption,
                       ),
                       if (words.isNotEmpty)
@@ -225,7 +241,7 @@ class _AssistantPreferencesPageState
                         ),
                       const SizedBox(height: 14),
                       Text(
-                        '发送给模型的内容',
+                        context.strings.whatTheModelReceives,
                         style: AppTextStyles.body.copyWith(
                           color: c.labelPrimary,
                           fontWeight: FontWeight.w500,
@@ -233,7 +249,7 @@ class _AssistantPreferencesPageState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '每轮发送时间、称呼、长期说明和常用词。开启 Agent 后，另附分类及最多 12 条进行中待办的标题和截止时间。',
+                        context.strings.eachRequestIncludesTheTimeYourName,
                         style: caption,
                       ),
                     ],
@@ -273,7 +289,7 @@ class _WordChip extends StatelessWidget {
           ),
           AppPressable(
             onTap: onRemove,
-            semanticLabel: '删除常用词 $word',
+            semanticLabel: context.strings.deleteTerm(word),
             child: SizedBox(
               width: 44,
               height: 44,

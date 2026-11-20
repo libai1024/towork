@@ -14,12 +14,17 @@ class AppleDistribution {
   static Future<bool> isTestFlight() async =>
       await _channel.invokeMethod<bool>('isTestFlight') ?? false;
 
-  static Future<void> authorize(String origin, String provider) async {
+  static Future<void> authorize(
+    String origin,
+    String provider, {
+    String? language,
+  }) async {
     Object? accepted;
     try {
       accepted = await _channel.invokeMethod<Object?>('authorizeModel', {
         'origin': origin,
         'provider': provider,
+        'language': ?language,
       });
     } on MissingPluginException {
       throw const ModelFailure(ModelFailureCode.configuration);

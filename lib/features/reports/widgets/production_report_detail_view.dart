@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -22,6 +24,8 @@ import '../report_export.dart';
 import '../report_production.dart';
 import 'report_poster.dart';
 import 'report_common.dart';
+
+part 'report_stat_card.dart';
 
 /// 报告详情的生产分支：读取 SQLite 归档的冻结快照渲染数字，
 /// 总结仅在用户主动点击时调用模型。演示模式不构建本视图。
@@ -50,10 +54,15 @@ class _ProductionReportDetailViewState
       await exports.create(recursive: true);
       final file = await exportReportPosterPng(_posterKey, report, exports);
       if (mounted) {
-        AppToast.show(context, message: '海报已保存：${file.path}');
+        AppToast.show(context, message: context.strings.posterSaved(file.path));
       }
     } on Object {
-      if (mounted) AppToast.show(context, message: '海报导出失败，请重试');
+      if (mounted) {
+        AppToast.show(
+          context,
+          message: context.strings.posterExportFailedTryAgain,
+        );
+      }
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
@@ -61,7 +70,7 @@ class _ProductionReportDetailViewState
 
   void _copyMarkdown(ReportDocument report) {
     Clipboard.setData(ClipboardData(text: reportMarkdown(report)));
-    AppToast.show(context, message: '已复制 Markdown');
+    AppToast.show(context, message: context.strings.markdownCopied);
   }
 
   Future<void> _summarize() async {
@@ -77,7 +86,10 @@ class _ProductionReportDetailViewState
       await service.summarize(report);
     } on Object {
       if (mounted) {
-        AppToast.show(context, message: '总结生成失败，可重试');
+        AppToast.show(
+          context,
+          message: context.strings.summaryFailedYouCanRetry,
+        );
       }
     } finally {
       // 列表 provider 是详情 provider 的依赖，失效后两者一并刷新。
@@ -98,7 +110,7 @@ class _ProductionReportDetailViewState
           loading: () => Column(
             children: [
               WorkspaceNavBar(
-                title: '报告',
+                title: context.strings.report,
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(AppRoutes.reports),
@@ -122,15 +134,15 @@ class _ProductionReportDetailViewState
     return Column(
       children: [
         WorkspaceNavBar(
-          title: '报告',
+          title: context.strings.report,
           onBack: () => context.go(AppRoutes.reports),
         ),
         Expanded(
           child: AppEmptyState(
             icon: LucideIcons.cloudOff,
-            title: '报告读取失败',
-            message: '本地快照已保留。',
-            actionLabel: '重试',
+            title: context.strings.couldntReadReport,
+            message: context.strings.localSnapshotRetained,
+            actionLabel: context.strings.retry,
             onAction: () => ref.invalidate(productionReportListProvider),
           ),
         ),
@@ -142,14 +154,14 @@ class _ProductionReportDetailViewState
     return Column(
       children: [
         WorkspaceNavBar(
-          title: '报告',
+          title: context.strings.report,
           onBack: () => context.go(AppRoutes.reports),
         ),
         Expanded(
           child: AppEmptyState(
             icon: LucideIcons.cloudOff,
-            title: '找不到这份报告',
-            actionLabel: '返回列表',
+            title: context.strings.reportNotFound,
+            actionLabel: context.strings.backToList,
             onAction: () => context.go(AppRoutes.reports),
           ),
         ),
@@ -195,13 +207,16 @@ class _ProductionReportDetailViewState
                   Expanded(
                     child: _StatCard(
                       value: '${m.created}',
-                      label: '新增',
-                      sub: '周期内创建的待办',
+                      label: context.strings.add,
+                      sub: context.strings.tasksCreatedDuringThePeriod,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
-                    child: _StatCard(value: '${m.completed}', label: '完成'),
+                    child: _StatCard(
+                      value: '${m.completed}',
+                      label: context.strings.complete,
+                    ),
                   ),
                 ],
               ),
@@ -212,28 +227,43 @@ class _ProductionReportDetailViewState
                   Expanded(
                     child: _StatCard(
                       value: '${m.overdueAtEnd}',
-                      label: '逾期',
+                      label: context.strings.overdueBuild,
                       emphasized: m.overdueAtEnd > 0,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
-                    child: _StatCard(value: '${m.openAtEnd}', label: '期末未完成'),
+                    child: _StatCard(
+                      value: '${m.openAtEnd}',
+                      label: context.strings.unfinishedAtPeriodEnd,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              _section(c, title: '分类分布', child: _categoryList(c, report)),
+              _section(
+                c,
+                title: context.strings.byCategory,
+                child: _categoryList(c, report),
+              ),
               const SizedBox(height: AppSpacing.sm),
-              _section(c, title: '较上期', child: _compareList(c, report)),
+              _section(
+                c,
+                title: context.strings.vsLastPeriod,
+                child: _compareList(c, report),
+              ),
               const SizedBox(height: AppSpacing.sm),
-              _section(c, title: '数据行', child: _dataRowsCard(c, report)),
+              _section(
+                c,
+                title: context.strings.dataRows,
+                child: _dataRowsCard(c, report),
+              ),
               const SizedBox(height: AppSpacing.sm),
               _summarySection(c, report),
               const SizedBox(height: AppSpacing.sm),
               _section(
                 c,
-                title: '海报',
+                title: context.strings.poster,
                 child: Column(
                   children: [
                     RepaintBoundary(
@@ -245,7 +275,7 @@ class _ProductionReportDetailViewState
                       children: [
                         Expanded(
                           child: AppButton(
-                            label: '导出海报 PNG',
+                            label: context.strings.exportPosterPng,
                             icon: LucideIcons.imageDown,
                             type: AppButtonType.secondary,
                             loading: _exporting,
@@ -256,7 +286,7 @@ class _ProductionReportDetailViewState
                         const SizedBox(width: AppSpacing.xs),
                         Expanded(
                           child: AppButton(
-                            label: '复制 Markdown',
+                            label: context.strings.copyMarkdown,
                             icon: LucideIcons.clipboardCopy,
                             type: AppButtonType.ghost,
                             onPressed: () => _copyMarkdown(report),
@@ -276,9 +306,9 @@ class _ProductionReportDetailViewState
   }
 
   String _kindLabel(ReportDocument report) => switch (report.kind) {
-    ReportPeriodKind.weekly => '周报',
-    ReportPeriodKind.monthly => '月报',
-    ReportPeriodKind.custom => '自定义报告',
+    ReportPeriodKind.weekly => context.strings.weeklyReport,
+    ReportPeriodKind.monthly => context.strings.monthlyReport,
+    ReportPeriodKind.custom => context.strings.customReport,
   };
 
   // ---------------------------------------------------------------------------
@@ -317,7 +347,9 @@ class _ProductionReportDetailViewState
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                '完成率 ${productionCompletionFraction(report)}',
+                context.strings.completionRateCompletioncard(
+                  productionCompletionFraction(report),
+                ),
                 style: AppTextStyles.body.copyWith(
                   color: c.labelPrimary,
                   fontWeight: FontWeight.w500,
@@ -347,7 +379,7 @@ class _ProductionReportDetailViewState
       return _plainCard(
         c,
         child: Text(
-          '本周期没有分类记录',
+          context.strings.noCategoryRecordsThisPeriod,
           style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
         ),
       );
@@ -380,7 +412,10 @@ class _ProductionReportDetailViewState
                   ),
                 ),
                 Text(
-                  '创建 ${byCategory[i].created} 完成 ${byCategory[i].completed}',
+                  context.strings.createdCompleted(
+                    byCategory[i].created,
+                    byCategory[i].completed,
+                  ),
                   style: AppTextStyles.footnote.copyWith(
                     color: c.labelSecondary,
                   ),
@@ -399,8 +434,8 @@ class _ProductionReportDetailViewState
     final previousRate = m.previousCompletion?.value;
     final currentRate = m.completion.value;
     final rateText = previousRate == null || currentRate == null
-        ? '上期无完成率'
-        : '${_signed(currentRate - previousRate, 'pt')}（上期 '
+        ? context.strings.noPreviousCompletionRate
+        : '${context.strings.previousPeriod(_signed(currentRate - previousRate, 'pt'))}'
               '${previousRate.round()}%）';
     return _plainCard(
       c,
@@ -411,11 +446,11 @@ class _ProductionReportDetailViewState
             icon: _trendIcon(
               previousCompleted == null ? 0 : m.completed - previousCompleted,
             ),
-            label: '完成',
+            label: context.strings.complete,
             text: previousCompleted == null
-                ? '上期无记录'
-                : '${_signed(m.completed - previousCompleted, '项')}（上期 '
-                      '$previousCompleted 项）',
+                ? context.strings.noPreviousRecords
+                : '${context.strings.previousPeriod(_signed(m.completed - previousCompleted, context.strings.itemsComparelist))}'
+                      '${context.strings.itemsComparelist2(previousCompleted)}',
           ),
           const SizedBox(height: AppSpacing.sm),
           _compareRow(
@@ -423,7 +458,7 @@ class _ProductionReportDetailViewState
             icon: previousRate == null || currentRate == null
                 ? LucideIcons.minus
                 : _trendIcon(currentRate - previousRate),
-            label: '完成率',
+            label: context.strings.completionRateBuildpie,
             text: rateText,
           ),
         ],
@@ -485,12 +520,12 @@ class _ProductionReportDetailViewState
         children: [
           Expanded(
             child: Text(
-              '数据行 共 ${m.dataRowsTotal} 条',
+              context.strings.totalRows(m.dataRowsTotal),
               style: AppTextStyles.footnote.copyWith(color: c.labelPrimary),
             ),
           ),
           Text(
-            '本期新增 ${m.dataRowsCreated} 条',
+            context.strings.rowsAddedThisPeriod(m.dataRowsCreated),
             style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
           ),
         ],
@@ -513,7 +548,7 @@ class _ProductionReportDetailViewState
             const AiBadge(),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              'AI 总结',
+              context.strings.aiSummary,
               style: AppTextStyles.caption.copyWith(
                 color: c.labelTertiary,
                 fontWeight: FontWeight.w500,
@@ -549,7 +584,7 @@ class _ProductionReportDetailViewState
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
                             child: Text(
-                              '总结生成失败，快照已保留。',
+                              context.strings.summaryFailedSnapshotRetained,
                               style: AppTextStyles.footnote.copyWith(
                                 color: c.labelPrimary,
                               ),
@@ -560,14 +595,16 @@ class _ProductionReportDetailViewState
                       const SizedBox(height: AppSpacing.sm),
                     ] else
                       Text(
-                        '由 Kimi 根据本页冻结的数字撰写，只会引用已有数字。',
+                        context.strings.kimiWritesTheSummaryUsingTheFigures,
                         style: AppTextStyles.footnote.copyWith(
                           color: c.labelTertiary,
                         ),
                       ),
                     const SizedBox(height: AppSpacing.xs),
                     AppButton(
-                      label: failed ? '重试总结' : '生成总结',
+                      label: failed
+                          ? context.strings.retrySummary
+                          : context.strings.generatingSummary,
                       type: AppButtonType.secondary,
                       onPressed: _summarize,
                       loading: _summarizing,
@@ -608,60 +645,4 @@ class _ProductionReportDetailViewState
     decoration: BoxDecoration(color: c.bgPrimary, borderRadius: AppRadii.brLg),
     child: child,
   );
-}
-
-/// 详情页大数字卡（bgPrimary + r-lg）。
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.value,
-    required this.label,
-    this.sub,
-    this.emphasized = false,
-  });
-
-  final String value;
-  final String label;
-  final String? sub;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: c.bgPrimary,
-        borderRadius: AppRadii.brLg,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: AppTextStyles.title1.copyWith(
-              color: emphasized ? c.overdueForeground : c.labelPrimary,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(color: c.labelSecondary),
-          ),
-          if (sub != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              sub!,
-              style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 }

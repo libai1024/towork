@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -65,7 +67,9 @@ class MembershipSelector extends StatelessWidget {
                         child: Semantics(
                           selected: tier == i,
                           child: AppPressable(
-                            semanticLabel: '选择 ${family.englishName(i)}',
+                            semanticLabel: context.strings.selectLabelBuild2(
+                              family.englishName(i),
+                            ),
                             onTap: () => onChanged(i),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),

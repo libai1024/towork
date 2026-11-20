@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -11,21 +12,23 @@ List<Widget> applePrivacyRows(BuildContext context) {
     SettingsRow(
       compact: true,
       icon: LucideIcons.lockKeyhole,
-      title: '撤回 AI 数据授权',
+      title: context.strings.revokeAiDataConsent,
       onTap: () async {
         await resetModelConsent();
-        if (context.mounted) AppToast.showCentered(context, '已撤回授权');
+        if (context.mounted) {
+          AppToast.showCentered(context, context.strings.consentRevoked);
+        }
       },
     ),
     SettingsRow(
       compact: true,
       icon: LucideIcons.fileText,
-      title: '隐私政策',
+      title: context.strings.privacyPolicy,
       showChevron: true,
       onTap: () async {
         final opened = await openPrivacyPolicy();
         if (!opened && context.mounted) {
-          AppToast.showCentered(context, '暂时无法打开');
+          AppToast.showCentered(context, context.strings.couldntOpen);
         }
       },
     ),

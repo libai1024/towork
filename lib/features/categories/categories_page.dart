@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../app/routes.dart';
 
 import 'dart:async';
@@ -23,43 +25,7 @@ import '../../core/categories/widgets/category_action_sheets.dart';
 import '../../core/categories/widgets/category_edit_sheet.dart';
 import 'widgets/category_row.dart';
 
-/// 拖拽落点意图（04-categories.md §5.6）。
-/// gap = 间隙落点（同级排序 / 提升为一级）；demote = 悬停 350ms 降级为子。
-class _DropIntent {
-  const _DropIntent.gap({
-    required this.anchorId,
-    required this.parentId,
-    required this.index,
-  }) : demoteTargetId = null;
-
-  const _DropIntent.demote(String targetId)
-    : demoteTargetId = targetId,
-      anchorId = targetId,
-      parentId = null,
-      index = -1;
-
-  /// 产生该意图的行（用于 onLeave 时判断是否清除）。
-  final String anchorId;
-
-  /// gap：目标父级（null = 一级）。
-  final String? parentId;
-
-  /// gap：在同级中的插入位。
-  final int index;
-
-  /// demote：目标一级分类 id。
-  final String? demoteTargetId;
-
-  bool get isDemote => demoteTargetId != null;
-
-  bool sameAs(_DropIntent? other) {
-    if (other == null) return false;
-    return anchorId == other.anchorId &&
-        parentId == other.parentId &&
-        index == other.index &&
-        demoteTargetId == other.demoteTargetId;
-  }
-}
+part 'category_drop_intent.dart';
 
 /// 分类管理（04-categories.md）：两级分类树 + 统计摘要 + 拖拽排序/升降级 +
 /// 归档区 + 空状态示例。全部数据读写走 mock 仓库，对话页侧栏实时同步。
@@ -150,8 +116,10 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
   }
 
   Widget _navBar(bool canSort) => WorkspaceNavBar(
-    title: '分类',
-    backLabel: _sortMode ? '退出排序' : '返回',
+    title: context.strings.category,
+    backLabel: _sortMode
+        ? context.strings.exitReorderMode
+        : context.strings.back,
     onBack: _sortMode
         ? () => setState(() => _sortMode = false)
         : () => context.popOrGo(AppRoutes.home),
@@ -161,12 +129,14 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
           if (!_sortMode && canSort)
             WorkspaceToolbarAction(
               icon: LucideIcons.arrowDownUp,
-              label: '排序分类',
+              label: context.strings.reorderCategories,
               onTap: _enterSortMode,
             ),
           WorkspaceToolbarAction(
-            label: _sortMode ? '完成排序' : '新建分类',
-            text: _sortMode ? '完成' : null,
+            label: _sortMode
+                ? context.strings.finishReordering
+                : context.strings.newCategory,
+            text: _sortMode ? context.strings.complete : null,
             icon: _sortMode ? LucideIcons.check : LucideIcons.plus,
             onTap: _sortMode
                 ? () => setState(() => _sortMode = false)
@@ -191,7 +161,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Text(
-                '使用中',
+                context.strings.inUse,
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
             )
@@ -202,7 +172,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Text(
-              '所有分类已归档',
+              context.strings.allCategoriesArchived,
               style: AppTextStyles.footnote.copyWith(color: c.labelTertiary),
             ),
           ),
@@ -226,27 +196,27 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
                 Icon(LucideIcons.folderTree, size: 32, color: c.labelTertiary),
                 const SizedBox(height: 8),
                 Text(
-                  '暂无分类',
+                  context.strings.noCategories,
                   style: AppTextStyles.title3.copyWith(color: c.labelSecondary),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: 240,
                   child: AppButton(
-                    label: '创建示例分类',
+                    label: context.strings.createSampleCategories,
                     expand: true,
                     onPressed: _createSamples,
                   ),
                 ),
                 const SizedBox(height: 8),
                 AppButton(
-                  label: '新建分类',
+                  label: context.strings.newCategory,
                   type: AppButtonType.ghost,
                   onPressed: _createCategory,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '将创建炒股、档案馆、家庭',
+                  context.strings.createsInvestingArchivesAndFamily,
                   style: AppTextStyles.caption.copyWith(
                     color: c.labelQuaternary,
                   ),
@@ -368,7 +338,9 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
         AppPressable(
           onTap: () => setState(() => _archiveExpanded = !_archiveExpanded),
           behavior: HitTestBehavior.opaque,
-          semanticLabel: _archiveExpanded ? '已归档，点击收起' : '已归档，点击展开',
+          semanticLabel: _archiveExpanded
+              ? context.strings.archivedTapToCollapse
+              : context.strings.archivedTapToExpand,
           child: SizedBox(
             height: 44,
             child: Padding(
@@ -378,7 +350,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
                   Icon(LucideIcons.archive, size: 16, color: c.labelTertiary),
                   const SizedBox(width: 8),
                   Text(
-                    '已归档 ${archivedRoots.length}',
+                    context.strings.archived(archivedRoots.length),
                     style: AppTextStyles.footnote.copyWith(
                       color: c.labelTertiary,
                     ),
@@ -507,12 +479,12 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     child: Column(
       children: [
         Text(
-          '拖到一级行之间 = 同级排序 / 提升为一级',
+          context.strings.dropBetweenTopLevelRowsToReorder,
           style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
         ),
         const SizedBox(height: 4),
         Text(
-          '拖到一级行上 = 设为其子分类',
+          context.strings.dropOntoATopLevelRowTo,
           style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
         ),
       ],
@@ -595,7 +567,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     });
     if (intent == null || payload == null) {
       HapticFeedback.heavyImpact();
-      AppToast.show(context, message: '最多支持两级分类');
+      AppToast.show(context, message: context.strings.upToTwoCategoryLevels);
       return;
     }
     _applyDrop(payload, intent);
@@ -615,7 +587,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
       HapticFeedback.mediumImpact();
     } else {
       HapticFeedback.heavyImpact();
-      AppToast.show(context, message: '最多支持两级分类');
+      AppToast.show(context, message: context.strings.upToTwoCategoryLevels);
     }
   }
 
@@ -799,7 +771,12 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
           );
           change.dispose();
           if (!mounted) return;
-          AppToast.show(context, message: '「${change.categoryName}」回来了');
+          AppToast.show(
+            context,
+            message: context.strings.restoredOpenarchivedactions(
+              change.categoryName,
+            ),
+          );
         } catch (error) {
           if (mounted) {
             AppToast.show(context, message: workspaceErrorMessage(error));
@@ -819,7 +796,10 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
         return;
       }
       HapticFeedback.mediumImpact();
-      _showUndo(undo, '「${undo.categoryName}」已归档，新建待办时不会再出现');
+      _showUndo(
+        undo,
+        context.strings.archivedAndHiddenWhenCreatingTasks(undo.categoryName),
+      );
     } catch (error) {
       if (mounted) {
         AppToast.show(context, message: workspaceErrorMessage(error));
@@ -869,7 +849,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
         return;
       }
       HapticFeedback.mediumImpact();
-      _showUndo(undo, '已删除「${undo.categoryName}」');
+      _showUndo(undo, context.strings.deletedEditcategory(undo.categoryName));
     } catch (error) {
       if (mounted) {
         AppToast.show(context, message: workspaceErrorMessage(error));
@@ -884,17 +864,17 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
       context,
       () => _categoryActions.run((t, repo) {
         repo.createCategory(
-          name: '炒股',
+          name: context.strings.investing,
           color: c.categoryPalette[0],
           iconKey: 'trending-up',
         );
         repo.createCategory(
-          name: '档案馆',
+          name: context.strings.archives,
           color: c.categoryPalette[1],
           iconKey: 'archive',
         );
         repo.createCategory(
-          name: '家庭',
+          name: context.strings.family,
           color: c.categoryPalette[2],
           iconKey: 'home',
         );
@@ -913,14 +893,17 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
     AppToast.show(
       context,
       message: message,
-      actionLabel: '撤销',
+      actionLabel: context.strings.undo,
       onAction: () async {
         if (!mounted) return;
         final result = await workspaceUi(context, undo.undo);
         if (!mounted) return;
         _undoTimer?.cancel();
         if (result != null && result != CategoryUndoResult.restored) {
-          AppToast.show(context, message: '相关记录已变化，无法恢复');
+          AppToast.show(
+            context,
+            message: context.strings.relatedRecordsHaveChangedAndCannotBe,
+          );
         }
       },
     );

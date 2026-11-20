@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -130,7 +131,7 @@ class TodoEditorStepper extends StatelessWidget {
           btn(
             LucideIcons.minus,
             value > min ? () => onChanged(value - 1) : null,
-            '减少',
+            context.strings.decrease,
           ),
           SizedBox(
             width: 44,
@@ -147,7 +148,7 @@ class TodoEditorStepper extends StatelessWidget {
           btn(
             LucideIcons.plus,
             value < max ? () => onChanged(value + 1) : null,
-            '增加',
+            context.strings.increase,
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../domain/data_tables/business_validation.dart';
 import '../../../domain/workspace/workspace_commands.dart';
 
@@ -12,18 +14,18 @@ import '../../../domain/models/models.dart';
 /// Kimi 式相对时间：刚刚 / N 分钟前 / 今天 HH:mm / 昨天 HH:mm / M月d日 / yyyy/M/d。
 String relativeTime(DateTime t) {
   final now = DateTime.now();
-  if (t.isAfter(now)) return '刚刚';
+  if (t.isAfter(now)) return strings.justNow;
   final diff = now.difference(t);
-  if (diff.inMinutes < 1) return '刚刚';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} 分钟前';
+  if (diff.inMinutes < 1) return strings.justNow;
+  if (diff.inMinutes < 60) return strings.minAgo(diff.inMinutes);
   final today = DateTime(now.year, now.month, now.day);
   final day = DateTime(t.year, t.month, t.day);
   final days = today.difference(day).inDays;
   final hm =
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-  if (days == 0) return '今天 $hm';
-  if (days == 1) return '昨天 $hm';
-  if (t.year == now.year) return '${t.month}月${t.day}日';
+  if (days == 0) return strings.todayRelativetimelabel(hm);
+  if (days == 1) return strings.yesterdayRelativetimelabel(hm);
+  if (t.year == now.year) return strings.formattedValue(t.month, t.day);
   return '${t.year}/${t.month}/${t.day}';
 }
 
@@ -51,7 +53,7 @@ String formatCellValue(DataColumnDef column, String? raw) {
       final display = _decimalDisplay(raw);
       return column.unit == null ? display : '$display ${column.unit}';
     case DataFieldType.boolean:
-      return raw == 'true' ? '是' : '否';
+      return raw == 'true' ? strings.yes : strings.no;
     case DataFieldType.text:
     case DataFieldType.date:
     case DataFieldType.selection:
@@ -89,11 +91,11 @@ IconData tableIcon(String iconKey) => switch (iconKey) {
 
 /// 字段类型的中文名（新建表/字段预览用）。
 String fieldTypeLabel(String type) => switch (type) {
-  'number' => '数字',
-  'money' || 'currency' => '金额',
-  'date' => '日期',
-  'datetime' => '日期时间',
-  'enum' => '单选',
-  'bool' => '开关',
-  _ => '文本',
+  'number' => strings.number,
+  'money' || 'currency' => strings.currency,
+  'date' => strings.date,
+  'datetime' => strings.dateAndTime,
+  'enum' => strings.singleSelect,
+  'bool' => strings.switchLabel,
+  _ => strings.text,
 };

@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+
+import '../../l10n/generated/app_localizations.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -104,30 +110,34 @@ class NativeNotificationService implements NotificationService {
     required String body,
     required String payload,
     required bool exact,
-  }) => plugin.zonedSchedule(
-    id: id,
-    title: title,
-    body: body,
-    payload: payload,
-    scheduledDate: tz.TZDateTime.from(at.toUtc(), tz.UTC),
-    androidScheduleMode: exact
-        ? AndroidScheduleMode.exactAllowWhileIdle
-        : AndroidScheduleMode.inexactAllowWhileIdle,
-    notificationDetails: const NotificationDetails(
-      android: AndroidNotificationDetails(
-        'towork_reminders_v1',
-        '待办与每日摘要',
-        channelDescription: '你设置的待办提醒和每日摘要',
-        importance: Importance.high,
-        priority: Priority.high,
-        visibility: NotificationVisibility.private,
+  }) {
+    final language = (jsonDecode(payload) as Map)['language'];
+    final copy = lookupAppLocalizations(Locale(language == 'en' ? 'en' : 'zh'));
+    return plugin.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      payload: payload,
+      scheduledDate: tz.TZDateTime.from(at.toUtc(), tz.UTC),
+      androidScheduleMode: exact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          'towork_reminders_v1',
+          copy.tasksAndDailyDigest,
+          channelDescription: copy.yourTaskRemindersAndDailyDigests,
+          importance: Importance.high,
+          priority: Priority.high,
+          visibility: NotificationVisibility.private,
+        ),
+        macOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+          presentBanner: true,
+          presentList: true,
+        ),
       ),
-      macOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentSound: true,
-        presentBanner: true,
-        presentList: true,
-      ),
-    ),
-  );
+    );
+  }
 }

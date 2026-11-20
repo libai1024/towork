@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,10 +111,13 @@ class _MembershipPageState extends ConsumerState<MembershipPage> {
                         const WorkMark(size: 22),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text('ToWork 会员', style: AppTextStyles.title3),
+                          child: Text(
+                            context.strings.toworkMembership,
+                            style: AppTextStyles.title3,
+                          ),
                         ),
                         IconButton(
-                          tooltip: '关闭会员',
+                          tooltip: context.strings.closeMembership,
                           icon: const Icon(Icons.close, size: 20),
                           onPressed: () => context.popOrGo(AppRoutes.home),
                         ),
@@ -174,7 +178,9 @@ class _MembershipPageState extends ConsumerState<MembershipPage> {
               const SizedBox(height: 8),
               AppButton(
                 key: const ValueKey('membership-apply'),
-                label: current ? '当前方案' : '切换为 ${plan.name}',
+                label: current
+                    ? context.strings.currentPlan
+                    : context.strings.switchTo(plan.name),
                 expand: true,
                 enabled: !current && !opening,
                 onPressed: () => apply(plan),

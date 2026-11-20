@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -47,7 +48,7 @@ void showMockImageViewer(BuildContext context, {required String label}) {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '纯 UI 演示 原图占位',
+                      context.strings.demoImagePlaceholder,
                       style: AppTextStyles.caption.copyWith(
                         color: c.labelTertiary,
                       ),
@@ -60,9 +61,9 @@ void showMockImageViewer(BuildContext context, {required String label}) {
                 alignment: Alignment.centerRight,
                 child: AppPressable(
                   onTap: () => Navigator.of(dialogContext).pop(),
-                  semanticLabel: '关闭原图',
+                  semanticLabel: context.strings.closeImage,
                   child: Text(
-                    '关闭',
+                    context.strings.close,
                     style: AppTextStyles.body.copyWith(color: c.brand),
                   ),
                 ),

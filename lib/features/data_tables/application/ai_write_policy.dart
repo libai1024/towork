@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import '../../../domain/models/models.dart';
 import '../../../domain/ai/permission_policy.dart';
 import '../../../domain/repositories/data_table_store.dart';
@@ -55,9 +57,9 @@ class AiWritePolicy {
         .where((batch) => batch.id == batchId)
         .firstOrNull;
     if (batch == null) {
-      throw const RepositoryException(
+      throw RepositoryException(
         RepositoryErrorCode.notFound,
-        '这批 AI 变更已处理，请重新打开待确认记录',
+        strings.theseAiChangesHaveBeenProcessedReopen,
       );
     }
     final ids = _requiresReview.contains(batchId)

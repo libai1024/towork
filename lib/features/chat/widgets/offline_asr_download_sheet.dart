@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -16,7 +17,7 @@ Future<void> showOfflineAsrDownloadSheet(
   VoidCallback? onReady,
 }) => AppSheet.show<void>(
   context,
-  title: '离线语音识别',
+  title: context.strings.offlineSpeechRecognition,
   child: _OfflineAsrDownloadSheet(onReady: onReady),
 );
 
@@ -61,12 +62,12 @@ class _OfflineAsrDownloadSheetState
             Icon(LucideIcons.circleCheck, size: 22, color: c.brand),
             const SizedBox(height: 10),
             Text(
-              '离线模型已就绪',
+              context.strings.offlineModelReady,
               style: AppTextStyles.body.copyWith(color: c.labelPrimary),
             ),
             const SizedBox(height: 12),
             AppButton(
-              label: '开始语音输入',
+              label: context.strings.startVoiceInput,
               expand: true,
               onPressed: () {
                 Navigator.of(context).pop();
@@ -85,7 +86,7 @@ class _OfflineAsrDownloadSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '使用内置模型在本机转写，无需联网。',
+            context.strings.transcribesOnThisDeviceWithTheBuilt,
             style: AppTextStyles.footnote.copyWith(color: c.labelSecondary),
           ),
           const SizedBox(height: 10),
@@ -98,12 +99,12 @@ class _OfflineAsrDownloadSheetState
             ),
             const SizedBox(height: 8),
             Text(
-              '正在安装内置离线模型…',
+              context.strings.installingTheBuiltInOfflineModel,
               style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
             ),
             const SizedBox(height: 12),
             AppButton(
-              label: '联网下载（约 $totalMb MB）',
+              label: context.strings.downloadAboutMb(totalMb),
               type: AppButtonType.secondary,
               expand: true,
               onPressed: () {
@@ -126,7 +127,7 @@ class _OfflineAsrDownloadSheetState
             ),
             const SizedBox(height: 12),
             AppButton(
-              label: '取消下载',
+              label: context.strings.cancelDownload,
               type: AppButtonType.secondary,
               expand: true,
               onPressed: () =>
@@ -142,7 +143,7 @@ class _OfflineAsrDownloadSheetState
               children: [
                 Expanded(
                   child: AppButton(
-                    label: '重试下载',
+                    label: context.strings.retryDownload,
                     onPressed: () =>
                         ref.read(offlineAsrModelProvider.notifier).download(),
                   ),
@@ -150,7 +151,7 @@ class _OfflineAsrDownloadSheetState
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppButton(
-                    label: '重新安装内置模型',
+                    label: context.strings.reinstallBuiltInModel,
                     type: AppButtonType.secondary,
                     onPressed: () =>
                         ref.read(offlineAsrModelProvider.notifier).install(),
@@ -160,7 +161,7 @@ class _OfflineAsrDownloadSheetState
             ),
           ] else ...[
             AppButton(
-              label: '安装内置离线模型',
+              label: context.strings.installBuiltInOfflineModel,
               icon: LucideIcons.box,
               expand: true,
               onPressed: () =>
@@ -168,7 +169,7 @@ class _OfflineAsrDownloadSheetState
             ),
             const SizedBox(height: 8),
             AppButton(
-              label: '改为联网下载（约 $totalMb MB）',
+              label: context.strings.downloadInsteadAboutMb(totalMb),
               type: AppButtonType.secondary,
               expand: true,
               onPressed: () =>
@@ -181,7 +182,7 @@ class _OfflineAsrDownloadSheetState
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                '已下载 $mb / $totalMb MB',
+                context.strings.downloadedOfMb(mb, totalMb),
                 style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -18,6 +19,8 @@ import '../../../theme/app_radii.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/app_text_styles.dart';
 import '../category_catalog.dart';
+
+part 'category_appearance_picker.dart';
 
 /// 新建/编辑分类底部 Sheet（04-categories.md §3.4 / §5.3）。
 /// 字段：预览 + 名称（20 字上限）、24 图标策展集、8 色盘、
@@ -94,6 +97,13 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
   }
 
   /// 按亮/暗两套色盘匹配色名（种子色取自亮盘，暗色模式下编辑也能正确预选）。
+  void _selectIcon(String key) => setState(() => _iconKey = key);
+
+  void _selectColor(String key) => setState(() {
+    _customColor = null;
+    _colorKey = key;
+  });
+
   String? _colorKeyOf(Color? color) {
     if (color == null) return null;
     for (final palette in [
@@ -184,11 +194,11 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
             const SizedBox(height: 8),
             _nameRow(c),
             const SizedBox(height: 12),
-            _fieldLabel(c, '图标'),
+            _fieldLabel(c, context.strings.icon),
             const SizedBox(height: 8),
             _iconGrid(c),
             const SizedBox(height: 12),
-            _fieldLabel(c, '颜色'),
+            _fieldLabel(c, context.strings.color),
             const SizedBox(height: 6),
             _colorPalette(c),
             const SizedBox(height: 12),
@@ -196,7 +206,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
             if (_isEdit) ...[_archiveRow(c)],
             const SizedBox(height: 12),
             AppButton(
-              label: '完  成',
+              label: context.strings.done,
               expand: true,
               enabled: _nameController.text.trim().isNotEmpty,
               onPressed: _saving ? null : _save,
@@ -206,12 +216,12 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
               const SizedBox(height: 8),
               AppPressable(
                 onTap: () => Navigator.of(context).pop('delete'),
-                semanticLabel: '删除此分类',
+                semanticLabel: context.strings.deleteCategory,
                 child: SizedBox(
                   height: 44,
                   child: Center(
                     child: Text(
-                      '删除此分类',
+                      context.strings.deleteCategory,
                       style: AppTextStyles.body.copyWith(color: c.labelPrimary),
                     ),
                   ),
@@ -230,13 +240,15 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
       child: Row(
         children: [
           Text(
-            _isEdit ? '编辑分类' : '新建分类',
+            _isEdit
+                ? context.strings.editCategory
+                : context.strings.newCategory,
             style: AppTextStyles.title2.copyWith(color: c.labelPrimary),
           ),
           const Spacer(),
           GlassIconButton(
             icon: LucideIcons.x,
-            label: '关闭',
+            label: context.strings.close,
             onTap: () => Navigator.of(context).pop(),
           ),
         ],
@@ -286,7 +298,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
                     ),
                   );
                 },
-            decoration: const InputDecoration(hintText: '分类名称'),
+            decoration: InputDecoration(hintText: context.strings.categoryName),
           ),
         ),
       ],
@@ -303,99 +315,6 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
     );
   }
 
-  /// 24 图标策展集网格（6 列）：选中态 1px brand 描边 + 图标转 brand。
-  Widget _iconGrid(AppColors c) {
-    return LayoutBuilder(
-      builder: (context, constraints) => GridView.count(
-        crossAxisCount: ((constraints.maxWidth + 8) / 52).floor().clamp(
-          1,
-          MediaQuery.sizeOf(context).width >= 900 ? 8 : 6,
-        ),
-        mainAxisExtent: 44,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        children: [
-          for (final option in categoryIconOptions)
-            Semantics(
-              label: '图标，${option.label}',
-              selected: option.key == _iconKey,
-              child: AppPressable(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => setState(() => _iconKey = option.key),
-                child: AnimatedContainer(
-                  duration: AppMotion.tabSwitch,
-                  decoration: BoxDecoration(
-                    color: c.fill1,
-                    borderRadius: BorderRadius.circular(16),
-                    border: option.key == _iconKey
-                        ? Border.all(color: c.brand, width: 1)
-                        : null,
-                  ),
-                  child: Icon(
-                    option.icon,
-                    size: 20,
-                    color: option.key == _iconKey ? c.brand : c.labelSecondary,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// 28px color swatches retain a 44px hit target.
-  Widget _colorPalette(AppColors c) {
-    final palette = categoryPaletteOf(c);
-    return Wrap(
-      runSpacing: 8,
-      children: [
-        for (var i = 0; i < palette.length; i++)
-          Semantics(
-            label:
-                '颜色，${palette[i].name}，${_customColor == null && palette[i].key == _colorKey ? '已选中' : '未选中'}，共 ${palette.length} 项之第 ${i + 1} 项',
-            child: AppPressable(
-              minSize: 44,
-              borderRadius: AppRadii.brFull,
-              onTap: () => setState(() {
-                _customColor = null;
-                _colorKey = palette[i].key;
-              }),
-              child: SizedBox.square(
-                dimension: 44,
-                child: Center(
-                  child: AnimatedScale(
-                    scale: _customColor == null && palette[i].key == _colorKey
-                        ? 1.1
-                        : 1.0,
-                    duration: const Duration(milliseconds: 150),
-                    curve: Curves.easeOut,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: palette[i].color,
-                        shape: BoxShape.circle,
-                      ),
-                      child: _customColor == null && palette[i].key == _colorKey
-                          ? Icon(
-                              LucideIcons.check,
-                              size: 12,
-                              color: categoryCheckColor(c, palette[i].color),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   /// 归属选择行：含子分类的一级分类禁用（04 §3.4）；
   /// 「新建子分类」流程归属预选且锁定（04 §5.2）。
   Widget _parentRow(AppColors c) {
@@ -403,21 +322,21 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
     final repo = ref.watch(categoryListProvider.notifier);
     ref.watch(categoryListProvider);
     final parentName = _parentId == null
-        ? '一级分类'
-        : (repo.byId(_parentId)?.name ?? '一级分类');
+        ? context.strings.topLevel
+        : (repo.byId(_parentId)?.name ?? context.strings.topLevel);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppPressable(
           onTap: locked ? null : _pickParent,
           behavior: HitTestBehavior.opaque,
-          semanticLabel: '归属，$parentName',
+          semanticLabel: context.strings.parent(parentName),
           child: SizedBox(
             height: 48,
             child: Row(
               children: [
                 Text(
-                  '归属',
+                  context.strings.parentParentrow,
                   style: AppTextStyles.body.copyWith(
                     color: locked ? c.labelQuaternary : c.labelPrimary,
                   ),
@@ -443,7 +362,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
         ),
         if (_hasChildren)
           Text(
-            '含子分类的分类不能再挂靠到其他分类下',
+            context.strings.aCategoryWithSubcategoriesMustStayAt,
             style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
           ),
       ],
@@ -458,12 +377,12 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
         .toList(growable: false);
     final selected = await AppSheet.show<String>(
       context,
-      title: '归属',
+      title: context.strings.parentParentrow,
       child: ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.only(bottom: 16),
         children: [
-          _parentOption(null, '一级分类'),
+          _parentOption(null, context.strings.topLevel),
           for (final root in candidates) _parentOption(root.id, root.name),
         ],
       ),
@@ -483,7 +402,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
     return AppPressable(
       onTap: () => Navigator.of(context).pop(value),
       behavior: HitTestBehavior.opaque,
-      semanticLabel: '归属到$label',
+      semanticLabel: context.strings.moveUnder(label),
       child: SizedBox(
         height: 48,
         child: Padding(
@@ -516,7 +435,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
           child: Row(
             children: [
               Text(
-                '归档此分类',
+                context.strings.archiveCategory,
                 style: AppTextStyles.body.copyWith(color: c.labelPrimary),
               ),
               const Spacer(),
@@ -530,7 +449,7 @@ class _CategoryEditSheetState extends ConsumerState<CategoryEditSheet> {
           ),
         ),
         Text(
-          '归档后不再出现在新建待办的分类列表中，数据保留',
+          context.strings.hidesThisCategoryWhenCreatingTasksIts,
           style: AppTextStyles.caption.copyWith(color: c.labelTertiary),
         ),
       ],

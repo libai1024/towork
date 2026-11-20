@@ -52,11 +52,14 @@ class MainFlutterWindow: NSWindow {
             let origin = args["origin"], let provider = args["provider"] else { result(false); return }
       if defaults.stringArray(forKey: permissionKey)?.contains(origin) == true { result(true); return }
       guard attachedSheet == nil else { result(false); return }
+      let language = args["language"] == "en" ? "en" : "zh-Hans"
+      let bundle = Bundle.main.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? .main
+      func copy(_ key: String) -> String { bundle.localizedString(forKey: key, value: nil, table: nil) }
       let alert = NSAlert()
-      alert.messageText = "允许发送到" + provider + "？"
-      alert.informativeText = "ToWork 会将对话、选中的附件，以及任务所需的待办、表格、记忆或报告发送到 " + origin + " 进行处理。可在「设置 → 隐私与权限」撤回。"
-      alert.addButton(withTitle: "暂不允许")
-      alert.addButton(withTitle: "允许")
+      alert.messageText = String(format: copy("consentTitle"), provider)
+      alert.informativeText = String(format: copy("consentBody"), origin)
+      alert.addButton(withTitle: copy("deny"))
+      alert.addButton(withTitle: copy("allow"))
       let generation = consentGeneration
       alert.beginSheetModal(for: self) { [weak self] response in
         let accepted = self?.consentGeneration == generation && response == .alertSecondButtonReturn

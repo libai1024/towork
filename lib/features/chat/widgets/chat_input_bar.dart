@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -33,6 +35,8 @@ import 'chat_voice_control.dart';
 import 'chat_voice_overlay.dart';
 
 export 'chat_model_picker.dart' show showChatModels;
+
+part 'chat_attachment_chip.dart';
 
 class ChatInputBar extends ConsumerStatefulWidget {
   const ChatInputBar({
@@ -194,16 +198,20 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
     final String content;
     if (image != null) {
       content =
-          '图片「${image.displayName}」：'
-          '${prompt.isEmpty ? '请帮我看看这张图片' : prompt}';
+          '${context.strings.image(image.displayName)}'
+          '${prompt.isEmpty ? context.strings.takeALookAtThisImage : prompt}';
     } else if (textFile != null) {
       const cap = 18000;
       final body = textFile.content.length > cap
-          ? '${textFile.content.substring(0, cap)}\n…（内容过长已截断）'
+          ? context.strings.contentTruncated(textFile.content.substring(0, cap))
           : textFile.content;
       content = prompt.isEmpty
-          ? '文件「${textFile.name}」的内容：\n$body'
-          : '$prompt\n\n文件「${textFile.name}」的内容：\n$body';
+          ? context.strings.contentsOf(textFile.name, body)
+          : context.strings.contentsOfSubmitwithattachment(
+              prompt,
+              textFile.name,
+              body,
+            );
     } else {
       content = prompt;
     }
@@ -258,14 +266,17 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
     if (widget.isGenerating || widget.isSavingInput) return;
     if (_hasAttachment || _picking) return;
     if (ref.read(chatAttachmentsEnabledProvider) == false) {
-      AppToast.show(context, message: '请先在「模型与额度」连接账户');
+      AppToast.show(
+        context,
+        message: context.strings.connectAnAccountInModelsAndUsage,
+      );
       return;
     }
     final c = AppColors.of(context);
     final camera = ref.read(mobileImagePickerProvider);
     await AppSheet.show<void>(
       context,
-      title: '添加到对话',
+      title: context.strings.addToChat,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -276,7 +287,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                   child: _sourceTile(
                     c,
                     icon: LucideIcons.camera,
-                    label: '拍照',
+                    label: context.strings.takePhoto,
                     onTap: () {
                       Navigator.of(context).pop();
                       unawaited(_pickImage(camera: true));
@@ -289,7 +300,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                 child: _sourceTile(
                   c,
                   icon: LucideIcons.image,
-                  label: '选择图片',
+                  label: context.strings.chooseImage,
                   onTap: () {
                     Navigator.of(context).pop();
                     unawaited(_pickImage(camera: false));
@@ -301,7 +312,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                 child: _sourceTile(
                   c,
                   icon: LucideIcons.folderUp,
-                  label: '文本文件',
+                  label: context.strings.textFiles,
                   onTap: () {
                     Navigator.of(context).pop();
                     unawaited(_pickTextFile());
@@ -404,10 +415,10 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
 
   String _attachmentError(Object error) => switch (error) {
     AttachmentFailure(code: AttachmentFailureCode.tooLarge) =>
-      '文件过大。图片限 10 MB，文本文件限 512 KB。',
+      context.strings.fileTooLargeImagesUpToMb,
     AttachmentFailure(code: AttachmentFailureCode.invalidImage) =>
-      '图片无法读取，请选择静态 PNG 或 JPEG。',
-    _ => '文件读取失败，请重试。',
+      context.strings.couldntReadTheImageChooseAStatic,
+    _ => context.strings.couldntReadTheFileTryAgain,
   };
 
   /// 已触发「开始录音」震动的相位，避免 recording 期间重复震动。
@@ -588,7 +599,9 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
       textInputAction: TextInputAction.send,
       onSubmitted: (_) => _submit(),
       decoration: appInlineInput(
-        hintText: keyboardHold ? '按住转文字' : '尽管问…',
+        hintText: keyboardHold
+            ? context.strings.holdToTranscribe
+            : context.strings.askAnything,
         constraints: BoxConstraints(minHeight: targetSize),
         hintStyle: inputStyle.copyWith(color: c.labelSecondary),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -654,7 +667,10 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
         } else if (keyboardHold) {
           widget.focusNode.requestFocus();
         } else {
-          AppToast.show(context, message: '按住开始录音，松开发送');
+          AppToast.show(
+            context,
+            message: context.strings.holdToRecordReleaseToSend,
+          );
         }
       },
       child: Container(
@@ -681,7 +697,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '按住说话',
+                            context.strings.holdToTalk,
                             style: AppTextStyles.body.copyWith(
                               color: c.labelPrimary,
                               fontWeight: FontWeight.w500,
@@ -708,29 +724,34 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
     if (widget.isGenerating) {
       trailing = circle(
         LucideIcons.square,
-        '停止生成',
+        context.strings.stopGenerating,
         widget.onStop,
         filled: true,
       );
     } else if (canSend) {
       trailing = circle(
         LucideIcons.arrowUp,
-        '发送消息',
+        context.strings.sendMessage,
         widget.isSavingInput ? null : _submit,
         filled: true,
       );
     } else if (voice) {
       trailing = circle(
         LucideIcons.keyboard,
-        '切换键盘输入',
+        context.strings.switchToKeyboard,
         _useKeyboard,
         key: const ValueKey('switch-to-keyboard'),
       );
     } else {
-      trailing = circle(LucideIcons.audioLines, '切换语音输入', () {
-        widget.focusNode.unfocus();
-        setState(() => _mode = ChatInputMode.voice);
-      }, key: const ValueKey('switch-to-voice'));
+      trailing = circle(
+        LucideIcons.audioLines,
+        context.strings.switchToVoice,
+        () {
+          widget.focusNode.unfocus();
+          setState(() => _mode = ChatInputMode.voice);
+        },
+        key: const ValueKey('switch-to-voice'),
+      );
     }
     return CallbackShortcuts(
       bindings: {
@@ -781,7 +802,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                     children: [
                       circle(
                         LucideIcons.plus,
-                        '添加附件',
+                        context.strings.addAttachment,
                         _openAttachments,
                         key: const ValueKey('add-attachment'),
                       ),
@@ -804,75 +825,6 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar>
                 ],
               ),
             ),
-    );
-  }
-
-  /// 待发附件条：图片缩略图或文件图标 + 名称 + 移除。
-  /// 读屏播报为单一「待发送附件：名称」节点，移除按钮单独可聚焦。
-  Widget _attachmentChip(AppColors c) {
-    final image = _pendingImage;
-    final preview = _pendingImagePreview;
-    final label = image?.displayName ?? _pendingText?.name ?? '';
-    return Padding(
-      key: const ValueKey('pending-attachment-chip'),
-      padding: const EdgeInsets.fromLTRB(8, 2, 8, 8),
-      child: Semantics(
-        container: true,
-        label: '待发送附件：$label',
-        child: Row(
-          children: [
-            if (image != null && preview != null)
-              ExcludeSemantics(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.memory(
-                    preview,
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true,
-                  ),
-                ),
-              )
-            else
-              ExcludeSemantics(
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: c.fill1,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    LucideIcons.fileText,
-                    size: 20,
-                    color: c.labelSecondary,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: ExcludeSemantics(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.footnote.copyWith(
-                    color: c.labelSecondary,
-                  ),
-                ),
-              ),
-            ),
-            // IconButton 自带 tooltip 语义，不再外包一层重复的 Tooltip。
-            IconButton(
-              key: const ValueKey('remove-attachment'),
-              tooltip: '移除附件',
-              onPressed: _removeAttachment,
-              icon: Icon(LucideIcons.x, size: 16, color: c.labelSecondary),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:towork/l10n/strings.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -163,10 +165,10 @@ class _SheetSurface extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Tooltip(
-                    message: '关闭',
+                    message: context.strings.close,
                     excludeFromSemantics: true,
                     child: AppPressable(
-                      semanticLabel: '关闭',
+                      semanticLabel: context.strings.close,
                       borderRadius: BorderRadius.circular(999),
                       onTap: () => Navigator.of(context).pop(),
                       child: Center(

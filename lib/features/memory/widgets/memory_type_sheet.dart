@@ -1,3 +1,4 @@
+import 'package:towork/l10n/strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/sheet_composer.dart';
@@ -25,22 +26,24 @@ class _TypeFormState extends State<_TypeForm> {
   }
 
   bool _duplicate(String name) =>
-      name == '全部' ||
+      name == context.strings.allLabel ||
       widget.kinds.any(
         (kind) => kind.label.toLowerCase() == name.toLowerCase(),
       );
   @override
   Widget build(BuildContext context) {
     return SheetComposer(
-      title: '新增类型',
-      hint: '类型名称',
-      action: '创建',
+      title: context.strings.newType,
+      hint: context.strings.typeName,
+      action: context.strings.create,
       controller: _controller,
       fieldKey: const ValueKey('memory-type-name'),
       maxLength: 20,
       maxLines: 1,
       onChanged: (_) => setState(() {}),
-      error: _duplicate(_controller.text.trim()) ? '该类型已存在' : null,
+      error: _duplicate(_controller.text.trim())
+          ? context.strings.typeAlreadyExists
+          : null,
       onCommit: () {
         final name = _controller.text.trim();
         if (name.isNotEmpty && !_duplicate(name)) Navigator.pop(context, name);
