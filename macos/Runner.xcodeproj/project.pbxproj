@@ -404,8 +404,8 @@
 			path = Runner;
 			sourceTree = "<group>";
 		};
-		2CE4C4698408B707865A3FCD /* InfoPlist.strings */ = {isa = PBXVariantGroup; children = (56B73D46881134AFC8608BDF /* en */, 3B4D9B9BE220DD8ED9A5C41D /* zh-Hans */,); name = InfoPlist.strings; sourceTree = "<group>"; };
-		8988F90674A4981A466FB8B8 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (C59987AB0FEC1D71EEA4ADD2 /* en */, BE744D3B73965E505262AA4F /* zh-Hans */,); name = Localizable.strings; sourceTree = "<group>"; };
+		2CE4C4698408B707865A3FCD /* InfoPlist.strings */ = {isa = PBXVariantGroup; children = (56B73D46881134AFC8608BDF /* en */, 3B4D9B9BE220DD8ED9A5C41D /* zh-Hans */,); name = InfoPlist.strings; path = Runner; sourceTree = "<group>"; };
+		8988F90674A4981A466FB8B8 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (C59987AB0FEC1D71EEA4ADD2 /* en */, BE744D3B73965E505262AA4F /* zh-Hans */,); name = Localizable.strings; path = Runner; sourceTree = "<group>"; };
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
